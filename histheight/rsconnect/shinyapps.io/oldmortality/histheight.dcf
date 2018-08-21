@@ -1,0 +1,12 @@
+name: histheight
+title: histheight
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 393371
+bundleId: 1531714
+url: https://oldmortality.shinyapps.io/histheight/
+when: 1534121062.32415
+asMultiple: FALSE
+asStatic: FALSE

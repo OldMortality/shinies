@@ -1,0 +1,12 @@
+name: heightplots
+title: heightplots
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 392887
+bundleId: 1543461
+url: https://oldmortality.shinyapps.io/heightplots/
+when: 1534730755.7707
+asMultiple: FALSE
+asStatic: FALSE

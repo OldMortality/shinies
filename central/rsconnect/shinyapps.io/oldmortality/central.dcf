@@ -1,0 +1,12 @@
+name: central
+title: central
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 376681
+bundleId: 1478153
+url: https://oldmortality.shinyapps.io/central/
+when: 1531433001.71944
+asMultiple: FALSE
+asStatic: FALSE

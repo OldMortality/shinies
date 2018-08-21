@@ -1,0 +1,12 @@
+name: binary7
+title: binary7
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 402881
+bundleId: 1543364
+url: https://oldmortality.shinyapps.io/binary7/
+when: 1534725510.63244
+asMultiple: FALSE
+asStatic: FALSE

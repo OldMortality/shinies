@@ -1,0 +1,12 @@
+name: clthv3
+title: CLThv3
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 380888
+bundleId: 1480452
+url: https://oldmortality.shinyapps.io/clthv3/
+when: 1531567726.12777
+asMultiple: FALSE
+asStatic: FALSE

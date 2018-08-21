@@ -1,0 +1,23 @@
+,Distance from site of stimulation to wrist (mm),Ulnar Nerve Conduction Velocity (m.s-1),Where are you from?   North I/South I/Other,Do you exercise? (Never/Rarely/ Occasionally /Frequently),Index finger length (mm),Height (mm)
+P1,335,46.8,S,O,80,1810
+P2,,,,,,
+P3,270,66.7,S,O,80,1730
+P4,335,74.4,N,F,90,1820
+P5,250,60.9,S,O,70,1600
+P6,220,57.3,S,R,80,1700
+P7,118,25.2,N,F,70,1670
+P8,,,,,,
+P9,,,,,,
+P10,280,66.3,N,O,74,1695
+P11,230,69.7,N,O,90,1650
+P12,280,80,S,F,85,1730
+P13,310,68.9,S,R,95,1770
+P14,331,75.2,O,R,71,1630
+P15,310,47.7,S,F,70,1700
+P16,280,57.1,S,O,90,172
+P17,255,73.5,O,R,75,1700
+P18,250,84,N,F,85,1790
+P19,329,63.3,S,F,71,1874
+P20,275,71.6,N,O,85,1545
+E1,290,51.2,S,,75,1870
+E2,280,65.1,N,N,90,1780

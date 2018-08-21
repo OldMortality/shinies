@@ -1,0 +1,6 @@
+height <- rnorm(100,170,5)
+weight <- rnorm(100,70,3)
+sex <- rbinom(100,size=1,prob = 0.74)
+df <- data.frame(height=height,weight=weight,sex=sex)
+setwd('/Users/micheldelange/Documents/shiny/ShowData/')
+write.csv(df,'weightheight.csv')
