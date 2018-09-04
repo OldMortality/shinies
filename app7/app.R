@@ -1,6 +1,6 @@
-# app 5.
-# CLT with dashboard
-#   the newest one 
+# app 7.
+# like app5, but binary population
+#
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
@@ -9,7 +9,7 @@ library(DT)
 
 ui <- dashboardPage(
   
-  dashboardHeader(title = "The distribution of the sample mean",
+  dashboardHeader(title = "The distribution of the sample proportion",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
@@ -38,9 +38,9 @@ ui <- dashboardPage(
                plotOutput("thissamplemean",height=50),
                height = 75),
              box(title="Means of all samples",  
-                width=NULL,
-                plotOutput("samplemean",height=200), 
-                height = 250)
+                 width=NULL,
+                 plotOutput("samplemean",height=200), 
+                 height = 250)
       ), 
       column(width=6, 
              box(  
@@ -51,7 +51,7 @@ ui <- dashboardPage(
              box( 
                title=htmlOutput('onesamplesummary',height=50), 
                width=NULL,
-                
+               
                height = 75),
              box( 
                width=NULL,
@@ -66,10 +66,9 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   
-  mu <- 1711
-  sd <- 92 
-  lower <- mu-3*sd
-  upper <- mu+3*sd
+  trueProb = 0.3
+  lower <- 0
+  upper <- 1
   thisSampleMean <- 0
   shinyjs::disable("shownormal")
   
@@ -89,8 +88,8 @@ server <- function(input, output) {
   
   observeEvent(input$clear,{
     thisSampleMean <- 0
-    #allm <- vector()
-    samp <- round(rnorm(0,mean=mu,sd=sd),1)
+    allm <- vector()
+    samp <- rbinom(0,0,0.5)
     #samp(samp)
     meansamp <- reactiveVal()
     allmeansamp$allm = vector()
@@ -104,15 +103,15 @@ server <- function(input, output) {
     click("clear")
     invalidateLater(1)
   })
-    
+  
   
   # 1 sample
   observeEvent(input$sample,{
     showMean <<- 1
     showSample <<- TRUE
-    samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
+    samp <- rbinom(as.numeric(input$n),size=1,prob=trueProb)
     samp(samp)
-    meansamp <- round(mean(samp),2)
+    meansamp <- round(mean(samp),3)
     thisSampleMean <<- meansamp
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
@@ -123,9 +122,9 @@ server <- function(input, output) {
     showMean <<- 10
     showSample <<- FALSE
     for (i in 1:10) {
-      samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
+      samp <- samp <- rbinom(as.numeric(input$n),size=1,prob=trueProb)
       samp(samp)
-      meansamp <- round(mean(samp),2)
+      meansamp <- round(mean(samp),3)
       thisSampleMean <<- meansamp
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
@@ -139,9 +138,9 @@ server <- function(input, output) {
     for (i in 1:100) {
       showMean <<- 100
       showSample <<- FALSE
-      samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
+      samp <- rbinom(as.numeric(input$n),size=1,prob=trueProb)
       samp(samp)
-      meansamp <- round(mean(samp),2)
+      meansamp <- round(mean(samp),3)
       thisSampleMean <<- meansamp
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
@@ -203,35 +202,62 @@ server <- function(input, output) {
     )
   })
   
+  # population size
+  N <- 500
+  upp <- 0
+  low <- 1
+  x.breaks <- seq(0,1,0.1)
    
-  sd <- 93
-  upp <- mu + 3 * sd
-  low <- mu - 3 * sd
-  x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
-  #y   <- dnorm(x,mean=mu, sd=sd)
-  #jitter_y <- max(y)/50
-  
+  # this is the top plot, with the population
   output$CLTplot1 <- renderPlot({
     
+    #N <- 500
+    #d <- data.frame(y=rbinom(N,size=1,p=trueProb),x=rep(1,N))
     
-    p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)
-    ) +
-      stat_function(fun = dnorm, show.legend=F,
-                    colour='red', 
-                    args = list(mean = mu, sd = sd)) + 
-      ylab("") +
-      scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
+    #p <- ggplot(data=d,aes(y)) + 
+    #  geom_segment(aes(x = 0, y=0, xend = 0, yend = N*(1-trueProb),  colour = "red"),size=2) +
+    #  geom_segment(aes(x = 1, y=0, xend = 1, yend = N*(trueProb),  colour = "red"),size=2) +
+    #  xlab("Excercise") +
+    #  ylab("") +
+    #  theme(legend.position = "none") +
+    #  scale_x_discrete(breaks = c(0,1),limits=c(0,1)) +
+    #  scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
+    df1 <- data.frame(class=c(rep(0,700),rep(1,300)))
+    p <- ggplot(df1, aes(class,colour='red',fill='red')) + 
+      scale_x_discrete(breaks = c(0,1),limits=c(0,1)) +
       scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
       theme(legend.position = "none") +
-      xlab("Height")
-     
+      ylab("") +
+      xlab("Excercise")
+    p <- p  + geom_bar(width=0.1) 
+      #geom_segment(x=0,xend=0,y=0,yend=100,colour='black')
+    
+    
+      
+    
     
     if (showSample & length(samp())>0 ) {
-      # points for the sample
-      pts <- data.frame(x = samp(),y=rep(0,length(samp)))
-      
-      p <- p + geom_point(data=pts,aes(y=y),width=0,
-                          colour='black')
+       
+      if (length(samp())==10) {
+        
+        dfs <- data.frame(y=samp())
+        print(dfs)
+        p <- p + geom_dotplot(data=dfs,aes(x=y),dotsize = 0.4,colour='black',fill='black')
+        
+        
+      } else {
+        # sample size = 50 or 100. We cannot show the dots
+        #   without filling the graph.
+        # number of ones in the sample
+        y1 <- sum(samp())
+        # number of zeros in the sample
+        y0 <- length(samp())- y1
+        print(y1)
+        print(y0)
+        p <- p +
+          geom_segment(aes(x = 0, y=0, xend = 0, yend = y0),colour='black',size=4) + 
+          geom_segment(aes(x = 1, y=0, xend = 1, yend = y1),colour='black',size=4) 
+      }
     }
     p
   }) # end CLTplot1
@@ -248,11 +274,11 @@ server <- function(input, output) {
       df <- data.frame(x=thisOne)
       p <- ggplot(df, aes(x = x,y=0 )) +
         theme(legend.position = "none") +
-        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
+        scale_x_continuous(breaks = seq(0,1,0.1),limits=c(0,1)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
         ylab("") + 
-        xlab("Sample mean")
+        xlab("Sample proportion")
       if (showMean) { 
         p = p +
           geom_point(colour='black') 
@@ -268,7 +294,6 @@ server <- function(input, output) {
   # This is the tricky plot, with the histogram
   #   of all sample means.
   #
-  #
   output$samplemean <- renderPlot({
     # put data into 60 bins
     sampleMeans <- values$total[-1]
@@ -276,15 +301,15 @@ server <- function(input, output) {
       df <- data.frame(x=sampleMeans)
       if (length(sampleMeans == 1)) {
         p <- ggplot(df, aes(x = x)) +
-          geom_point(size=0.3) +
-          scale_x_continuous(limits=c(lower,upper),
-                             breaks = x.breaks,minor_breaks=NULL) + 
+          geom_point(size=trueProb) +
+          scale_x_continuous(limits=c(0,1),
+                             breaks = seq(0,1,0.1),minor_breaks=NULL) + 
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
       }
       
       if (length(sampleMeans > 1)) {
         p <- ggplot(df, aes(x = x)) +
-          geom_dotplot(dotsize=0.3) +
+          geom_dotplot(dotsize=trueProb) +
           #coord_cartesian(ylim=c(0,10),expand=T) +
           scale_x_continuous(limits=c(lower,upper),
                              breaks = x.breaks,minor_breaks=NULL) +
@@ -294,29 +319,37 @@ server <- function(input, output) {
       # overlay normal distribution if required, and if there
       #  are enough samples (>= 100)
       if (length(sampleMeans) > 100){
-          bin.width <- 10
-          # show histogram
-          p <- ggplot(df, aes(x = x)) +
-            geom_histogram(binwidth = bin.width) +
-            scale_x_continuous(limits=c(lower,upper),
-                               breaks = x.breaks,minor_breaks=NULL) +
-            scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
-          if (input$shownormal ) {
-            sample.size <- as.numeric(input$n)
-            s <- sd/sqrt(sample.size)
-            #p <- p + stat_function(fun=dnorm,
-            #                  color="red",
-            #                  args=list(mean=mean(mu), 
-            #                            sd=s)) 
-            p <- p + stat_function( 
-              color="red",
-              fun = function(x, mean, sd, n, bw){ 
-                dnorm(x = x, mean = mean, sd = sd) * n * bw
-              }, 
-              args = c(mean = mu, sd = s, 
+        bin.width <- 0.1
+        # show histogram
+        p <- ggplot(df, aes(x = x)) +
+          geom_histogram() +
+          scale_x_continuous(limits=c(lower,upper),
+                             breaks = x.breaks,minor_breaks=NULL) +
+          #scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
+          ylab("")
+        
+          if (counter$countervalue > 100) {
+            if (input$shownormal ) {
+              sample.size <- as.numeric(input$n)
+              # sd of the sampling distribution root(pq/N)
+              s <- sqrt(trueProb*(1-trueProb)/sample.size)
+              print('...............')
+              print(counter$countervalue)
+              print(bin.width)
+              print(dnorm(0.3, mean = trueProb, sd = s))
+              print(dnorm(0.3, mean = trueProb, sd = s)* 
+                      counter$counterValue * bin.width)
+              print(s)
+              p <- p + stat_function( 
+                color="red",
+                fun = function(x, mean, sd, n, bw){ 
+                  dnorm(x = x, mean = mean, sd = sd) * n * bw
+                }, 
+                args = c(mean = trueProb, sd = s, 
                        n = counter$countervalue , 
                        bw = bin.width))
-        }
+             }
+          }
       }
       p <- p + xlab("")
       p
@@ -326,32 +359,32 @@ server <- function(input, output) {
   })
   
   #output$CLTplot3 <- renderPlot({
-    
-    # work out the sample mean for the vertical line only
-   # points <- data.frame(x = samp() )
+  
+  # work out the sample mean for the vertical line only
+  # points <- data.frame(x = samp() )
   #  sum <- 0
   #  if (dim( points )[1] > 0 ) {
   #    sum <- sum(points$x)
   #  }
   #  xbar <- round(1000* sum / as.numeric(input$n))/1000
-    # xbar is the sample mean
-    
-   # df <- data.frame(x = values$total[-1])
+  # xbar is the sample mean
+  
+  # df <- data.frame(x = values$total[-1])
   #  sampleMeans <- values$total[-1]
   ##  m.hat <- round(100* mean(sampleMeans))/100
   #  ss <- round(100* var(sampleMeans))/100
   #  label1 <- paste('mean: ',m.hat,sep=" " )
   ##  label2 <- paste('variance: ',ss,sep=" " )
   #  if (length(values$total) > 1) {
-      
+  
   #    p <- ggplot(df,aes(x=x)) + geom_blank() + 
   #      geom_histogram(aes(x,stat(density)),
-   #                    color="black",
+  #                    color="black",
   #                     binwidth=0.1) +
   #      scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
   #                         limits=c(low,upp)) 
-        
-        
+  
+  
   #    if (input$shownormal) {
   #      p <- p +
   #        stat_function(fun=dnorm,
@@ -359,7 +392,7 @@ server <- function(input, output) {
   #                      args=list(mean=mean(m.hat), 
   #                                sd=sqrt(ss))) 
   #    }
-      # show the plot
+  # show the plot
   #    p
   #  }
   #} ) # end CLTplot3
@@ -380,7 +413,7 @@ server <- function(input, output) {
     count <- counter$countervalue
     str0 <- paste('This is sample number: ',count,sep=' ')
     str0b <- "The black dots indicate the sample."
-    str1 <- paste('The total of the sample is ',sum,sep=': ')
+    str1 <- paste('The number of people, who exercise is ',sum,sep=': ')
     
     xbar <- round(1000* sum / as.numeric(input$n))/1000
     str2 <- paste('The average of the sample is ',sum,

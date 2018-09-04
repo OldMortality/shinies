@@ -21,28 +21,28 @@ ui <- dashboardPage(
                tags$button("", label = "1. Mean height", 
                            tags$img(src = "app1.png",
                                     height = "150px"),
-                            onclick ="window.open('https://oldmortality.shinyapps.io/meanheight1/', '_blank')")
+                            onclick ="window.open('https://oldmortality.shinyapps.io/app1/', '_blank')")
                ),
              box(
                title="2 ", width=NULL,
                tags$button("", label = "2. Plot heights", 
                            tags$img(src = "app2.png",
                                     height = "150px"),
-                           onclick = "window.open('https://oldmortality.shinyapps.io/heightplots/', '_blank')")
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app2/', '_blank')")
                ),
                box(
                  title="3 ", width=NULL,
                  tags$button("", label = "3. Group heights", 
                              tags$img(src = "app3.png",
                                       height = "150px"),
-                             onclick = "window.open('https://oldmortality.shinyapps.io/groupheight2/', '_blank')")
+                             onclick = "window.open('https://oldmortality.shinyapps.io/app3/', '_blank')")
                ), 
                box(
                title="4", width=NULL,
                tags$button("", label = "4. Historical data", 
                            tags$img(src = "app4.png",
                                     height = "150px"),
-                           onclick = "window.open('https://oldmortality.shinyapps.io/histheight/', '_blank')")
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app4/', '_blank')")
                ), 
              box(
                title="5", width=NULL,
@@ -63,7 +63,14 @@ ui <- dashboardPage(
                tags$button("", label = "7. Exercise", 
                            tags$img(src = "app7.png",
                                     height = "150px"),
-                           onclick = "window.open('https://oldmortality.shinyapps.io/binary7/', '_blank')")
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app7/', '_blank')")
+             ),
+             box(
+               title="7b", width=NULL,
+               tags$button("", label = "7b. Exercise", 
+                           tags$img(src = "app7b.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app7b/', '_blank')")
              ),
              box(
                title="8", width=NULL,
@@ -71,6 +78,13 @@ ui <- dashboardPage(
                            tags$img(src = "app8.png",
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app8/', '_blank')")
+             ),
+             box(
+               title="9", width=NULL,
+               tags$button("", label = "8. Plot lab data", 
+                           tags$img(src = "app9.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app9/', '_blank')")
              )
              
       ))

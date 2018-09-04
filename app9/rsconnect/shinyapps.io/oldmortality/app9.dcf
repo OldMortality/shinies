@@ -1,12 +1,12 @@
-name: app8
-title: app8
+name: app9
+title: app9
 username:
 account: oldmortality
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 403042
-bundleId: 1566703
-url: https://oldmortality.shinyapps.io/app8/
-when: 1535960499.69651
+appId: 406120
+bundleId: 1568233
+url: https://oldmortality.shinyapps.io/app9/
+when: 1536044911.41457
 asMultiple: FALSE
 asStatic: FALSE

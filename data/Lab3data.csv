@@ -1,4 +1,4 @@
-Stream,Reflex path length (mm),Mean reflex latency (ms),Voluntary path length (mm),Mean voluntary latency (ms)
+Stream,reflexpathlength,Meanreflexlatency,voluntarypathlength,meanvoluntarylatency
 P1,1486,37.3,2770,162.2
 P1,1690,36,3110,119
 P1,1600,31.6,2940,190

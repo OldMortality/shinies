@@ -1,0 +1,12 @@
+name: app7b
+title: app7b
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 417339
+bundleId: 1566714
+url: https://oldmortality.shinyapps.io/app7b/
+when: 1535961280.54985
+asMultiple: FALSE
+asStatic: FALSE
