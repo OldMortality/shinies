@@ -14,8 +14,9 @@ data <- read.csv('Lab3data.csv',header=T)
 
 ui <- dashboardPage(
   
-  dashboardHeader(title = "Plots of lab data",
-                  titleWidth = 450),
+  dashboardHeader(title = paste("Lab 4: Experiment 2.",
+                  "Voluntary movement in response to sensory stimulus"  ),
+                  titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    
                    

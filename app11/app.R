@@ -1,5 +1,5 @@
-# app 8.
-# Comparing 2 groups
+# app 11.
+# 
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
@@ -8,21 +8,26 @@ library(DT)
 
 ui <- dashboardPage(
   
-  dashboardHeader(title = "Comparing 2 groups",
+  dashboardHeader(title = "Comparing 2 groups: Conduction velocity",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
-                   actionButton("sample",label="Take 1 sample"),
-                   actionButton("sample10",label="Take 10 samples"),
-                   actionButton("sample100",label="Take 100 samples"),
-                   actionButton("start",label="Start "),
-                   actionButton("stop",label="Stop "),  
+                   #actionButton("sample",label="Take 1 sample"),
+                   #actionButton("sample10",label="Take 10 samples"),
+                   actionButton("sample100",label="Take 200 samples"),
+                   #actionButton("start",label="Start "),
+                   #actionButton("stop",label="Stop "),  
+                   
+                   sliderInput("mu.2", "Blue mean:",
+                               min = 10, max = 80, value = 35,step=0.25
+                   ),
                    
                    radioButtons("n", "Sample size:",
                                 c("10" = 10,
                                   "50" = 50,
                                   "100"= 100)),
-                   checkboxInput("shownormal", "Show Normal", TRUE)),
+                   textInput("observed", label = "observed difference", value = "21")
+                  ),
   dashboardBody(
     # Boxes need to be put in a row (or column)
     fluidRow( 
@@ -40,7 +45,7 @@ ui <- dashboardPage(
                width=NULL,
                plotOutput("difference",height=50),
                height = 75),
-             box(title="Difference",  
+             box(title="Red sample mean minus blue sample mean",  
                  width=NULL,
                  plotOutput("samplemean",height=200), 
                  height = 250)
@@ -74,16 +79,13 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   
-  #mu1 <- 1711
-  #mu2 <- 1750
-  #sd1 <- 92 
-  #sd2 <- 92
-  
+ 
   # from combined clean csv
-  mu1 = 1712
-  mu2 = 1671
-  sd1 = 92
-  sd2 = 92
+  mu1 = 56
+  mu2 = 35
+  sd1 = 13
+  sd2 = 13
+  sd = sd1
   
   # temp:
   mu = mu1
@@ -133,6 +135,11 @@ server <- function(input, output) {
     invalidateLater(1)
   })
   
+  observeEvent(input$mu.2, {
+    click("clear")
+    invalidateLater(1)
+  })
+  
   
   # 1 sample
   observeEvent(input$sample,{
@@ -140,7 +147,7 @@ server <- function(input, output) {
     showDiff$summary <- 1
     showSample <<- TRUE
     samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-    samp2 <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
+    samp2 <- round(rnorm(as.numeric(input$n),mean=input$mu.2,sd=sd2),1)
     
     samp1(samp1)
     samp2(samp2)
@@ -163,7 +170,7 @@ server <- function(input, output) {
     
     for (i in 1:10) {
       samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-      samp2 <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
+      samp2 <- round(rnorm(as.numeric(input$n),mean=input$mu.2,sd=sd2),1)
       
       samp1(samp1)
       samp2(samp2)
@@ -186,22 +193,22 @@ server <- function(input, output) {
     showMean <<- 100
     showSample <<- FALSE
     
-    for (i in 1:100) {
-       
-       samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-       samp2 <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-       
-       samp1(samp1)
-       samp2(samp2)
-       meansamp1 <- round(mean(samp1),2)
-       meansamp2 <- round(mean(samp2),2)
-       thisSampleMean1 <<- meansamp1
-       #meansamp1(meansamp1) 
-       thisSampleMean2 <<- meansamp2
-       #meansamp2(meansamp2) 
-       values$total1 <- c(values$total1,meansamp1)
-       values$total2 <- c(values$total2,meansamp2)
-       values$diff <- c(values$diff,meansamp1-meansamp2)
+    for (i in 1:200) {
+      
+      samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
+      samp2 <- round(rnorm(as.numeric(input$n),mean=input$mu.2,sd=sd2),1)
+      
+      samp1(samp1)
+      samp2(samp2)
+      meansamp1 <- round(mean(samp1),2)
+      meansamp2 <- round(mean(samp2),2)
+      thisSampleMean1 <<- meansamp1
+      #meansamp1(meansamp1) 
+      thisSampleMean2 <<- meansamp2
+      #meansamp2(meansamp2) 
+      values$total1 <- c(values$total1,meansamp1)
+      values$total2 <- c(values$total2,meansamp2)
+      values$diff <- c(values$diff,meansamp1-meansamp2)
     }
   })
   
@@ -262,7 +269,7 @@ server <- function(input, output) {
   })
   
   
-  sd <- 93
+  sd <- sd1
   upp <- mu + 3 * sd
   low <- mu - 3 * sd
   x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
@@ -272,18 +279,41 @@ server <- function(input, output) {
   output$CLTplot1 <- renderPlot({
     
     
+   
+    # red
+    data2.label1 <- data.frame(
+      time = c(mu1), 
+      value = c(0.001), 
+      label = c("not GM")
+    )
+    
+    # blue
+    data2.label2 <- data.frame(
+      time = c(input$mu.2), 
+      value = c(0.003), 
+      label = c("GM")
+    )
+    
+    
+    
+      
+    
     p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)) +
       stat_function(fun = dnorm, show.legend=F,
                     colour='red', 
                     args = list(mean = mu1, sd = sd1)) + 
       stat_function(fun = dnorm, show.legend=F,
                     colour='blue', 
-                    args = list(mean = mu2, sd = sd2)) + 
+                    args = list(mean = input$mu.2, sd = sd2)) + 
       ylab("") +
       scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
       scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
       theme(legend.position = "none") +
-      xlab("Height")
+      xlab("Conduction velocity") + 
+      geom_vline(xintercept=mu1,colour='red') +
+      geom_vline(xintercept=input$mu.2,colour='blue') +
+      geom_text(data = data2.label1, aes(x = time, y = value, label = label),colour='red') +
+      geom_text(data = data2.label2, aes(x = time, y = value, label = label),colour='blue') 
     
     
     if (showSample & length(samp1())>0 ) {
@@ -295,6 +325,8 @@ server <- function(input, output) {
                           colour='red')
       p <- p + geom_point(data=pts2,aes(y=y),width=0,
                           colour='blue')
+      
+      
     }
     p
   }) # end CLTplot1
@@ -323,23 +355,18 @@ server <- function(input, output) {
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
         ylab("") + 
-        xlab("Sample mean") #+ 
-        #geom_point(df2, aes(x = x,y=0,colour='blue' ))
-      #if (showMean) { 
-      #  p = p +
-      #    geom_point() 
-      #}
+        xlab("Sample mean")  
       p
     }
-    #max(table(sampleMeans))+1))
+     
   })
   
   #
   # This is the 2nd strip, with the difference
   # 
   output$difference <- renderPlot({
-    low <- -150
-    upp <- 150
+    low <- -30
+    upp <- 30
     x.breaks <- seq(low,upp,15)
     if (length(samp1())>0) {
       thisOne1 <- tail(values$total1,showMean)
@@ -357,7 +384,7 @@ server <- function(input, output) {
       
       p
     }
-    #max(table(sampleMeans))+1))
+     
   })
   
   
@@ -367,9 +394,9 @@ server <- function(input, output) {
   #
   output$samplemean <- renderPlot({
     
-    lo <- -150
-    up <- 150
-    bin.width = 15
+    lo <- -30
+    up <- 30
+    bin.width = 3
     x.breaks <- seq(lo,up,bin.width)
     
     sampleMeans <- values$diff[-1]
@@ -402,26 +429,10 @@ server <- function(input, output) {
           scale_x_continuous(limits=c(lo,up),
                              breaks = x.breaks,minor_breaks=NULL) +
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
-        # show the red line
-        if (input$shownormal ) {
-          samplesize <-as.numeric(input$n) 
-          #s <- sd/sqrt(samplesize)
-             
-          sd.hat <- sqrt((sd1^2 + sd2^2)/samplesize)
-          print('....')
-          print(sd.hat)
-          p <- p + stat_function( 
-            color="red",
-            fun = function(x, mean, sd, n, bw){ 
-              dnorm(x = x, mean = mean, sd = sd) * n * bw
-            }, 
-            args = c(mean = mu1-mu2, sd = sd.hat, 
-                     n = counter$countervalue , 
-                     bw = bin.width))
-          
-        }
+        
       }
-      p <- p + xlab("")
+      p <- p + xlab("") + ylab("")
+      p <- p + geom_vline(xintercept=as.numeric(input$observed))
       p
       
     }
@@ -450,7 +461,7 @@ server <- function(input, output) {
     xbar1 <- round(1000* sum1 / as.numeric(input$n))/1000
     xbar2 <- round(1000* sum2 / as.numeric(input$n))/1000
     str2b <- paste('The average of the red sample is ',sum1,
-                  'divided by ',as.numeric(input$n),'= ',xbar1,sep=' ')
+                   'divided by ',as.numeric(input$n),'= ',xbar1,sep=' ')
     str2 <- paste('The average of the blue sample is ',sum2,
                   'divided by ',as.numeric(input$n),'= ',xbar2,sep=' ')
     
@@ -468,22 +479,44 @@ server <- function(input, output) {
   
   getSampleMeansSummary <- function() {
     # the vector of sample means
-    #df <- data.frame(x = values$total[-1])
-    #print(paste('.....',values$total))
     sampleMeans <- values$diff[-1]
     if (length(sampleMeans > 0)) {
-    
+      
       m.hat <- round(100* mean(sampleMeans))/100
       ss <- round(100* sqrt(var(sampleMeans)))/100
       count <- counter$countervalue
       str0 <- paste('We now have this many samples: ',count,sep=' ')
-      str1 <- paste('The mean of all sample means is ',m.hat,sep=': ')
+      #str1 <- paste('The mean of all sample means is ',m.hat,sep=': ')
       if (length(sampleMeans) <= 1) {
         str2 <- ''  
       } else {
-        str2 <- paste('The standard deviation of all sample means is ',ss,sep=': ')
+        #str2a <- paste('The standard deviation of all sample means is ',ss,sep=': ')
+        sampleMeans <- values$diff[-1]
+        
+        obs <- as.numeric(input$observed)
+        if (mu1 - input$mu.2 < obs) {
+          # counting the right tail
+          w <- which(sampleMeans>obs)
+        } else {
+          # counting the left tail
+          w <- which(sampleMeans<obs)
+        }
+        
+        #print(sampleMeans[w])
+        numMoreExtremeThanObserved <- length(w)
+        str2_a <- paste("The observed difference is",input$observed,
+                        sep=': ')
+        str2_b <- paste("The number of samples with such a difference,
+                       or more extreme is:",
+                       numMoreExtremeThanObserved,sep=' ')
+        str2_c <- paste("There were",length(sampleMeans),"samples",sep=" ")
+        perc <- 100*round(numMoreExtremeThanObserved/length(sampleMeans),2)
+        str2_c1 <- paste("If the blue mean is in the correct spot, ")
+        str2_d <- paste(str2_c1, "The probability of the observed difference (or more extreme) is", 
+                        perc,"percent",sep=" ")
+        str2 <- paste(str2_a, str2_b,str2_c,str2_d,sep="<br>")
       }
-      result <- paste(str0,'<br>',str1,'<br>',str2)
+      result <- paste(str2)
     } else {
       result <- ""
     }
@@ -496,20 +529,21 @@ server <- function(input, output) {
   
   getDifferenceSummary <- function() {
     result <- ""
-    print(paste("......",showMean))
     if (showDiff$summary == 0) {
       result <- ("Each dot represents the difference between two sample means.")
     } else {
-        if (length(values$diff[-1])>0) {
-          thisOne1 <- round(tail(values$total1,showMean),2)
-          thisOne2 <- round(tail(values$total2,showMean),2)
-          diff <- round(thisOne1 - thisOne2,2)
-          str1 <- paste(thisOne1,"minus",thisOne2,"equals",diff,sep=' ')
-          str2 <-("The dot represents the difference between the two sample means.")
-          result <- paste(str1,"<br>",str2,"<br>")
-          } else {
-            result <- ""
-        }
+      if (length(values$diff[-1])>0) {
+        thisOne1 <- round(tail(values$total1,showMean),2)
+        thisOne2 <- round(tail(values$total2,showMean),2)
+        diff <- round(thisOne1 - thisOne2,2)
+        str1 <- paste(thisOne1,"minus",thisOne2,"equals",diff,sep=' ')
+        str2 <-("The dot represents the difference between the two sample means.")
+        result <- paste(str1,"<br>",str2,"<br>")
+        
+      } else {
+        result <- ""
+      }
+      
     }
     return(result)
     

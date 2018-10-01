@@ -1,0 +1,12 @@
+name: app6b
+title: app6b
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 430250
+bundleId: 1576704
+url: https://oldmortality.shinyapps.io/app6b/
+when: 1536482576.39115
+asMultiple: FALSE
+asStatic: FALSE

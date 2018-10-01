@@ -3,7 +3,6 @@
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-
 library(shinyBS)
 
 
@@ -51,6 +50,14 @@ ui <- dashboardPage(
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app5/', '_blank')")
                ),
+             
+             box(
+               title="6b", width=NULL,
+               tags$button("", label = "6b. Confidence intervals", 
+                           tags$img(src = "app6b.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app6b/', '_blank')")
+             ),
              box(
                title="6", width=NULL,
                tags$button("", label = "6. Interval estimates", 
@@ -81,10 +88,38 @@ ui <- dashboardPage(
              ),
              box(
                title="9", width=NULL,
-               tags$button("", label = "8. Plot lab data", 
+               tags$button("", label = "9. Plots of lab data (heights)", 
                            tags$img(src = "app9.png",
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app9/', '_blank')")
+             ),
+             box(
+               title="10", width=NULL,
+               tags$button("", label = "10. Guillain-Barré vs. normal", 
+                           tags$img(src = "app10.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app10/', '_blank')")
+             ),
+             box(
+               title="11", width=NULL,
+               tags$button("", label = "11. Comparing nerve conduction velocity", 
+                           tags$img(src = "app11.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app11/', '_blank')")
+             ),
+             box(
+               title="12", width=NULL,
+               tags$button("", label = "12. Height vs. finger length", 
+                           tags$img(src = "app12.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app12/', '_blank')")
+             ),
+             box(
+               title="13", width=NULL,
+               tags$button("", label = "13. Height vs. finger length - your group", 
+                           tags$img(src = "app13.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app13/', '_blank')")
              )
              
       ))

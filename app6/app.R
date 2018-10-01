@@ -95,6 +95,10 @@ server <- function(input, output) {
     values$total = 0
     counter$countervalue = 0
     autorun$auto = 0
+    # ??
+    all_low$all_l=vector()
+    all_upp$all_u=vector()
+    # ??
     samp(samp)
   })
   
@@ -107,13 +111,16 @@ server <- function(input, output) {
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
     
-    s <- sqrt(var(samp()))
-    lo <- meansamp - 2 * s/sqrt(as.numeric(input$n))
-    up <- meansamp + 2 * s/sqrt(as.numeric(input$n))
+    #s <- sqrt(var(samp()))
+    s <- sd
+    lo <- meansamp - 1.96 * s/sqrt(as.numeric(input$n))
+    up <- meansamp + 1.96 * s/sqrt(as.numeric(input$n))
     all_low$all_l <- c(all_low$all_l,lo)
     all_upp$all_u <- c(all_upp$all_u,up)
     
   })
+  
+  
   
   observeEvent(input$sample10,{
     for (i in 1:10) {
@@ -124,9 +131,10 @@ server <- function(input, output) {
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
       
-      s <- sqrt(var(samp()))
-      lo <- meansamp - 2 * s/sqrt(as.numeric(input$n))
-      up <- meansamp + 2 * s/sqrt(as.numeric(input$n))
+      #s <- sqrt(var(samp()))
+      s <- sd
+      lo <- meansamp - 1.96 * s/sqrt(as.numeric(input$n))
+      up <- meansamp + 1.96 * s/sqrt(as.numeric(input$n))
       all_low$all_l <- c(all_low$all_l,lo)
       all_upp$all_u <- c(all_upp$all_u,up)
     }
@@ -253,7 +261,9 @@ server <- function(input, output) {
   #
   output$samplemean <- renderPlot({
     
-    samp()
+    # not sure what this does
+    # samp()
+    
     df <- data.frame(x=mu,y=0)
     if (length(all_low$all_l)>0) {
       p <- ggplot(df, aes(x = x,y=0 ),colour='green') +
