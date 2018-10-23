@@ -7,11 +7,11 @@ library(ggplot2)
 library(DT)
 
 
-ui <- dashboardPage(
+shinyUI <- dashboardPage(
   
   dashboardHeader(title = "Task A.6 How much do sample means vary?",
                   titleWidth = 850),
-  dashboardSidebar(useShinyjs(),
+  dashboardSidebar(#useShinyjs(),
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"),
                    actionButton("sample10",label="Take 10 samples"),

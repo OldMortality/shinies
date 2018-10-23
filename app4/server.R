@@ -12,57 +12,7 @@ library(rhandsontable)
 
 
 
-ui <- dashboardPage(
-  
-  dashboardHeader(title = "Task A4. Heights for a lab stream (n=90)",
-                  titleWidth = 450),
-  dashboardSidebar(useShinyjs(), 
-                   checkboxInput("showhist", "Histogram", FALSE),
-                   checkboxInput("showbox", "Boxplot", FALSE),
-                   checkboxInput("showdot", "Dotplot", FALSE) 
-  ), 
-  dashboardBody(
-    fluidRow(
-      column(width = 6,
-             box(title="Heights of 90 HUBS191 students",width=NULL,
-                 rHandsontableOutput("hot", width = 200),
-                 htmlOutput('summary', height = 100)
-             ),
-             
-             box(
-               title="Histogram of height", width=NULL,
-               conditionalPanel(
-                 condition = "input.showhist",
-                 plotOutput("histogram", height = 300)
-               )
-             )
-      ),
-      column(width=6,
-             box(
-               title="Boxplot of height", width=NULL,
-               conditionalPanel(
-                 condition = "input.showbox",
-                 plotOutput("boxplot", height = 373)
-               )
-             ),
-             box(
-               title="Dotplot of height", width=NULL,
-               conditionalPanel(
-                 condition = "input.showdot",
-                 plotOutput("dotplot", height = 300)
-               )
-             ) 
-      )
-    )
-    
-  )
-)
-
-
-
-
-
-server <- function(input, output) {
+shinyServer <- function(input, output) {
   
   df <- data.frame(x=rnorm(100))
   
@@ -176,11 +126,6 @@ server <- function(input, output) {
         ylab("Frequency") +
         xlab("Height (mm)")  
     p  
-  }) # end dotplot
-  
-  
-  
+  }) # end dotplot 
   
 }
-
-shinyApp(ui, server)
