@@ -13,26 +13,23 @@ library(rhandsontable)
 
 ui <- dashboardPage(
   
-  dashboardHeader(title = "Plots of group height",
+  dashboardHeader(title = "Task A4. Heights for a lab stream (n=90)",
                   titleWidth = 450),
-  dashboardSidebar(useShinyjs(),
-                   
+  dashboardSidebar(useShinyjs(), 
                    checkboxInput("showhist", "Histogram", FALSE),
                    checkboxInput("showbox", "Boxplot", FALSE),
-                   checkboxInput("showdot", "Dotplot", FALSE)                   
-                   
-                   
+                   checkboxInput("showdot", "Dotplot", FALSE) 
   ), 
   dashboardBody(
-    # Boxes need to be put in a row (or column)
     fluidRow(
       column(width = 6,
-             box(title="Height",width=NULL,
-                 rHandsontableOutput("hot", width = 200)
+             box(title="Heights of 90 HUBS191 students",width=NULL,
+                 rHandsontableOutput("hot", width = 200),
+                 htmlOutput('summary', height = 100)
              ),
              
              box(
-               title="histogram", width=NULL,
+               title="Histogram of height", width=NULL,
                conditionalPanel(
                  condition = "input.showhist",
                  plotOutput("histogram", height = 300)
@@ -41,14 +38,14 @@ ui <- dashboardPage(
       ),
       column(width=6,
              box(
-               title="boxplot", width=NULL,
+               title="Boxplot of height", width=NULL,
                conditionalPanel(
                  condition = "input.showbox",
-                 plotOutput("boxplot", height = 300)
+                 plotOutput("boxplot", height = 373)
                )
              ),
              box(
-               title="dotplot", width=NULL,
+               title="Dotplot of height", width=NULL,
                conditionalPanel(
                  condition = "input.showdot",
                  plotOutput("dotplot", height = 300)
@@ -114,15 +111,37 @@ server <- function(input, output) {
     }
   })
   
+  getSummary <- function() {
+    if (!is.null(input$hot)) {
+      DF = hot_to_r(input$hot) 
+      n <-sum(!is.na(DF$height))
+      mn <- round(mean(DF$height,na.rm=T),1)
+      sd <- round(sqrt(var(DF$height,na.rm=T)),1)
+      line0 <- paste("Sample size n =",n,sep=" ")
+      line1 <- paste("Sample mean =",mn,sep=" ")
+      line2 <- paste("Sample standard deviation =",sd,sep=" ")      
+      result <- paste(line0,line1,line2,sep='<br>')
+      return(result)
+    }
+  }
+  
+  output$summary <- renderText(
+    paste("<font size=4>",getSummary(),
+          "</font>")
+  ) 
+  
   
   output$histogram <- renderPlot({
     
     if(is.null(input$hot)) return(NULL)
     data <- hot_to_r(input$hot)
     d <- data.frame(data)
-    p <- ggplot(d, aes(height)) + geom_histogram() +
-      scale_y_continuous(breaks = NULL,minor_breaks=NULL)  
-    
+    p <- ggplot(d, aes(height)) +
+      geom_histogram(binwidth=25,fill="white",colour='black') +
+      scale_x_continuous(limits=c(1500,2100),breaks=seq(1500,2100,100)) +
+      scale_y_continuous(breaks = seq(0,20),minor_breaks=NULL) +
+      ylab("Frequency") +
+      xlab("Height (mm)")
     p 
     #hist(data$height,main="",xlab="height")
     
@@ -132,9 +151,12 @@ server <- function(input, output) {
     if(is.null(input$hot)) return(NULL)
     data <- hot_to_r(input$hot)
     d <- data.frame(data)
-    p <- ggplot(d, aes(y=height)) + geom_boxplot() +
-      scale_x_continuous(breaks = NULL,minor_breaks=NULL)  
-    
+    p <- ggplot(data, aes(y=height)) + 
+      geom_boxplot(width=0.2) +
+      scale_x_continuous(breaks = NULL,minor_breaks=NULL,
+                         limits=c(-0.5,0.5)
+      )  +
+      ylab("Height (mm)")
     
     p 
     
@@ -145,18 +167,15 @@ server <- function(input, output) {
   
   output$dotplot <- renderPlot({
     if(is.null(input$hot)) return(NULL)
-    data <- hot_to_r(input$hot)
-    #dotchart(data$height,main="",xlab="height")
+    data <- hot_to_r(input$hot) 
     d <- data.frame(data)
     p <- ggplot(d, aes(height)) + 
         scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-        geom_dotplot()
-    
-    
-    p 
-    
-    
-  }) # end boxplot
+        geom_dotplot() +
+        ylab("Frequency") +
+        xlab("Height (mm)")  
+    p  
+  }) # end dotplot
   
   
   

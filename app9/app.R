@@ -9,6 +9,7 @@ library(DT)
 library(rhandsontable)
 library(gridExtra)
 
+
 data <- read.csv('Lab3data.csv',header=T)
 
 
@@ -27,7 +28,8 @@ ui <- dashboardPage(
                                ), selected = 1),
                    uiOutput("B_ui"),
                    checkboxInput("showmean", "Show population mean (red)", FALSE),
-                   checkboxInput("showgroup", "Show your group mean (blue)", FALSE)
+                   
+                    uiOutput("checkboxes")
                    
                    
                    
@@ -37,19 +39,23 @@ ui <- dashboardPage(
     # Boxes need to be put in a row (or column)
     fluidRow(
       column(width = 12,
-             box(title="Lab data (N=615)", width=NULL,
+             box(title="", width=NULL,
                  plotOutput("distPlot", height = 300)
              )
           )),
       fluidRow(
         column(width = 6,
-               box(title="Enter data for your group",width=NULL,
+               box(title="Enter data you have collected",width=NULL,
                    rHandsontableOutput("hot", width = 800)
                    
                )),
         column(width = 6,
-               box(title="Summary",width=NULL)
-               )
+               
+               box(  
+                 title="Summary", 
+                 width=NULL,
+                 htmlOutput('summary')
+               ))
         )
       )
     )
@@ -116,16 +122,33 @@ server <- function(input, output) {
     
     v1 = 1
     v2 = 2
-    result <- list("path length"=v1,
-                   "latency"=v2)
+    result <- list("Path length"=v1,
+                   "Latency"=v2)
     
     return( result)
   })
   
   
   
+  
+  output$checkboxes <- renderUI({
+    if (!is.null(input$plot.type)) {
+      if (input$plot.type == '2') {
+      # scatter
+        tagList(
+          checkboxInput("showall", "Show all data (black)", TRUE),
+          checkboxInput("showgroup", "Show your group data (blue)", FALSE)
+        )
+      } else {
+        checkboxInput("showgroup", "Show your group data (blue)", FALSE)
+      }
+    }
+  })
+  
+  
   output$B_ui <- renderUI({
     if (input$plot.type == "1"  ) {
+      
       selectInput("variable", h3("Variable"), 
                   choices = listvars()
                   , selected = 1)
@@ -149,6 +172,119 @@ server <- function(input, output) {
     }
   })
       
+   
+  getSummary <- function(){
+    if (!is.null(input$plot.type)) {
+    
+      if (input$plot.type==1) {
+        # histogram
+        line0.a <- paste("<b>","All data","</b><p>",sep='')
+        #line0.g <- paste("<p><b>","Your data","</b><p>",sep='')
+        #
+        line1.a <- paste("The mean ",cname.summary()," is:",
+                         theColumnData.mean(),
+                         sep=' ')
+        line2.a <- paste("The variance of ",cname.summary(),"is:",
+                         theColumnData.var(),
+                         sep=' ')
+        line3.a <- paste("The standard deviation of",cname.summary() ,"is:",
+                         round(sqrt(theColumnData.var()),1),
+                         sep=' ')
+        result <- paste(line0.a,line1.a,line2.a,line3.a,sep="<br>")
+        return(result)
+      }
+      if (input$plot.type==2) {
+        # scatter
+        line0.a <- paste("<b>","All data","</b><p>",sep='')
+        line1.a <- paste('intercept',round(a0(),1),sep=' ')
+        line2.a <- paste('slope',round(a1(),4),sep=' ')
+        line3.a <- paste(cname.y(),"=",round(a0(),1),
+                         "+",round(a1(),4),"*",cname.x(),sep=' ')
+        result.a <- paste(line0.a,line1.a,line2.a,sep="<p>")
+        result.a <- paste(line0.a,line3.a)
+        
+        result.b <- NULL
+        #if (!is.null(group.regression()) && group.regression() == T) { 
+        if (!is.null(a1.g()) && !is.na(a1.g())) { 
+          # enough data for regression line through group data
+          line0.g <- paste("<p><b>","Your data","</b><p>",sep='')
+          #line1.g <- paste('intercept',round(a0.g(),1),sep=' ')
+          #line2.g <- paste('intercept',round(a1.g(),4),sep=' ')
+          #result.b <- paste(line0.g,line1.g,line2.g,sep="<p>")
+          line3.a <- paste(cname.y(),"=",round(a0.g(),1),
+                           "+",round(a1.g(),4),"*",cname.x(),sep=' ')
+          result.b <- paste(line0.g,line3.a)
+          print(result.b)
+        }
+        if (!is.null(result.b)) {
+          result <- paste(result.a,result.b,sep="<p>")  
+        } else {
+          result <- result.a
+        }
+        
+        
+        result <- paste(result.a,result.b,sep=" ")
+        return(result)
+      }
+      if (input$plot.type==3) {
+        #boxplot
+        #print(head(data))
+        colNumber <- as.numeric(input$variable) 
+        if (length(colNumber) == 0) {
+          colNumber <- 1
+        }
+        #print(head(data))
+        colName <- colnames(data)[colNumber]
+        if (colNumber == 1) {
+          # length
+          d1.ref <- data$reflexpathlength
+          d1.vol <- data$voluntarypathlength
+
+          l0 <- paste("<b>","All data","</b><br>")
+          l1 <- paste("The mean reflex path length is",
+                      round(mean(d1.ref,na.rm=T),1),sep=' ')
+          l2 <- paste("The mean voluntary path length is",
+                      round(mean(d1.vol,na.rm=T),1),sep=' ')
+         
+          result <- paste(l0,l1,l2,sep="<br>")
+          
+        } else {
+          # latency
+          
+          d1.ref <- data$meanreflexlatency
+          d1.vol <- data$meanvoluntarylatency
+          l0 <- paste("<b>","All data","</br>")
+          l1 <- paste("The mean reflex latency length is",
+                      round(mean(d1.ref,na.rm=T),1),sep=' ')
+          l2 <- paste("The mean voluntary latency length is",
+                      round(mean(d1.vol,na.rm=T),1),sep=' ')
+          
+          result <- paste(l0,l1,l2,sep="<br>")
+          
+        }
+        return(result)
+      }
+      
+      
+    }
+  }
+  
+  a0 <- reactiveVal()
+  a1 <- reactiveVal()
+  a0.g <- reactiveVal()
+  a1.g <- reactiveVal()
+  group.regression <- reactiveVal()
+  cname.x <- reactiveVal()
+  cname.y <- reactiveVal()
+  cname.summary <- reactiveVal()
+  theColumnData.mean <- reactiveVal()
+  theColumnData.var <- reactiveVal()
+  
+  
+  
+  output$summary <- renderText(
+    getSummary()
+  )
       
   cache_tbl = NULL
   
@@ -160,10 +296,10 @@ server <- function(input, output) {
   })
   
   datasetInput <- reactive({
-    result <- data.frame(reflex.path.length=c(1750,rep(NA,2)),
-                         reflex.latency=c(47,rep(NA,2)),
-                         voluntary.path.length = c(3000,rep(NA,2)),
-                         voluntary.latency = c(200,rep(NA,2))
+    result <- data.frame(reflex.path.length=c(1750,rep(NA,9)),
+                         reflex.latency=c(47,rep(NA,9)),
+                         voluntary.path.length = c(3000,rep(NA,9)),
+                         voluntary.latency = c(200,rep(NA,9))
                          )
     result
   })
@@ -186,7 +322,14 @@ server <- function(input, output) {
       if (colNumber==2) { colName.pretty = 'Mean reflex latency (ms)'}
       if (colNumber==3) { colName.pretty = 'Voluntary path length (mm)'}
       if (colNumber==4) { colName.pretty = 'Mean voluntary latency (ms)'}
+      # for use in summary
+      cname.summary <- colName.pretty
+      cname.summary(cname.summary)
       theColumnData <- as.numeric(data[,colNumber])
+      theColumnData.mean <- round(mean(theColumnData,na.rm=T),1)
+      theColumnData.var <- round(var(theColumnData,na.rm=T),1)
+      theColumnData.mean(theColumnData.mean)
+      theColumnData.var(theColumnData.var)
       df <- data.frame(x = theColumnData)
       #print(head(df))
       p <- ggplot(df,aes(x=x)) + geom_histogram(color="black", fill="white") +
@@ -194,7 +337,9 @@ server <- function(input, output) {
       t <- paste('Histogram of',colName.pretty,
                  '(N=615)',sep=' ')
       p <- p +
-        ggtitle(t)
+        ggtitle(t) + 
+        theme(plot.title = element_text(size=22))
+      
       mu <- mean(theColumnData,na.rm=T)
       sd <- sqrt(var(theColumnData,na.rm=T))
       x.breaks <- c(mu-3*sd,mu-2*sd,mu-sd,mu,mu+sd,mu+2*sd,mu+3*sd)
@@ -228,7 +373,7 @@ server <- function(input, output) {
         xlab(colName.pretty)
       
       ## Add the group data (from the hot table)
-      if (input$showgroup) {
+      if (!is.null(input$showgroup) && input$showgroup) {
         if(is.null(input$hot)) return(NULL)
           data2 <- hot_to_r(input$hot)
           myColumn <- data2[,colNumber]
@@ -243,14 +388,15 @@ server <- function(input, output) {
                              y=rep(0,length(myColumn)))
           p <- p + geom_point(data=thePoints,aes(x=x,y=y),
                           colour='blue',
-                          shape = 4,
+                          shape = 24,
+                          fill='blue',
                           size = 5)
         }
        
       print(p)
       
        
-    }
+     }
     
     # scatter 
     if (input$plot.type == 2  ) {
@@ -276,6 +422,12 @@ server <- function(input, output) {
       if (colNumber.y==3) { colName.y.pretty = 'Voluntary path length (mm)'}
       if (colNumber.y==4) { colName.y.pretty = 'Mean voluntary latency (ms)'}
       
+      # for use in the summary only
+      cname.x <- colName.x.pretty
+      cname.y <- colName.y.pretty
+      cname.x(cname.x)
+      cname.y(cname.y)
+      
       t <- paste('Scatterplot of ',colName.y.pretty,'vs',
                  colName.x.pretty,
                  '(N=615)',sep=' ')
@@ -292,12 +444,24 @@ server <- function(input, output) {
       m <- lm(y~x,data=df)
       a0 <- coefficients(m)[1]
       a1 <- coefficients(m)[2]
+      a0(a0)
+      a1(a1)
+      
+      
        
+      sz = 1
+      if (!is.null(input$showall) && !input$showall) {
+        # invisible
+        sz=-1
+      }  
         
-      p <- ggplot(df,aes(x=x,y=y)) + geom_point() + 
+      p <- ggplot(df,aes(x=x,y=y)) +
            ylab(colName.y) +
            xlab(colName.x) +
-           title(main="Scatter")
+           title(main="Scatter") + geom_point(size=sz)
+      
+      
+      
       p <- p +
         ggtitle(t)
       x.breaks <- 
@@ -307,8 +471,10 @@ server <- function(input, output) {
         c(mu.y-3*sd.y,mu.y-2*sd.y,mu.y-sd.y,mu.y,mu.y+sd.y,mu.y+2*sd.y,mu.y+3*sd.y)
       y.breaks <- round(y.breaks)
       
-      p <- p +
-        geom_abline(intercept=a0,slope=a1,colour='darkred')
+      if (!is.null(input$showall) && input$showall) {
+        p <- p +
+        geom_abline(intercept=a0(),slope=a1(),colour='darkred')
+      }
       
       p <- p + 
         scale_x_continuous(breaks=x.breaks) +
@@ -323,7 +489,7 @@ server <- function(input, output) {
           geom_vline(xintercept = mu.x,colour='red')
       }
       
-      ## add the group data
+      
       ## Add the group data (from the hot table)
       if (input$showgroup){
         if(is.null(input$hot)) return(NULL)
@@ -344,8 +510,26 @@ server <- function(input, output) {
         }
         thePoints <-data.frame(x=myColumn.x,
                              y=myColumn.y)
+        print(thePoints)
         p <- p + geom_point(data=thePoints,aes(x=x,y=y),
-                          colour='blue',size=4,shape=4)
+                          colour='blue',fill='blue',size=4,shape=24,fill='blue')
+        
+        
+        # add the regression line for the group data
+        group.regression <- F
+        if (dim(thePoints)[1] > 1) {
+          group.regression <- T
+          
+          m.group <- lm(y~x,data=thePoints)
+          a0.g <- coefficients(m.group)[1]
+          a1.g <- coefficients(m.group)[2]
+          a0.g(a0.g)
+          a1.g(a1.g)
+          p <- p + geom_abline(intercept=a0.g,
+                               slope=a1.g,
+                               colour='blue')
+        }  
+        group.regression(group.regression)
       }
       ##
       
@@ -371,13 +555,7 @@ server <- function(input, output) {
           scale_y_continuous(limits=length.limits) + 
           scale_x_continuous(breaks=NULL,limits=c(-3,3))
         df2 <- data.frame(reflex=data$reflexpathlength)
-        p2 <- ggplot(df2,aes(y=reflex)) + geom_boxplot()
-        p2 <- p2 + 
-          xlab('Reflex') +
-          ylab('') +
-          scale_y_continuous(limits=length.limits) + 
-          scale_x_continuous(breaks=NULL,limits=c(-3,3))
-        #grid.arrange(p1, p2, ncol=2,heights=c(0,0))
+        
         df1$type <- 'voluntary'
         df1$var <- df1$voluntary
         df2$type <- 'reflex'
@@ -385,20 +563,23 @@ server <- function(input, output) {
         
         df3 <- rbind(df1[,c(2,3)],df2[,c(2,3)])
         
-        t <- paste('Boxplot of reflex path length (mm)',
+        t <- paste('Boxplot of reflex and voluntary path length (mm)',
                    '(N=615)',sep=' ')
         
-        p <- ggplot(df3,aes(y=var,x=type)) + geom_boxplot() +
+        p <- ggplot(df3,aes(y=var,x=type)) + geom_boxplot(width=0.2) +
           ggtitle(t) +
-          xlab('Path length') +
+          xlab('') +
           ylab('') +
           scale_y_continuous(limits=length.limits) +
-          scale_x_discrete()
-          
+          scale_x_discrete(
+            labels=c("reflex"='Reflex path length',
+                     "voluntary"='Voluntary path length')
+          ) 
+        # end of path length  
       } else {
         if (colNumber == 2) {
           # latency
-          t <- paste('Boxplot of latency (ms)',
+          t <- paste('Boxplot of reflex and voluntary latency (ms)',
                      '(N=615)',sep=' ')
           
           df1 <-data.frame(voluntary=data$meanvoluntarylatency)
@@ -411,12 +592,15 @@ server <- function(input, output) {
           df2$var <- df2$reflex
           
           df3 <- rbind(df1[,c(2,3)],df2[,c(2,3)])
-          p <- ggplot(df3,aes(y=var,x=type)) + geom_boxplot() +
-            xlab('Latency') +
+          p <- ggplot(df3,aes(y=var,x=type)) + geom_boxplot(width=0.2) +
+            xlab('') +
             ylab('') +
+            ggtitle(t) +
             scale_y_continuous(limits=latency.limits) + 
-            scale_x_discrete()
-          
+            scale_x_discrete(
+              labels=c("reflex"="Reflex latency",
+                       "voluntary"="Voluntary latency")
+              )
           
         }
       }
@@ -449,23 +633,20 @@ server <- function(input, output) {
       }
       
       
-      if (input$showmean) {
-        p <- p +
-          stat_summary(fun.y=mean, colour="red", geom="point")
+      
+      if (input$showmean){
+      # show population mean
+      thePoints1 <-data.frame(y=mean(df1$voluntary,na.rm=T),
+                              type='voluntary')
+      thePoints2 <-data.frame(y=mean(df2$reflex,na.rm=T),
+                              type='reflex')
+      thePoints <- rbind(thePoints1,thePoints2)
+      
+      p <- p + 
+        geom_point(data=thePoints,
+                   aes(x=type,y=y),
+                   colour='red',size=5,shape=4) 
       }
-      
-      # show individual points in the boxplot
-      #   replaced by showing the mean
-      #thePoints1 <-data.frame(y=myColumn.1,
-      #                        type='reflex')
-      #thePoints2 <-data.frame(y=myColumn.2,
-      #                        type='voluntary')
-      #thePoints <- rbind(thePoints1,thePoints2)
-      
-      #p <- p + 
-      #  geom_point(data=thePoints,
-      #             aes(x=type,y=mean(y,na.rm=T)),
-      #             colour='blue',size=5,shape=4) 
       if (input$showgroup) {
         thePoints1 <-data.frame(y=mean(myColumn.1,na.rm=T),
                                 type='reflex')
@@ -475,7 +656,7 @@ server <- function(input, output) {
         p <- p + 
             geom_point(data=thePoints,
                        aes(x=type,y=y),
-                       colour='blue',size=5,shape=4) 
+                       colour='blue',size=5,shape=24,fill='blue') 
         
         
       }

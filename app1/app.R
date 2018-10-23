@@ -1,119 +1,63 @@
 # app 1
 # Showing the population height distribution,
 #   and allows you to find your own height
-
+#
 library(shinydashboard)
-library(shinyjs)
-library(ggplot2)
-library(DT)
+library(ggplot2) 
 
-
-ui <- dashboardPage(
-  
-  
-  
-  dashboardHeader(title = "Students' height",
-                  titleWidth = 450),
-  dashboardSidebar(useShinyjs(),
-                  
+ui <- dashboardPage(  
+  dashboardHeader(title = "Task A.1 and A.2 How tall are HUBS191 students?",
+                  titleWidth = 800),
+  dashboardSidebar(
       checkboxInput("showmean", "Show population mean (red)", FALSE),
       checkboxInput("showyourheight", "Show your height (blue)", FALSE),
       textInput("yourheight", label = h4("Enter your height (mm)")
                 ,value=1750)
       ), 
-  dashboardBody(
-    # Boxes need to be put in a row (or column)
-    fluidRow(
-      
+  dashboardBody( 
+    fluidRow( 
       column(width = 12,
-             box(
-               title="All students", width=NULL,
-               plotOutput("CLTplot1", height = 250),
-               box(
-                 
-                 title="", 
-                 width=NULL,
-                 htmlOutput('summary')
-             ),
-             box(
-               
-               title="", 
-               width=NULL,
-               htmlOutput('summary2')
-             )
-             ) 
+              box(
+                title="Distribution of height for the population of HUBS191 students", 
+                width=NULL,
+                plotOutput("plot1", height = 350)), 
+              box( 
+                title="", 
+                width=NULL,
+                htmlOutput('summary')
+              )
+            )
       )
-      
-      
-      )
-    )
-
-  
-    )
-
-
+  )
+)
 
 server <- function(input, output) {
-  
-  
-  getSummary <- function() {
-    mn <- 1711
-    sd <- 93
-    str0 <- paste('Your height is',input$yourheight,'mm',sep=' ')
-    str1 <- paste('The population mean is',mn,'mm',sep=' ')
-    str2 <- paste('The population standard deviation is',sd,'mm',sep=' ') 
-    #above.or.below <- 'below'
-    #if (input$yourheight > mn) {
-    #  above.or.below <- 'above'
-    #}
-    #d <- (as.numeric(input$yourheight)-mn)/sd
-    #d <- abs((round(100*d))/100)
-    #str3 <- paste('Your height is',d,'standard deviations',above.or.below,
-    #              'the mean',sep=' ')
-   
-    result <- paste(str0,'<br>',str1)
-    
-    return(result)
-  }
-  
-  getSummary2 <- function() {
-    
-    ht <- as.numeric(input$yourheight)
-    mn <- 1711
-    sd <- 93
-    
-    diff <- mn - ht
-    absdiff <- abs(diff)
-    str0 <- paste('Your height is',absdiff,'mm',sep=' ')
-    str1 <- paste('The population mean is',mn,'mm',sep=' ')
-    str2 <- paste('The population standard deviation is',sd,'mm',sep=' ') 
-    above.or.below <- 'below'
-    if (ht > mn) {
-      above.or.below <- 'above'
-    }
-    d <- (absdiff)/sd
-    d <- round(100*d)/100
-
-    str0 <- paste('Your height is',absdiff,'mm',above.or.below,
-                  'the mean', sep=' ')
-    str1 <- paste('One standard deviation is',sd,'mm',sep=' ')
-    str2 <- paste(absdiff,'/',sd,'=',d,sep='')
-    
-    result <- paste(str0,'<br>',str1,'<br>',str2)
-    
-    return(result)
-  }
-   
-    
   
   xbar <- 1711
   sd <- 93
   upp <- xbar + 3 * sd
   low <- xbar - 3 * sd
   x.breaks <- round(seq(xbar-3*sd,xbar+3*sd,sd))
-    
-    
-  output$CLTplot1 <- renderPlot({ 
+  
+  getSummary <- function() {
+    ht <- as.numeric(input$yourheight) 
+    diff <- xbar - ht
+    absdiff <- abs(diff)
+    d <- (absdiff)/sd
+    d <- round(100*d)/100 
+    str0 <- paste('Population mean height is',xbar,'mm',sep=' ')
+    str1 <- paste('Population standard deviation is',sd,'mm',sep=' ') 
+    str2 <- paste('Your height is',input$yourheight,'mm',sep=' ')
+    str3 <- paste('Distance from the mean is',absdiff,'mm', sep=' ')
+    str4 <- paste('Distance from the mean in standard deviations is',
+                  paste(absdiff,'/',sd,'=',sep=''),
+                  d,sep=' ')
+    result <- paste(str0,'<br>',str1,'<br>',str2,'<br>',str3,'<br>',str4)
+    return(result)
+  } 
+  
+ 
+  output$plot1 <- renderPlot({ 
      
     p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)
                 ) +
@@ -122,22 +66,29 @@ server <- function(input, output) {
                     args = list(mean = xbar, sd = sd)) + 
                     ylab("") +
       scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
-      scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-      xlab("Height")
+      scale_y_continuous(breaks = NULL,minor_breaks=NULL,
+                         limits=c(0,0.005)) +
+      xlab("Height (mm)") + 
+      geom_segment(x=xbar+2*sd,xend=xbar+3*sd,
+                   y=0.004,yend=0.004,
+                   colour='black',
+                   arrow = arrow(length=unit(0.30,"cm"), ends="both", type = "closed")
+                   ) +
+      annotate("text", label = "1 standard deviation", 
+               x = xbar+ 2.1*sd, 
+               y= 0.0042, hjust=0,
+               size = 5, colour = "black")
        
     ht <- as.numeric(input$yourheight)
     
     
-    if (input$showmean) {
-      pointdata <- data.frame(
-        x = c(xbar), 
-        ypos = c(0)
-      ) 
-       
-      
-      p <- p + geom_vline(xintercept=xbar,colour='red') +
-          annotate("text", label = "mean", x = pointdata$x, 
-                   y= 0.00025, hjust=0,
+    if (input$showmean) { 
+      p <- p + geom_segment(x=xbar,xend=xbar,
+                            y=-0.1,yend=0.00449,
+                            colour='red') +
+          annotate("text", label = "mean", 
+                   x = xbar-10, 
+                   y= 0.00475, hjust=0,
                    size = 5, colour = "red")
       
     }
@@ -161,7 +112,8 @@ server <- function(input, output) {
                           mapping = 
                             aes(x = x, y = ypos ),
                           show.legend=F,
-                          shape = 4,
+                          shape = 24,
+                          fill='blue',
                           size = 5
                           
       ) +
@@ -171,19 +123,14 @@ server <- function(input, output) {
       }
     }
     p  
-  }) # end CLTplot1
+  }) # end plot1
+  
+ 
   
   output$summary <- renderText(
     paste("<font size=4>",getSummary(),
           "</font>")
-  )
-  
-  output$summary2 <- renderText({
-    paste("<font size=4>",getSummary2(),
-          "</font>")
-  }
-  )
-  
+  ) 
    
   output$text1 <- renderText({ 
     paste("hello input is","<font color=\"#FF0000\"><b>", input$n, "</b></font>") })

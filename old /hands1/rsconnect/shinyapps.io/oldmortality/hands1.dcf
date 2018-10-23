@@ -1,0 +1,12 @@
+name: hands1
+title: hands1
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 467349
+bundleId: 1606163
+url: https://oldmortality.shinyapps.io/hands1/
+when: 1537942222.88302
+asMultiple: FALSE
+asStatic: FALSE

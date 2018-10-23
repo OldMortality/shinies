@@ -1,6 +1,5 @@
 # app 5.
-# CLT with dashboard
-#   the newest one 
+# 
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
@@ -9,8 +8,8 @@ library(DT)
 
 ui <- dashboardPage(
   
-  dashboardHeader(title = "The distribution of the sample mean",
-                  titleWidth = 450),
+  dashboardHeader(title = "Task A.6 How much do sample means vary?",
+                  titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"),
@@ -23,31 +22,31 @@ ui <- dashboardPage(
                                 c("10" = 10,
                                   "50" = 50,
                                   "100"= 100)),
-                   checkboxInput("shownormal", "Show Normal", TRUE)),
+                   checkboxInput("shownormal", "Show Normal distribution curve", TRUE)),
   dashboardBody(
     # Boxes need to be put in a row (or column)
     fluidRow( 
       column(width = 6,
              box( 
-               title="Population", 
+               title="Distribution ofthe height for the population of HUBS191 students", 
                width=NULL,
-               plotOutput("CLTplot1",height=200), 
-               height = 250),
+               plotOutput("populationPlot",height=300), 
+               height = 350),
              box( 
                width=NULL,
                plotOutput("thissamplemean",height=50),
                height = 75),
              box(title="Means of all samples",  
                 width=NULL,
-                plotOutput("samplemean",height=200), 
-                height = 250)
+                plotOutput("samplemean",height=300), 
+                height = 350)
       ), 
       column(width=6, 
              box(  
                title="One sample", 
                width=NULL,
-               htmlOutput('sampleSummary',height=200), 
-               height = 250),
+               htmlOutput('sampleSummary',height=300), 
+               height = 350),
              box( 
                title=htmlOutput('onesamplesummary',height=50), 
                width=NULL,
@@ -56,8 +55,8 @@ ui <- dashboardPage(
              box( 
                width=NULL,
                title="All samples", 
-               htmlOutput('sampleMeanSummary',height=200), 
-               height = 250)
+               htmlOutput('sampleMeanSummary',height=300), 
+               height = 350)
       )
     )
   )
@@ -211,7 +210,7 @@ server <- function(input, output) {
   #y   <- dnorm(x,mean=mu, sd=sd)
   #jitter_y <- max(y)/50
   
-  output$CLTplot1 <- renderPlot({
+  output$populationPlot <- renderPlot({
     
     
     p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)
@@ -223,7 +222,7 @@ server <- function(input, output) {
       scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
       scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
       theme(legend.position = "none") +
-      xlab("Height")
+      xlab("Height (mm)")
      
     
     if (showSample & length(samp())>0 ) {
@@ -234,7 +233,7 @@ server <- function(input, output) {
                           colour='black')
     }
     p
-  }) # end CLTplot1
+  }) # end populationPlot
   
   #
   # This is the strip, with 1 dot for this sample mean
@@ -251,15 +250,15 @@ server <- function(input, output) {
         scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
-        ylab("") + 
-        xlab("Sample mean")
+        ylab("Frequency") + 
+        xlab("Height (mm)")
       if (showMean) { 
         p = p +
-          geom_point(colour='black') 
+          geom_point(size=2,colour='darkblue') 
       }
       p
     }
-    #max(table(sampleMeans))+1))
+     
   })
   
   #scale_x_continuous(limits=c(low,upp)) + 
@@ -270,7 +269,7 @@ server <- function(input, output) {
   #
   #
   output$samplemean <- renderPlot({
-    # put data into 60 bins
+     
     sampleMeans <- values$total[-1]
     if (length(sampleMeans)>0) {
       df <- data.frame(x=sampleMeans)
@@ -279,12 +278,14 @@ server <- function(input, output) {
           geom_point(size=0.3) +
           scale_x_continuous(limits=c(lower,upper),
                              breaks = x.breaks,minor_breaks=NULL) + 
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
+          scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
+          xlab("Height (mm)") +
+          ylab("Frequency")
       }
       
       if (length(sampleMeans > 1)) {
         p <- ggplot(df, aes(x = x)) +
-          geom_dotplot(dotsize=0.3) +
+          geom_dotplot(dotsize=0.3,colour='blue') +
           #coord_cartesian(ylim=c(0,10),expand=T) +
           scale_x_continuous(limits=c(lower,upper),
                              breaks = x.breaks,minor_breaks=NULL) +
@@ -297,7 +298,9 @@ server <- function(input, output) {
           bin.width <- 10
           # show histogram
           p <- ggplot(df, aes(x = x)) +
-            geom_histogram(binwidth = bin.width) +
+            geom_histogram(binwidth = bin.width,
+                           fill='white',
+                           colour='blue') +
             scale_x_continuous(limits=c(lower,upper),
                                breaks = x.breaks,minor_breaks=NULL) +
             scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
@@ -378,14 +381,10 @@ server <- function(input, output) {
       sum <- sum(points$x)
     }
     count <- counter$countervalue
-    str0 <- paste('This is sample number: ',count,sep=' ')
-    str0b <- "The black dots indicate the sample."
-    str1 <- paste('The total of the sample is ',sum,sep=': ')
-    
     xbar <- round(1000* sum / as.numeric(input$n))/1000
-    str2 <- paste('The average of the sample is ',sum,
-                  'divided by ',as.numeric(input$n),'= ',xbar,sep=' ')
-    result <- paste(str0,'<br>',str0b,'<br>',str1,'<br>',str2)
+    str0 <- "The black dots represent the sample."
+    str1 <- paste("The mean for sample",count,"is",xbar,sep=' ')
+    result <- paste(str0,'<br>',str1,'<br>')
     if (!showSample) {
       result <- ""
     }
@@ -410,15 +409,19 @@ server <- function(input, output) {
   }
   
   getOneSampleSummary <- function() {
-    return("Each dot indicates a sample mean.")
+    line <- "Each blue dot indicates a sample mean."
+    paste("<font size=4>",line,
+          "</font>")
   }
   
   output$sampleSummary <- renderText(
-    getSampleSummary()
+    paste("<font size=4>",getSampleSummary(),
+          "</font>")
   )
   
   output$sampleMeanSummary <- renderText(
-    getSampleMeansSummary()
+    paste("<font size=4>",getSampleMeansSummary(),
+          "</font>")
   )
   
   output$onesamplesummary <- renderText(

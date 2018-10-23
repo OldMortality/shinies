@@ -441,3 +441,259 @@ df2$type <- 'F'
 df3 <- rbind(df1,df2)
 ggplot(df3,aes(y=var,x=type)) + geom_boxplot()
 
+
+y <- numeric()
+N <- 10
+sd1 <- 2
+mu1 <- 2
+sd2 <- 1
+mu2 <- 1
+for (i in 1:1000) {
+  x1 <- rnorm(N,mu1,sd1)
+  x2 <- rnorm(N,mu2,sd2)
+  y[i] <- mean(x1) - mean(x2)
+}
+hist(y,probability=T)
+sdy <- sqrt(sd1^2 + sd2^2)/sqrt(N)  
+
+  for (i in seq(-1,2,0.01)) {
+    points(i,dnorm(i,mu1-mu2,sdy),col='red',pch='.')
+  }
+
+
+p <- ggplot(data.frame(x=rnorm(100)),aes(x=x)) +
+  geom_histogram(binwidth = 0.15)
+p$
+p
+
+
+df <- read.csv('/Users/micheldelange/Documents/shiny/app10/velocity.csv',header=T,
+               stringsAsFactors = F)
+head(df)
+colnames(df)
+table(df$disease)
+table(df$severity)
+df[which(df$severity=="Norm"),"severity"] <- "Normal"
+df[which(df$severity=="Normal"),"severity"] <- "Mild"
+df$velocity <- df$distal_cond_vel
+df[which(df$severity==""),"severity"] <- "not GB"
+
+df$severity <- factor(df$severity,
+                      levels=c('Mild','Moderate','Severe','not GB'))
+
+
+library(ggplot2)
+
+p <- ggplot(df,aes(x=severity,y=velocity)) + geom_point() +
+  ylab('Distal conduction velocity (ms)')
+p
+
+
+
+f <- read.csv('/Users/micheldelange/Documents/shiny/data/combined_clean.csv',header=T)
+colnames(f)
+mean(f$ulnarnerveconductionvelocityms1,na.rm=T)
+sqrt(var(f$ulnarnerveconductionvelocityms1,na.rm=T))
+
+
+low = -3
+upp = 3
+
+df.norm <- data.frame(x=seq(low,upp,0.1))
+df.norm$y <- dnorm(df.norm$x)
+
+p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)) + 
+  stat_function(fun = dnorm, show.legend=F,
+                colour='blue', 
+                args = list(mean = 0, sd = 1))  +
+  scale_x_continuous() +
+  theme(legend.position = "none") +
+  xlab("Height") +
+  geom_ribbon(data=df.norm,aes(x=x,ymin=0,ymax=y),
+                  fill='red',alpha=0.1) 
+  p
+
+  geom_ribbon(data=subset(gg,site=="site1" & x>q1),
+              aes(x=x,ymax=y),ymin=0,fill="red", alpha=0.5)+
+  
+p
+
+# regression plot
+f <- read.csv('/Users/micheldelange/Documents/shiny/data/combined_clean.csv',header=T)
+colnames(f)
+f <- f[-which(f$heightmm < 1000),]
+f <- f[-which(f$heightmm > 2500),]
+f <- f[-which(is.na(f$heightmm)),]
+f <- f[-which(f$indexfingerlengthmm<20),]
+#f <- f[-which(is.na(f$indexfingerlengthmm)),]
+dim(f)
+
+f$hei <- f$heightmm
+f$fin <- f$indexfingerlengthmm
+plot(f$hei~f$fin)
+m <- lm(hei~fin,data=f)
+summary(m)  
+dim(f)
+
+# so my model is going to be
+#  length <- 1336 + 4.74 * finger + N(0,sd=81)
+for (i in 1:100) {
+  sim <- simulate(m)
+  m2 <- lm(sim[[1]]~f$fin)
+  abline(coefficients(m2),col='red')  
+}
+
+p <- ggplot(data=f,aes(x=fin,y=hei)) + geom_point()
+p
+
+
+
+
+
+#x <- seq(0,10,0.01)
+#e <- rnorm(length(x),0,1.3)
+#y <- 2 + 3 * x + e
+##plot(y~x)
+#summary(lm(y~x))
+
+coefficients(m)
+
+
+
+b <- ggplot(mtcars, aes(wt, mpg)) +
+  geom_point()
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point() +
+  geom_smooth()
+
+
+df <- data.frame(
+  trt = factor(c(1, 1, 2, 2)),
+  resp = c(1, 5, 3, 4),
+  group = factor(c(1, 2, 1, 2)),
+  upper = c(1.1, 5.3, 3.3, 4.2),
+  lower = c(0.8, 4.6, 2.4, 3.6)
+)
+
+p <- ggplot(df, aes(trt, resp, colour = group))
+p + geom_linerange(aes(ymin = lower, ymax = upper))
+p + geom_pointrange(aes(ymin = lower, ymax = upper))
+p + geom_crossbar(aes(ymin = lower, ymax = upper), width = 0.2)
+p + geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2)
+
+# Draw lines connecting group means
+p +
+  geom_line(aes(group = group)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2)
+
+# If you want to dodge bars and errorbars, you need to manually
+# specify the dodge width
+p <- ggplot(df, aes(trt, resp, fill = group))
+p +
+  geom_col(position = "dodge2") +
+  geom_errorbar(
+    aes(ymin = lower, ymax = upper),
+    position = position_dodge2(width = 0.5, padding = 0.5)
+  )
+
+
+dfp <- data.frame(x=seq(1,5),
+                  y1=seq(10,18,2),
+                  y1low <- seq(9,17,2),
+                  y1upp <- seq(11,19,2),
+                  y2=seq(7,11),
+                  y2low <- seq(6,10),
+                  y2upp <-seq(8,12))
+                
+p <-ggplot(data=dfp) + geom_line(aes(x=x,y=y1)) +
+  geom_line(aes(x=x,y=y2)) + 
+  geom_errorbar(aes(x=x,ymin=y1low,ymax=y1upp))
+p
+
+
+f <- read.csv('/Users/micheldelange/Documents/shiny/data/combined_clean.csv',header=T)
+f <- f[-which(f$heightmm < 1000),]
+f <- f[-which(f$heightmm > 2500),]
+f <- f[-which(is.na(f$heightmm)),]
+f <- f[-which(f$indexfingerlengthmm<20),]
+f$hei <- f$heightmm
+f$len <- f$indexfingerlengthmm
+colnames(f)
+
+#f[sample(nrow(f), 3), ]
+s <- f[sample(nrow(f),size=10),]
+dim(f)
+dim(s)
+colnames(s)
+
+
+
+y <- rnorm(100)
+type <- c(rep('type1',50),rep('type2',50))
+df <- data.frame(y,type)
+p <- ggplot(data=df,aes(y=y,x=type)) + geom_boxplot(width=0.2)+
+  scale_x_discrete(labels=c('type1'='fred',
+                            'type2'='wilma'))
+p
+
+
+p <- p +
+  stat_summary(fun.y=mean, colour="darkred", geom="point")
+p + ggtitle('fred')
+
+x <- seq(-30,30)
+y <- 2.3 * x + rnorm(length(x))
+m <- lm(y~x)
+coefficients(m)
+
+
+x <- rnorm(100)
+y <- rnorm(100)
+df <- data.frame(x=x,y=y)
+ggplot(data=df,aes(x=x,y=y)) + geom_point(size=0)
+
+
+
+mu1 <- 12
+mu2 <- 0
+sd <- 13
+N <- 200
+
+sample1 <- rnorm(N,mu1,sd=13)
+sample2 <- rnorm(N,mu2,sd=13)
+diff <- sample1 - sample2
+mean(diff)
+sqrt(var(diff))
+hist(diff)
+s <- sqrt(2*sd^2/N)
+s
+
+
+{
+xbar <- 1711
+sd <- 93
+upp <- xbar + 3 * sd
+low <- xbar - 3 * sd
+x.breaks <- round(seq(xbar-3*sd,xbar+3*sd,sd))
+p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)
+  ) +
+    stat_function(fun = dnorm, show.legend=F,
+                  colour='red', 
+                  args = list(mean = xbar, sd = sd)) + 
+    ylab("") +
+    scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
+    scale_y_continuous(breaks = NULL,minor_breaks=NULL
+                       ) +
+    xlab("Height")
+p
+}
+
+
+df <- data.frame(x <- c(1,2,3,6,7,9))
+p <- ggplot(df) + geom_histogram(aes(x=x)) +
+  scale_x_continuous(limits=c(0,10),
+                     breaks=seq(1,10))
+p
+
+seq(1600,2100,25)

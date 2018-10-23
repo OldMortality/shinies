@@ -4,6 +4,7 @@ library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(DT)
+#library(shinyBS)
 
 
 ui <- dashboardPage(
@@ -11,22 +12,31 @@ ui <- dashboardPage(
   dashboardHeader(title = "Comparing 2 groups: Conduction velocity",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(),
+                   tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: red}")),
+                   tags$style(HTML(".js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {background: blue}")),
+                   
                    actionButton("clear",label="Clear"),
-                   #actionButton("sample",label="Take 1 sample"),
-                   #actionButton("sample10",label="Take 10 samples"),
-                   actionButton("sample100",label="Take 200 samples"),
-                   #actionButton("start",label="Start "),
-                   #actionButton("stop",label="Stop "),  
+                   actionButton("sampleMany",label="Take 200 samples"),
+                   sliderInput("mu.red", "Red mean:",
+                               min = 10, max = 80, value = 55,step=0.25
+                   ),
+                   #bsTooltip(id = "sampleMany", title = "This is an input", 
+                   #           placement = "top", trigger = "hover"),
                    
                    sliderInput("mu.2", "Blue mean:",
-                               min = 10, max = 80, value = 35,step=0.25
+                               min = 10, max = 80, value = 40,step=0.25
                    ),
                    
                    radioButtons("n", "Sample size:",
                                 c("10" = 10,
                                   "50" = 50,
                                   "100"= 100)),
-                   textInput("observed", label = "observed difference", value = "21")
+                   textInput("observed", label = "observed difference", value = "21"),
+                   checkboxInput("show.perc", "Show percentile", FALSE),
+                   checkboxInput("show.mean", "Show mean", FALSE),
+                   checkboxInput("show.norm", "Show Normal", FALSE),
+                   checkboxInput("show.obs", "Show observed difference", FALSE)
+                   
                   ),
   dashboardBody(
     # Boxes need to be put in a row (or column)
@@ -52,7 +62,7 @@ ui <- dashboardPage(
       ), 
       column(width=6, 
              box(  
-               title="One sample", 
+               title="", 
                width=NULL,
                htmlOutput('sampleSummary',height=200), 
                height = 250),
@@ -68,30 +78,38 @@ ui <- dashboardPage(
                height = 75),
              box( 
                width=NULL,
-               title="All samples", 
+               title="Summary", 
                htmlOutput('sampleMeanSummary',height=200), 
                height = 250)
       )
     )
   )
+  
+  
 )
 
 
 server <- function(input, output) {
   
- 
+  
+  #addTooltip(session, id = "mu.red", title = "You can use arrow keys",
+  #                      placement = "left", trigger = "hover")
+  #addTooltip(session, id = "mu.2", title = "You can use arrow keys",
+  #           placement = "left", trigger = "hover")
+  
   # from combined clean csv
-  mu1 = 56
+  
   mu2 = 35
   sd1 = 13
   sd2 = 13
   sd = sd1
   
   # temp:
-  mu = mu1
+  # replace mu1 by input$mu.red
+  mu = 50
   sd = sd1
-  lower <- mu1-3*sd
-  upper <- mu1+3*sd
+  lower <- mu-3*sd
+  upper <- mu+3*sd
   thisSampleMean <- 0
   shinyjs::disable("shownormal")
   
@@ -146,7 +164,7 @@ server <- function(input, output) {
     showMean <<- 1
     showDiff$summary <- 1
     showSample <<- TRUE
-    samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
+    samp1 <- round(rnorm(as.numeric(input$n),mean=input$mu.red,sd=sd1),1)
     samp2 <- round(rnorm(as.numeric(input$n),mean=input$mu.2,sd=sd2),1)
     
     samp1(samp1)
@@ -169,7 +187,7 @@ server <- function(input, output) {
     showDiff$summary <- 0
     
     for (i in 1:10) {
-      samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
+      samp1 <- round(rnorm(as.numeric(input$n),mean=input$mu.red,sd=sd1),1)
       samp2 <- round(rnorm(as.numeric(input$n),mean=input$mu.2,sd=sd2),1)
       
       samp1(samp1)
@@ -188,14 +206,14 @@ server <- function(input, output) {
   })
   
   # 100 samples
-  observeEvent(input$sample100,{
+  observeEvent(input$sampleMany,{
     showDiff$summary <- 0 
     showMean <<- 100
     showSample <<- FALSE
     
     for (i in 1:200) {
       
-      samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
+      samp1 <- round(rnorm(as.numeric(input$n),mean=input$mu.red,sd=sd1),1)
       samp2 <- round(rnorm(as.numeric(input$n),mean=input$mu.2,sd=sd2),1)
       
       samp1(samp1)
@@ -231,7 +249,7 @@ server <- function(input, output) {
       shinyjs::enable("shownormal")
     }
   })
-  observeEvent(input$sample100, {
+  observeEvent(input$sampleMany, {
     counter$countervalue <- counter$countervalue + 100
     if (counter$countervalue < 100) {
       shinyjs::disable("shownormal")
@@ -282,7 +300,7 @@ server <- function(input, output) {
    
     # red
     data2.label1 <- data.frame(
-      time = c(mu1), 
+      time = c(input$mu.red), 
       value = c(0.001), 
       label = c("not GM")
     )
@@ -301,7 +319,7 @@ server <- function(input, output) {
     p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)) +
       stat_function(fun = dnorm, show.legend=F,
                     colour='red', 
-                    args = list(mean = mu1, sd = sd1)) + 
+                    args = list(mean = input$mu.red, sd = sd1)) + 
       stat_function(fun = dnorm, show.legend=F,
                     colour='blue', 
                     args = list(mean = input$mu.2, sd = sd2)) + 
@@ -310,7 +328,7 @@ server <- function(input, output) {
       scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
       theme(legend.position = "none") +
       xlab("Conduction velocity") + 
-      geom_vline(xintercept=mu1,colour='red') +
+      geom_vline(xintercept=input$mu.red,colour='red') +
       geom_vline(xintercept=input$mu.2,colour='blue') +
       geom_text(data = data2.label1, aes(x = time, y = value, label = label),colour='red') +
       geom_text(data = data2.label2, aes(x = time, y = value, label = label),colour='blue') 
@@ -410,29 +428,62 @@ server <- function(input, output) {
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
       }
       
-      if (length(sampleMeans > 1)) {
-        p <- ggplot(df, aes(x = x)) +
-          geom_dotplot(dotsize=0.3) +
-          #coord_cartesian(ylim=c(0,10),expand=T) +
-          scale_x_continuous(limits=c(lo,up),
-                             breaks = x.breaks,minor_breaks=NULL) +
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
-      } 
+      #if (length(sampleMeans > 1)) {
+      #  p <- ggplot(df, aes(x = x)) +
+      #    geom_dotplot(dotsize=0.3) +
+      #    
+      #    scale_x_continuous(limits=c(lo,up),
+      #                       breaks = x.breaks,minor_breaks=NULL) +
+      #    scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
+      #} 
       
-      # overlay normal distribution if required, and if there
-      #  are enough samples (>= 100)
-      if (length(sampleMeans) > 100){
+       
+      #if (length(sampleMeans) > 100){
         
         # show histogram
         p <- ggplot(df, aes(x = x)) +
           geom_histogram(binwidth = bin.width) +
           scale_x_continuous(limits=c(lo,up),
-                             breaks = x.breaks,minor_breaks=NULL) +
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
+                             breaks = x.breaks,minor_breaks=NULL) #+
+                             #scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
         
-      }
+      #}
+      
+      
       p <- p + xlab("") + ylab("")
-      p <- p + geom_vline(xintercept=as.numeric(input$observed))
+      
+      if (input$show.obs) {
+        p <- p + geom_vline(xintercept=as.numeric(input$observed))
+      }
+      
+      if (input$show.mean) {
+        m <- mean(sampleMeans)
+        p <- p + geom_vline(xintercept = m,colour='red' )
+      }
+      
+      if (input$show.norm) {
+        
+        m <- input$mu.red - input$mu.2
+        s.size <- as.numeric(input$n)
+        s <- sqrt(sd1^2/s.size+sd2^2/s.size)
+        p <- p + stat_function( 
+          color="red",
+          fun = function(x, mean, sd, n, bw){ 
+            dnorm(x = x, mean = mean, sd = sd) * n * bw
+          }, 
+          args = c(mean = m, sd = s ,
+                   n = length(sampleMeans) , 
+                   bw = bin.width))
+      }
+      
+      if (input$show.perc) {
+        two.5 <- round(quantile(sampleMeans,0.025),1)
+        nine.5 <- round(quantile(sampleMeans,0.975),1)
+        p <- p + geom_vline(xintercept = two.5,colour='darkred' )+
+          geom_vline(xintercept = nine.5,colour='darkred' )
+      }
+      
+      
       p
       
     }
@@ -494,7 +545,7 @@ server <- function(input, output) {
         sampleMeans <- values$diff[-1]
         
         obs <- as.numeric(input$observed)
-        if (mu1 - input$mu.2 < obs) {
+        if (input$mu.red - input$mu.2 < obs) {
           # counting the right tail
           w <- which(sampleMeans>obs)
         } else {
@@ -510,11 +561,23 @@ server <- function(input, output) {
                        or more extreme is:",
                        numMoreExtremeThanObserved,sep=' ')
         str2_c <- paste("There were",length(sampleMeans),"samples",sep=" ")
+        m1 <- round(mean(sampleMeans,na.rm = T),1)
+        str_e <- paste("The mean of the sampling distribution is: ",m1,sep=" ")
+        two.5 <- round(quantile(sampleMeans,0.025),1)
+        nine.5 <- round(quantile(sampleMeans,0.975),1)
+        str_f <- paste("The 2.5% percentile of the sampling distribution is:",
+                       two.5)
+        str_g <- paste("The 97.5% percentile of the sampling distribution is:",
+                       nine.5)
+        
+        
         perc <- 100*round(numMoreExtremeThanObserved/length(sampleMeans),2)
-        str2_c1 <- paste("If the blue mean is in the correct spot, ")
-        str2_d <- paste(str2_c1, "The probability of the observed difference (or more extreme) is", 
+        str2_c1 <- paste("If the population means (red and blue) have the correct distance, ")
+        str2_d <- paste(str2_c1, "then the probability of the observed difference (or more extreme) is", 
                         perc,"percent",sep=" ")
-        str2 <- paste(str2_a, str2_b,str2_c,str2_d,sep="<br>")
+        str2 <- paste(str2_a, str2_b,str2_c,
+                      str_e,str_f,str_g,
+                      str2_d,sep="<br>")
       }
       result <- paste(str2)
     } else {

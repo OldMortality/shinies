@@ -16,36 +16,38 @@ ui <- dashboardPage(
     fluidRow(
       column(width = 6,height=2,
              box(
-               title="1 ", width=NULL,
-               tags$button("", label = "1. Mean height", 
+               title="Task A.1 and A.2 How tall are HUBS191 students?", 
+               width=NULL,
+               tags$button("", label = "Task A.1 and A.2 How tall are HUBS191 students?", 
                            tags$img(src = "app1.png",
                                     height = "150px"),
                             onclick ="window.open('https://oldmortality.shinyapps.io/app1/', '_blank')")
                ),
              box(
-               title="2 ", width=NULL,
-               tags$button("", label = "2. Plot heights", 
+               title="Task A.3 How tall are the people at your table?", width=NULL,
+               tags$button("", label = "Task A.3 How tall are the people at your table?", 
                            tags$img(src = "app2.png",
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app2/', '_blank')")
                ),
-               box(
-                 title="3 ", width=NULL,
-                 tags$button("", label = "3. Group heights", 
+            box(
+               title="Task A.4 Heights for a lab stream (n=90)", width=NULL,
+               tags$button("", label = "Task A.4 Heights for a lab stream (n=90)", 
+                           tags$img(src = "app4.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app4/', '_blank')")
+                ),
+              box(
+                 title="Task A.5 Several sample means", width=NULL,
+                 tags$button("", label = "Task A.5 Several sample means", 
                              tags$img(src = "app3.png",
                                       height = "150px"),
                              onclick = "window.open('https://oldmortality.shinyapps.io/app3/', '_blank')")
                ), 
-               box(
-               title="4", width=NULL,
-               tags$button("", label = "4. Historical data", 
-                           tags$img(src = "app4.png",
-                                    height = "150px"),
-                           onclick = "window.open('https://oldmortality.shinyapps.io/app4/', '_blank')")
-               ), 
+                
              box(
-               title="5", width=NULL,
-               tags$button("", label = "5. Sampling distribution", 
+               title="Task A.6 How much do sample means vary?", width=NULL,
+               tags$button("", label = "Task A.6 How much do sample means vary?", 
                            tags$img(src = "app5.png",
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app5/', '_blank')")
@@ -59,8 +61,8 @@ ui <- dashboardPage(
                            onclick = "window.open('https://oldmortality.shinyapps.io/app6b/', '_blank')")
              ),
              box(
-               title="6", width=NULL,
-               tags$button("", label = "6. Interval estimates", 
+               title="Task A.7 Confidence intervals for the population mean height", width=NULL,
+               tags$button("", label = "Task A.7 Confidence intervals for the population mean height", 
                            tags$img(src = "app6.png",
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app6/', '_blank')")
@@ -120,6 +122,20 @@ ui <- dashboardPage(
                            tags$img(src = "app13.png",
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app13/', '_blank')")
+             ),
+             box(
+               title="14", width=NULL,
+               tags$button("", label = "14. Group velocity", 
+                           tags$img(src = "app14.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app14/', '_blank')")
+             ),
+             box(
+               title="15", width=NULL,
+               tags$button("", label = "15. . Sampling distribution: Conduction velocity", 
+                           tags$img(src = "app15.png",
+                                    height = "150px"),
+                           onclick = "window.open('https://oldmortality.shinyapps.io/app15/', '_blank')")
              )
              
       ))
