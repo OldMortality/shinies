@@ -54,13 +54,7 @@ shinyUI <- dashboardPage(
                            onclick = "window.open('https://oldmortality.shinyapps.io/app5/', '_blank')")
                ),
              
-             box(
-               title="6b", width=NULL,
-               tags$button("", label = "6b. Confidence intervals", 
-                           tags$img(src = "app6b.png",
-                                    height = "150px"),
-                           onclick = "window.open('https://oldmortality.shinyapps.io/app6b/', '_blank')")
-             ),
+             
              box(
                title="Task A.7 Confidence intervals for the population mean height", width=NULL,
                tags$button("", label = "Task A.7 Confidence intervals for the population mean height", 
@@ -69,15 +63,30 @@ shinyUI <- dashboardPage(
                            onclick = "window.open('https://oldmortality.shinyapps.io/app6/', '_blank')")
              ),
              box(
-               title="7", width=NULL,
-               tags$button("", label = "7. Exercise", 
+               title="Task B.1 Estimating a proportion", width=NULL,
+               tags$button("", label = "B.1 Estimating a proportion", 
                            tags$img(src = "app7.png",
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app7/', '_blank')")
              ),
+            box(
+              title="Task B.3 Sampling variation in regression lines", width=NULL,
+              tags$button("", label = "B.3 Sampling variation in regression lines", 
+                          tags$img(src = "app12.png",
+                                   height = "150px"),
+                          onclick = "window.open('https://oldmortality.shinyapps.io/app12/', '_blank')")
+            ),
+            box(
+              title="Task C.1 What if the population mean is unknown?", width=NULL,
+              tags$button("", label = "Task C.1 What if the population mean is unknown?", 
+                          tags$img(src = "app6b.png",
+                                   height = "150px"),
+                          onclick = "window.open('https://oldmortality.shinyapps.io/app6b/', '_blank')")
+            ),
              box(
-               title="7b", width=NULL,
-               tags$button("", label = "7b. Exercise", 
+               title="Task C.2 Comparing the sampling distribution for two means", 
+               width=NULL,
+               tags$button("", label = "Task C.2 Comparing the sampling distribution for two means", 
                            tags$img(src = "app7b.png",
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app7b/', '_blank')")
@@ -110,13 +119,7 @@ shinyUI <- dashboardPage(
                                     height = "150px"),
                            onclick = "window.open('https://oldmortality.shinyapps.io/app11/', '_blank')")
              ),
-             box(
-               title="12", width=NULL,
-               tags$button("", label = "12. Height vs. finger length", 
-                           tags$img(src = "app12.png",
-                                    height = "150px"),
-                           onclick = "window.open('https://oldmortality.shinyapps.io/app12/', '_blank')")
-             ),
+             
              box(
                title="13", width=NULL,
                tags$button("", label = "13. Height vs. finger length - your group", 
