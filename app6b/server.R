@@ -1,73 +1,11 @@
 # app 6b.
 # show CI
+library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-#library(DT)
 
-
-ui <- dashboardPage(
-  
-  dashboardHeader(title = "Confidence intervals for the mean",
-                  titleWidth = 450),
-  dashboardSidebar(useShinyjs(),
-                   actionButton("clear",label="Clear"),
-                   actionButton("sample",label="Take 1 sample"),
-                   sliderInput("mu.2", "Blue mean:",
-                               min = 1400, max = 2000, value = 1740,step=1
-                   ),
-                   
-                   
-                   radioButtons("n", "Sample size:",
-                                c("10" = 10,
-                                  "50" = 50,
-                                  "100"= 100))#,
-                   #checkboxInput("showtruemean", "Show true mean", TRUE),
-                   #checkboxInput("showerrs", "Color errors", TRUE)
-  ),
-  
-  dashboardBody(
-    # Boxes need to be put in a row (or column)
-    fluidRow( 
-      column(width = 6,
-             box( 
-               title="Population", 
-               width=NULL,
-               plotOutput("CLTplot1",height=200), 
-               height = 250),
-             box( 
-               width=NULL,
-               plotOutput("thissamplemean",height=50),
-               height = 75),
-             box( 
-               title="Sampling distribution", 
-               width=NULL,
-               plotOutput("samplingdistribution",height=200),
-               height = 250) 
-      ), 
-      column(width=6, 
-             box(  
-               title="One sample", 
-               width=NULL,
-               htmlOutput('sampleSummary',height=200), 
-               height = 250),
-             box( 
-               title=htmlOutput('onesamplesummary',height=50), 
-               width=NULL,
-               
-               height = 75),
-             box( 
-               width=NULL,
-               title="All samples", 
-               htmlOutput('sampleMeanSummary',height=200), 
-               height = 250)
-      )
-    )
-  )
-)
-
-
-server <- function(input, output) {
+shinyServer <- function(input, output) {
   
   mu <- 1711
   sd <- 92 
@@ -220,10 +158,7 @@ server <- function(input, output) {
       # sd of the sampling distribution
       sd.samp <- sd/sqrt(as.numeric(input$n))
        
-      print(sd.samp)
-      
       thisOne <- mean(samp())
-      print(thisOne)
       # for plotting shady bit
       if (input$mu.2 > mu ) {
         x.low <- low
@@ -250,12 +185,8 @@ server <- function(input, output) {
         theme(legend.position = "none") +
         xlab("Height") +
          geom_ribbon(data=df.norm,aes(x=df.norm$x,ymin=0,ymax=df.norm$y),
-                  fill='red',alpha=0.1) 
-       
-    
-    
-      print(p)
-    print('13')
+                  fill='red',alpha=0.1)  
+     
     }
   })
   
@@ -286,7 +217,6 @@ server <- function(input, output) {
     if (length(samp() > 1) ) {
       sampleMean <- mean(samp())
       sd.samp.dist <- sd/sqrt(as.numeric(input$n))
-      print(paste('sd.samp.dist',sd.samp.dist))
       prob <- pnorm(sampleMean,mean=input$mu.2,sd=sd.samp.dist)
       if (input$mu.2 < mu) {
         prob <- 1-  prob
@@ -335,5 +265,3 @@ server <- function(input, output) {
   )
   
 }
-
-shinyApp(ui, server)

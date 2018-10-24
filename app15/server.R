@@ -1,75 +1,20 @@
-# app 7.
-# like app5, but binary population
-#
+# app 15.
+# Like app5, but with conduction velocity,
+#   and with a slider.
+
+library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(DT)
 
 
-ui <- dashboardPage(
+shinyServer <- function(input, output) {
   
-  dashboardHeader(title = "B.1 Estimating a proportion",
-                  titleWidth = 850),
-  dashboardSidebar(useShinyjs(),
-                   actionButton("clear",label="Clear"),
-                   actionButton("sample",label="Take 1 sample"),
-                   actionButton("sample10",label="Take 10 samples"),
-                   actionButton("sample100",label="Take 100 samples"),
-                   actionButton("start",label="Start "),
-                   actionButton("stop",label="Stop "),  
-                   
-                   radioButtons("n", "Sample size:",
-                                c("10" = 10,
-                                  "50" = 50,
-                                  "100"= 100)),
-                   checkboxInput("shownormal", "Show Normal", TRUE)),
-  dashboardBody(
-    # 
-    fluidRow( 
-      column(width = 6,
-             box( 
-               title=paste("Distribution for frequent exercise (Yes/No)", 
-                           " in the population of HUBS191 students.",sep=' '),
-               width=NULL,
-               plotOutput("plot1",height=300), 
-               height = 350),
-             box( 
-               width=NULL,
-               plotOutput("thissamplemean",height=50),
-               height = 75),
-             box(title="Distribution of all sample proportions",  
-                 width=NULL,
-                 plotOutput("samplemean",height=300), 
-                 height = 350)
-      ), 
-      column(width=6, 
-             box(  
-               title="", 
-               width=NULL,
-               htmlOutput('sampleSummary',height=300), 
-               height = 350),
-             box( 
-               title=htmlOutput('onesamplesummary',height=50), 
-               width=NULL,
-               
-               height = 75),
-             box( 
-               width=NULL,
-               title="All samples", 
-               htmlOutput('sampleMeanSummary',height=300), 
-               height = 350)
-      )
-    )
-  )
-)
-
-
-server <- function(input, output) {
-  
-  trueProb = 0.3
-  lower <- 0
-  upper <- 1
+  #mu <- 55
+  sd <- 13 
+  #lower <- input$mu-3*sd
+  #upper <- input$mu+3*sd
   thisSampleMean <- 0
   shinyjs::disable("shownormal")
   
@@ -89,8 +34,8 @@ server <- function(input, output) {
   
   observeEvent(input$clear,{
     thisSampleMean <- 0
-    allm <- vector()
-    samp <- rbinom(0,0,0.5)
+    #allm <- vector()
+    samp <- round(rnorm(0,mean=input$mu,sd=sd),1)
     #samp(samp)
     meansamp <- reactiveVal()
     allmeansamp$allm = vector()
@@ -110,9 +55,9 @@ server <- function(input, output) {
   observeEvent(input$sample,{
     showMean <<- 1
     showSample <<- TRUE
-    samp <- rbinom(as.numeric(input$n),size=1,prob=trueProb)
+    samp <- round(rnorm(as.numeric(input$n),mean=input$mu,sd=sd),1)
     samp(samp)
-    meansamp <- round(mean(samp),3)
+    meansamp <- round(mean(samp),2)
     thisSampleMean <<- meansamp
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
@@ -123,9 +68,9 @@ server <- function(input, output) {
     showMean <<- 10
     showSample <<- FALSE
     for (i in 1:10) {
-      samp <- samp <- rbinom(as.numeric(input$n),size=1,prob=trueProb)
+      samp <- round(rnorm(as.numeric(input$n),mean=input$mu,sd=sd),1)
       samp(samp)
-      meansamp <- round(mean(samp),3)
+      meansamp <- round(mean(samp),2)
       thisSampleMean <<- meansamp
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
@@ -139,9 +84,9 @@ server <- function(input, output) {
     for (i in 1:100) {
       showMean <<- 100
       showSample <<- FALSE
-      samp <- rbinom(as.numeric(input$n),size=1,prob=trueProb)
+      samp <- round(rnorm(as.numeric(input$n),mean=input$mu,sd=sd),1)
       samp(samp)
-      meansamp <- round(mean(samp),3)
+      meansamp <- round(mean(samp),2)
       thisSampleMean <<- meansamp
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
@@ -203,68 +148,64 @@ server <- function(input, output) {
     )
   })
   
-  # population size
-  N <- 500
-  upp <- 0
-  low <- 1
-  x.breaks <- seq(0,1,0.1)
-   
-  # this is the top plot, with the population
-  output$plot1 <- renderPlot({
-    df1 <- data.frame(class=c(rep(0,700),rep(1,300)))
-    p <- ggplot(df1, aes(class,colour='red',fill='red')) + 
-      scale_x_discrete(breaks = c(0,1),limits=c(0,1),
-                       labels=c('No','Yes')) +
+  
+  
+  
+  
+  
+  output$CLTplot1 <- renderPlot({
+    upp <- input$mu + 3 * sd
+    low <- input$mu - 3 * sd
+    x.breaks <- round(seq(input$mu-3*sd,input$mu+3*sd,sd))
+    
+    p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)
+    ) +
+      stat_function(fun = dnorm, show.legend=F,
+                    colour='red', 
+                    args = list(mean = input$mu, sd = sd)) + 
+      ylab("") +
+      scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
       scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
       theme(legend.position = "none") +
-      ylab("Proportion") +
-      xlab("Excercise frequently")
-    p <- p  + geom_bar(width=0.1) 
-      #geom_segment(x=0,xend=0,y=0,yend=100,colour='black')
+      xlab("Conduction velocity")
+    
     
     if (showSample & length(samp())>0 ) {
-       
-      if (length(samp())==10) {
-        
-        dfs <- data.frame(y=samp())
-        print(dfs)
-        p <- p + geom_dotplot(data=dfs,aes(x=y),dotsize = 0.4,colour='black',fill='black')
-        
-        
-      } else {
-        # sample size = 50 or 100. We cannot show the dots
-        #   without filling the graph.
-        # number of ones in the sample
-        y1 <- sum(samp())
-        # number of zeros in the sample
-        y0 <- length(samp())- y1
-        p <- p +
-          geom_segment(aes(x = 0, y=0, xend = 0, yend = y0),colour='black',size=4) + 
-          geom_segment(aes(x = 1, y=0, xend = 1, yend = y1),colour='black',size=4) 
-      }
+      # points for the sample
+      pts <- data.frame(x = samp(),y=rep(0,length(samp)))
+      
+      p <- p + geom_point(data=pts,aes(y=y),width=0,
+                          colour='black')
     }
     p
-  }) # end plot1
+  }) # end CLTplot1
   
   #
   # This is the strip, with 1 dot for this sample mean
   # 
   output$thissamplemean <- renderPlot({
     
+    x.breaks <- round(seq(input$mu-3*sd,input$mu+3*sd,sd))
+    upper <- input$mu + 3 * sd
+    lower <- input$mu - 3 * sd
+    
     if (length(samp())>0) {
+      
+      #thisOne <- mean(samp()) 
       thisOne <- tail(values$total,showMean)
+      
       df <- data.frame(x=thisOne)
       p <- ggplot(df, aes(x = x,y=0 )) +
         theme(legend.position = "none") +
-        scale_x_continuous(breaks = seq(0,1,0.1),limits=c(0,1)) +
+        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(lower,upper)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
         ylab("") + 
-        xlab("Sample proportion")
-      if (showMean) { 
-        p = p +
-          geom_point(colour='blue') 
-      }
+        xlab("Sample mean")
+      #if (showMean) { 
+      p = p +
+        geom_point(colour='black') 
+      #}
       p
     }
     #max(table(sampleMeans))+1))
@@ -276,23 +217,29 @@ server <- function(input, output) {
   # This is the tricky plot, with the histogram
   #   of all sample means.
   #
+  #
   output$samplemean <- renderPlot({
+    
+    lower <- input$mu-3*sd
+    upper <- input$mu+3*sd
+    x.breaks <- round(seq(input$mu-3*sd,input$mu+3*sd,sd))
+    
+    
     # put data into 60 bins
     sampleMeans <- values$total[-1]
     if (length(sampleMeans)>0) {
       df <- data.frame(x=sampleMeans)
       if (length(sampleMeans == 1)) {
         p <- ggplot(df, aes(x = x)) +
-          geom_point(size=trueProb,colour='blue') +
-          scale_x_continuous(limits=c(0,1),
-                             breaks = seq(0,1,0.1),minor_breaks=NULL) + 
+          geom_point(size=0.3) +
+          scale_x_continuous(limits=c(lower,upper),
+                             breaks = x.breaks,minor_breaks=NULL) + 
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
       }
       
       if (length(sampleMeans > 1)) {
-        
         p <- ggplot(df, aes(x = x)) +
-          geom_dotplot(dotsize=trueProb,colour='blue') +
+          geom_dotplot(dotsize=0.3) +
           #coord_cartesian(ylim=c(0,10),expand=T) +
           scale_x_continuous(limits=c(lower,upper),
                              breaks = x.breaks,minor_breaks=NULL) +
@@ -302,38 +249,29 @@ server <- function(input, output) {
       # overlay normal distribution if required, and if there
       #  are enough samples (>= 100)
       if (length(sampleMeans) > 100){
-        
-        if (input$n==10) {
-          bin.width <- 0.1 
-        } else {
-          bin.width <- 0.05 
-        }
+        bin.width <- 3
         # show histogram
         p <- ggplot(df, aes(x = x)) +
-          geom_histogram(binwidth = bin.width,
-                         colour='blue',
-                         fill='white') +
+          geom_histogram(binwidth = bin.width) +
           scale_x_continuous(limits=c(lower,upper),
                              breaks = x.breaks,minor_breaks=NULL) +
-          #scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-          ylab("Frequency") +
-          xlab("Sample proportion")
-        
-          if (counter$countervalue > 100) {
-            if (input$shownormal ) {
-              sample.size <- as.numeric(input$n)
-              # sd of the sampling distribution root(pq/N)
-              s <- sqrt(trueProb*(1-trueProb)/sample.size)
-               p <- p + stat_function( 
-                color="red",
-                fun = function(x, mean, sd, n, bw){ 
-                  dnorm(x = x, mean = mean, sd = sd) * n * bw
-                }, 
-                args = c(mean = trueProb, sd = s, 
-                       n = counter$countervalue , 
-                       bw = bin.width))
-             }
-          }
+          scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
+        if (input$shownormal ) {
+          sample.size <- as.numeric(input$n)
+          s <- sd/sqrt(sample.size)
+          #p <- p + stat_function(fun=dnorm,
+          #                  color="red",
+          #                  args=list(mean=mean(mu), 
+          #                            sd=s)) 
+          p <- p + stat_function( 
+            color="red",
+            fun = function(x, mean, sd, n, bw){ 
+              dnorm(x = x, mean = mean, sd = sd) * n * bw
+            }, 
+            args = c(mean = input$mu, sd = s, 
+                     n = counter$countervalue , 
+                     bw = bin.width))
+        }
       }
       p <- p + xlab("")
       p
@@ -389,31 +327,24 @@ server <- function(input, output) {
   #)
   
   getSampleSummary <- function() {
-    #points <- data.frame(x = samp() )
-    #sum <- 0
-    #if (dim( points )[1] > 0 ) {
-    #  sum <- sum(points$x)
-    #}
-    #count <- counter$countervalue
-    #str0 <- paste('This is sample number: ',count,sep=' ')
-    #str0b <- "The black dots indicate the sample."
-    #str1 <- paste('The number of people, who exercise is ',sum,sep=': ')
+    points <- data.frame(x = samp() )
+    sum <- 0
+    if (dim( points )[1] > 0 ) {
+      sum <- sum(points$x)
+    }
+    count <- counter$countervalue
+    str0 <- paste('This is sample number: ',count,sep=' ')
+    str0b <- "The black dots indicate the sample."
+    str1 <- paste('The total of the sample is ',sum,sep=': ')
     
-    #xbar <- round(1000* sum / as.numeric(input$n))/1000
-    #str2 <- paste('The average of the sample is ',sum,
-    #              'divided by ',as.numeric(input$n),'= ',xbar,sep=' ')
-    #result <- paste(str0,'<br>',str0b,'<br>',str1,'<br>',str2)
-    
-    line1 <- paste("The heights of the red bars indicate",
-                   " the proportion in the population.")
-    line2 <- paste("The black dots show the exercisers and" ,
-                   " the non-exercisers in the sample.")
-    result <- paste(line1,"<br>",line2)
+    xbar <- round(1000* sum / as.numeric(input$n))/1000
+    str2 <- paste('The average of the sample is ',sum,
+                  'divided by ',as.numeric(input$n),'= ',xbar,sep=' ')
+    result <- paste(str0,'<br>',str0b,'<br>',str1,'<br>',str2)
     if (!showSample) {
       result <- ""
     }
-    return(result)    
-     
+    return(result)
   }
   
   getSampleMeansSummary <- function() {
@@ -426,7 +357,7 @@ server <- function(input, output) {
     ss <- round(100* sqrt(var(sampleMeans)))/100
     count <- counter$countervalue
     str0 <- paste('We now have this many samples: ',count,sep=' ')
-    str1 <- paste('The mean of all sample proportions is ',m.hat,sep=': ')
+    str1 <- paste('The mean of all sample means is ',m.hat,sep=': ')
     str2 <- paste('The standard deviation of all sample means is ',ss,sep=': ')
     result <- paste(str0,'<br>',str1,'<br>',str2)
     
@@ -434,8 +365,7 @@ server <- function(input, output) {
   }
   
   getOneSampleSummary <- function() {
-    return(paste("Each blue dot indicates the proportion of",
-           " the sample, who exercise frequenty."))
+    return("Each dot indicates a sample mean.")
   }
   
   output$sampleSummary <- renderText(
@@ -450,6 +380,4 @@ server <- function(input, output) {
     getOneSampleSummary()
   )
   
-}
-
-shinyApp(ui, server)
+} 

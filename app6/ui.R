@@ -1,17 +1,17 @@
-# app 5.
-# 
+# app 6.
+# intervals
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(DT)
+#library(DT)
 
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task A.6 How much do sample means vary?",
+  dashboardHeader(title = "Task A.7 Confidence intervals for the population mean height",
                   titleWidth = 850),
-  dashboardSidebar(#useShinyjs(),
+  dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"),
                    actionButton("sample10",label="Take 10 samples"),
@@ -23,41 +23,44 @@ shinyUI <- dashboardPage(
                                 c("10" = 10,
                                   "50" = 50,
                                   "100"= 100)),
-                   checkboxInput("shownormal", "Show Normal distribution curve", TRUE)),
+                   checkboxInput("showtruemean", "Show true mean", TRUE),
+                   checkboxInput("showerrs", "Color errors", TRUE)
+                   ),
+  
   dashboardBody(
     # Boxes need to be put in a row (or column)
     fluidRow( 
       column(width = 6,
              box( 
-               title="Distribution ofthe height for the population of HUBS191 students", 
+               title="Distribution of height for the population of HUBS191 students.", 
                width=NULL,
-               plotOutput("populationPlot",height=300), 
-               height = 350),
+               plotOutput("plot1",height=200), 
+               height = 275),
              box( 
+               title="Confidence interval",
                width=NULL,
                plotOutput("thissamplemean",height=50),
-               height = 75),
-             box(title="Means of all samples",  
-                width=NULL,
-                plotOutput("samplemean",height=300), 
-                height = 350)
+               height = 125),
+             box(title="Confidence intervals of all samples",  
+                 width=NULL,
+                 plotOutput("samplemean",height=500), 
+                 height = 575)
       ), 
       column(width=6, 
              box(  
                title="One sample", 
                width=NULL,
-               htmlOutput('sampleSummary',height=300), 
-               height = 350),
+               htmlOutput('sampleSummary',height=200), 
+               height = 275),
              box( 
                title=htmlOutput('onesamplesummary',height=50), 
-               width=NULL,
-                
-               height = 75),
+               width=NULL, 
+               height = 125),
              box( 
                width=NULL,
-               title="All samples", 
-               htmlOutput('sampleMeanSummary',height=300), 
-               height = 350)
+               title="Confidence intervals for all samples", 
+               htmlOutput('sampleMeanSummary',height=500), 
+               height = 575)
       )
     )
   )

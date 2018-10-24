@@ -1,5 +1,6 @@
-# app 5.
-# 
+# app 7.
+# like app5, but binary population
+#
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -9,9 +10,9 @@ library(DT)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task A.6 How much do sample means vary?",
+  dashboardHeader(title = "B.1 Estimating a proportion",
                   titleWidth = 850),
-  dashboardSidebar(#useShinyjs(),
+  dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"),
                    actionButton("sample10",label="Take 10 samples"),
@@ -23,35 +24,36 @@ shinyUI <- dashboardPage(
                                 c("10" = 10,
                                   "50" = 50,
                                   "100"= 100)),
-                   checkboxInput("shownormal", "Show Normal distribution curve", TRUE)),
+                   checkboxInput("shownormal", "Show Normal", TRUE)),
   dashboardBody(
-    # Boxes need to be put in a row (or column)
+    # 
     fluidRow( 
       column(width = 6,
              box( 
-               title="Distribution ofthe height for the population of HUBS191 students", 
+               title=paste("Distribution for frequent exercise (Yes/No)", 
+                           " in the population of HUBS191 students.",sep=' '),
                width=NULL,
-               plotOutput("populationPlot",height=300), 
+               plotOutput("plot1",height=300), 
                height = 350),
              box( 
                width=NULL,
                plotOutput("thissamplemean",height=50),
                height = 75),
-             box(title="Means of all samples",  
-                width=NULL,
-                plotOutput("samplemean",height=300), 
-                height = 350)
+             box(title="Distribution of all sample proportions",  
+                 width=NULL,
+                 plotOutput("samplemean",height=300), 
+                 height = 350)
       ), 
       column(width=6, 
              box(  
-               title="One sample", 
+               title="", 
                width=NULL,
                htmlOutput('sampleSummary',height=300), 
                height = 350),
              box( 
                title=htmlOutput('onesamplesummary',height=50), 
                width=NULL,
-                
+               
                height = 75),
              box( 
                width=NULL,

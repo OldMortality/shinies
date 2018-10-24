@@ -7,7 +7,7 @@ library(ggplot2)
 library(shinyBS)
 
 
-ui <- dashboardPage(
+shinyUI <- dashboardPage(
   
   dashboardHeader(title = "All apps- under construction",
                   titleWidth = 450),
@@ -141,17 +141,4 @@ ui <- dashboardPage(
              
       ))
   )
-)
-  
-  
-  
-
-
-
-
-server <- function(input, output) {  
-  output$summary <- renderText(
-    getSummary()
-  )
-  
-}
+) 

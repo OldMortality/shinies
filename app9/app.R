@@ -2,6 +2,7 @@
 # Plots of 2 variables
 #   
 
+library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
@@ -666,8 +667,3 @@ server <- function(input, output) {
   }) 
   
 }
-  
-  
-
-
-shinyApp(ui, server)

@@ -2,6 +2,7 @@
 # Like app5, but with conduction velocity,
 #   and with a slider.
 
+library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)

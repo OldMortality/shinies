@@ -3,38 +3,11 @@
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
+library(shiny)
 
 
-ui <- dashboardPage(
-  
-  
-  
-  dashboardHeader(title = "Height vs finger length",
-                  titleWidth = 450),
-  dashboardSidebar(useShinyjs(),
-                   actionButton("clear",label="Clear"),
-                   actionButton("sample",label="Take 1 sample"), 
-                   radioButtons("n", "Sample size:",
-                    c("10" = 10,
-                    "50" = 50,
-                    "100"= 100)),
-                   checkboxInput("showalllines", "Show all lines", FALSE)),
-  dashboardBody(
-    # Boxes need to be put in a row (or column)
-    fluidRow( 
-      column(width = 12,
-             box( 
-               title="", 
-               width=NULL,
-               plotOutput("thePlot",height=600), 
-               height = 600)
-            )
-    )
-  )
-)
 
-
-server <- function(input, output) {
+shinyServer <- function(input, output) {
   
   # the sample
   samp <- reactiveVal()
@@ -143,5 +116,3 @@ server <- function(input, output) {
   
   
 }
-
-shinyApp(ui, server)

@@ -1,74 +1,12 @@
-# app 7b.
-# Comparing 2 groups: 2 sample distributions
-#   in 1 plot
+# app 8.
+# Comparing 2 groups
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(DT)
 
-
-shinyUI <- dashboardPage(
-  
-  dashboardHeader(title = "Comparing 2 groups",
-                  titleWidth = 450),
-  dashboardSidebar(useShinyjs(),
-                   actionButton("clear",label="Clear"),
-                   actionButton("sample",label="Take 1 sample"),
-                   actionButton("sample10",label="Take 10 samples"),
-                   actionButton("sample100",label="Take 100 samples"),
-                   actionButton("start",label="Start "),
-                   actionButton("stop",label="Stop "),  
-                   
-                   radioButtons("n", "Sample size:",
-                                c("10" = 10,
-                                  "50" = 50,
-                                  "100"= 100)),
-                   checkboxInput("shownormal", "Show Normal", TRUE)),
-  dashboardBody(
-    # Boxes need to be put in a row (or column)
-    fluidRow( 
-      column(width = 6,
-             box( 
-               title="Population", 
-               width=NULL,
-               plotOutput("CLTplot1",height=200), 
-               height = 250),
-             box( 
-               width=NULL,
-               plotOutput("thissamplemean",height=50),
-               height = 75),
-              
-             box(title="Means of all samples",  
-                 width=NULL,
-                 plotOutput("samplemean",height=200), 
-                 height = 250)
-      ), 
-      column(width=6, 
-             box(  
-               title="One sample", 
-               width=NULL,
-               htmlOutput('sampleSummary',height=200), 
-               height = 250),
-             box( 
-               title=htmlOutput('onesamplesummary',height=50), 
-               width=NULL,
-               
-               height = 75),
-              
-             box( 
-               width=NULL,
-               title="All samples", 
-               htmlOutput('sampleMeanSummary',height=200), 
-               height = 250)
-      )
-    )
-  )
-)
-
-
 shinyServer <- function(input, output) {
-  
   
   # from combined clean csv
   mu1 = 1712
@@ -178,21 +116,21 @@ shinyServer <- function(input, output) {
     showSample <<- FALSE
     
     for (i in 1:100) {
-      
-      samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-      samp2 <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-      
-      samp1(samp1)
-      samp2(samp2)
-      meansamp1 <- round(mean(samp1),2)
-      meansamp2 <- round(mean(samp2),2)
-      thisSampleMean1 <<- meansamp1
-      #meansamp1(meansamp1) 
-      thisSampleMean2 <<- meansamp2
-      #meansamp2(meansamp2) 
-      values$total1 <- c(values$total1,meansamp1)
-      values$total2 <- c(values$total2,meansamp2)
-      values$diff <- c(values$diff,meansamp1-meansamp2)
+       
+       samp1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
+       samp2 <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
+       
+       samp1(samp1)
+       samp2(samp2)
+       meansamp1 <- round(mean(samp1),2)
+       meansamp2 <- round(mean(samp2),2)
+       thisSampleMean1 <<- meansamp1
+       #meansamp1(meansamp1) 
+       thisSampleMean2 <<- meansamp2
+       #meansamp2(meansamp2) 
+       values$total1 <- c(values$total1,meansamp1)
+       values$total2 <- c(values$total2,meansamp2)
+       values$diff <- c(values$diff,meansamp1-meansamp2)
     }
   })
   
@@ -302,17 +240,20 @@ shinyServer <- function(input, output) {
       thisOne1 <- tail(values$total1,showMean)
       thisOne2 <- tail(values$total2,showMean)
       df1 <- data.frame(x=thisOne1,col='red')
+      df1$y =0.005
       df2 <- data.frame(x=thisOne2,col='blue')
+      df2$y =0.00
+      
       df <- rbind(df1,df2)
-      p <- ggplot(df, aes(x = x,y=0)) +
-                    geom_point(colour=df$col ) +
+      p <- ggplot(df, aes(x = x,y=y)) +
+        geom_point(colour = df$col,alpha=0.5 ) +
         theme(legend.position = "none") +
         scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
         ylab("") + 
         xlab("Sample mean") #+ 
-      #geom_point(df2, aes(x = x,y=0,colour='blue' ))
+        #geom_point(df2, aes(x = x,y=0,colour='blue' ))
       #if (showMean) { 
       #  p = p +
       #    geom_point() 
@@ -322,82 +263,90 @@ shinyServer <- function(input, output) {
     #max(table(sampleMeans))+1))
   })
   
+  #
+  # This is the 2nd strip, with the difference
+  # 
+  output$difference <- renderPlot({
+    low <- -150
+    upp <- 150
+    x.breaks <- seq(low,upp,15)
+    if (length(samp1())>0) {
+      thisOne1 <- tail(values$total1,showMean)
+      thisOne2 <- tail(values$total2,showMean)
+      diff <- thisOne1 - thisOne2
+      df <- data.frame(x=diff)
+      p <- ggplot(df, aes(x = x,y=0,colour='black' )) +
+        theme(legend.position = "none") +
+        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
+        scale_y_continuous(breaks = NULL,minor_breaks=NULL,
+                           limits=c(-0.01,0.01)) + 
+        ylab("") + 
+        xlab("Red sample mean minus blue sample mean") +
+        geom_point(colour="black") 
+      
+      p
+    }
+    #max(table(sampleMeans))+1))
+  })
   
   
   #
-  # This is the tricky plot, with the dotplot/histogram
+  # This is the tricky plot, with the histogram
   #   of all sample means.
   #
   output$samplemean <- renderPlot({
-    #  
-    sampleMeans1 <- values$total1[-1]
-    sampleMeans2 <- values$total2[-1]
-    if (length(sampleMeans1>0)) {
-      df1 <- data.frame(x=sampleMeans1)
-      df1$e <-'blue'
-      df2 <- data.frame(x=sampleMeans2)
-      df2$e <-'red'
-      df <- rbind(df1,df2)
-    }
     
+    lo <- -150
+    up <- 150
+    bin.width = 15
+    x.breaks <- seq(lo,up,bin.width)
     
-    if (length(sampleMeans1)>0) {
-      #df <- data.frame(x=sampleMeans1,x2=sampleMeans2)
-      if (length(sampleMeans1 == 1)) {
+    sampleMeans <- values$diff[-1]
+    if (length(sampleMeans)>0) {
+      df <- data.frame(x=sampleMeans)
+      if (length(sampleMeans == 1)) {
         p <- ggplot(df, aes(x = x)) +
-          geom_point(size=0.3,colour=df$e,fill=df$e) +
-          scale_x_continuous(limits=c(lower,upper),
+          geom_point(size=0.3) +
+          scale_x_continuous(limits=c(lo,up),
                              breaks = x.breaks,minor_breaks=NULL) + 
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
       }
       
-      if (length(sampleMeans1 > 1)) {
-        p <- ggplot(df, aes(x = x,fill=e)) +
-          geom_dotplot(dotsize=0.3,alpha=0.3,colour=df$e,
-                       fill=df$e) +
+      if (length(sampleMeans > 1)) {
+        p <- ggplot(df, aes(x = x)) +
+          geom_dotplot(dotsize=0.3) +
           #coord_cartesian(ylim=c(0,10),expand=T) +
-          scale_x_continuous(limits=c(lower,upper),
+          scale_x_continuous(limits=c(lo,up),
                              breaks = x.breaks,minor_breaks=NULL) +
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-          theme(legend.position = "none") 
+          scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
       } 
       
       # overlay normal distribution if required, and if there
       #  are enough samples (>= 100)
-      if (length(sampleMeans1) > 100){
-        bin.width <- 10
+      if (length(sampleMeans) > 100){
+        
         # show histogram
-        p <- ggplot(df, aes(x = x,fill=e,colour=e)) +
-          geom_histogram(binwidth = bin.width,alpha=0.5,
-                         position="dodge2") +
-          scale_x_continuous(limits=c(lower,upper),
+        p <- ggplot(df, aes(x = x)) +
+          geom_histogram(binwidth = bin.width) +
+          scale_x_continuous(limits=c(lo,up),
                              breaks = x.breaks,minor_breaks=NULL) +
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-          theme(legend.position = "none") 
+          scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
+        # show the red line
         if (input$shownormal ) {
-          sample.size <- as.numeric(input$n)
-          s <- sd/sqrt(sample.size)
-          #p <- p + stat_function(fun=dnorm,
-          #                  color="red",
-          #                  args=list(mean=mean(mu), 
-          #                            sd=s)) 
+          samplesize <-as.numeric(input$n) 
+          #s <- sd/sqrt(samplesize)
+             
+          sd.hat <- sqrt((sd1^2 + sd2^2)/samplesize)
+          print('....')
+          print(sd.hat)
           p <- p + stat_function( 
             color="red",
             fun = function(x, mean, sd, n, bw){ 
               dnorm(x = x, mean = mean, sd = sd) * n * bw
             }, 
-            args = c(mean = mu1, sd = s, 
+            args = c(mean = mu1-mu2, sd = sd.hat, 
                      n = counter$countervalue , 
-                     bw = bin.width)) +
-             stat_function( 
-              color="blue",
-              fun = function(x, mean, sd, n, bw){ 
-                dnorm(x = x, mean = mean, sd = sd) * n * bw
-              }, 
-              args = c(mean = mu2, sd = s, 
-                       n = counter$countervalue , 
-                       bw = bin.width))+
-            theme(legend.position = "none") 
+                     bw = bin.width))
           
         }
       }
@@ -420,23 +369,27 @@ shinyServer <- function(input, output) {
     }
     count <- counter$countervalue
     str0 <- paste('This is sample number: ',count,sep=' ')
-    str0b <- "The black dots indicates the sample from the black population."
-    str0c <- "The blue dots indicates the sample from the blue population."
+    str0b <- "The blue dots indicates the sample from the blue population."
+    str0c <- "The red dots indicates the sample from the red population."
     
-    str1 <- paste('The total of the red sample is ',sum1,sep=': ')
-    str1b <- paste('The total of the blue sample is ',sum2,sep=': ')
+    
+    str1 <- paste('The total of the blue sample is ',sum2,sep=': ')
+    str1b <- paste('The total of the red sample is ',sum1,sep=': ')
     
     xbar1 <- round(1000* sum1 / as.numeric(input$n))/1000
     xbar2 <- round(1000* sum2 / as.numeric(input$n))/1000
-    str2 <- paste('The average of the black sample is ',sum1,
+    str2b <- paste('The average of the red sample is ',sum1,
                   'divided by ',as.numeric(input$n),'= ',xbar1,sep=' ')
-    str2b <- paste('The average of the blue sample is ',sum2,
-                   'divided by ',as.numeric(input$n),'= ',xbar2,sep=' ')
+    str2 <- paste('The average of the blue sample is ',sum2,
+                  'divided by ',as.numeric(input$n),'= ',xbar2,sep=' ')
     
     result <- paste(str0,'<br>',str0b,'<br>',str0c,'<br>',
                     str1,'<br>',str1b,'<br>',
                     str2,'<br>',str2b,'<br>')
     if (!showSample) {
+      result <- ""
+    }
+    if (length(points$x1) < 1) {
       result <- ""
     }
     return(result)
@@ -446,20 +399,19 @@ shinyServer <- function(input, output) {
     # the vector of sample means
     #df <- data.frame(x = values$total[-1])
     #print(paste('.....',values$total))
-    #sampleMeans <- values$diff[-1]
-    sampleMeans1 <- values$total1[-1]
-    sampleMeans2 <- values$total2[-1]
+    sampleMeans <- values$diff[-1]
+    if (length(sampleMeans > 0)) {
     
-    if (length(sampleMeans1) > 0) {
-      
-      m.hat1 <- round(100* mean(sampleMeans1))/100
-      m.hat2 <- round(100* mean(sampleMeans2))/100
-      #ss <- round(100* sqrt(var(sampleMeans)))/100
+      m.hat <- round(100* mean(sampleMeans))/100
+      ss <- round(100* sqrt(var(sampleMeans)))/100
       count <- counter$countervalue
-      str0 <- paste('We now have this many samples for each group: ',count,sep=' ')
-      str1 <- paste('The mean of all red sample means is ',m.hat1,sep=': ')
-      str2 <- paste('The mean of all blue sample means is ',m.hat2,sep=': ')
-      #str2 <- paste('The standard deviation of all sample means is ',ss,sep=': ')
+      str0 <- paste('We now have this many samples: ',count,sep=' ')
+      str1 <- paste('The mean of all sample means is ',m.hat,sep=': ')
+      if (length(sampleMeans) <= 1) {
+        str2 <- ''  
+      } else {
+        str2 <- paste('The standard deviation of all sample means is ',ss,sep=': ')
+      }
       result <- paste(str0,'<br>',str1,'<br>',str2)
     } else {
       result <- ""
@@ -477,16 +429,16 @@ shinyServer <- function(input, output) {
     if (showDiff$summary == 0) {
       result <- ("Each dot represents the difference between two sample means.")
     } else {
-      if (length(values$diff[-1])>0) {
-        thisOne1 <- round(tail(values$total1,showMean),2)
-        thisOne2 <- round(tail(values$total2,showMean),2)
-        diff <- round(thisOne1 - thisOne2,2)
-        str1 <- paste(thisOne1,"minus",thisOne2,"equals",diff,sep=' ')
-        str2 <-("The dot represents the difference between the two sample means.")
-        result <- paste(str1,"<br>",str2,"<br>")
-      } else {
-        result <- ""
-      }
+        if (length(values$diff[-1])>0) {
+          thisOne1 <- round(tail(values$total1,showMean),2)
+          thisOne2 <- round(tail(values$total2,showMean),2)
+          diff <- round(thisOne1 - thisOne2,2)
+          str1 <- paste(thisOne1,"minus",thisOne2,"equals",diff,sep=' ')
+          str2 <-("The dot represents the difference between the two sample means.")
+          result <- paste(str1,"<br>",str2,"<br>")
+          } else {
+            result <- ""
+        }
     }
     return(result)
     
