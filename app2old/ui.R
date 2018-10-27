@@ -6,7 +6,7 @@ library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(DT)
-library(shinyTable)
+library(rhandsontable)
  
 shinyUI <- dashboardPage( 
   dashboardHeader(title = "Task A.3 How tall are the people at your table?",
@@ -22,9 +22,7 @@ shinyUI <- dashboardPage(
       column(width = 6,
               box(title="Enter the height of your table members",
                   width=NULL,
-                  htable("tbl",
-                         colHeaders = 'provided'),
-                  actionButton("actionButtonID","Save"),
+                  rHandsontableOutput("hot", height = 300),
                   htmlOutput('summary', height = 100)
               ),
               box(
