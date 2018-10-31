@@ -28,7 +28,6 @@ shinyserver <- function(input, output) {
       return(tbl)
     } else{
       rv$cachedTbl <<- input$tbl
-      print(input$tbl)
       return(input$tbl)
     }
   })  

@@ -7,7 +7,9 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(shinyTable)
+library(DT)
+library(rhandsontable)
+
 
 
 shinyUI <- dashboardPage(
@@ -23,34 +25,31 @@ shinyUI <- dashboardPage(
     fluidRow(
       column(width = 6,
              box(title="Heights of 90 HUBS191 students",width=NULL,
-                 htable("tbl",
-                        colHeaders = 'provided'),
-                 actionButton("actionButtonID","Save"),
+                 rHandsontableOutput("hot", width = 200),
                  htmlOutput('summary', height = 100)
-             )
+             ),
              
-             
-      ),
-      column(width=6,
              box(
                title="Histogram of height", width=NULL,
                conditionalPanel(
                  condition = "input.showhist",
-                 plotOutput("histogram", height = 400)
+                 plotOutput("histogram", height = 300)
                )
-             ),
+             )
+      ),
+      column(width=6,
              box(
                title="Boxplot of height", width=NULL,
                conditionalPanel(
                  condition = "input.showbox",
-                 plotOutput("boxplot", height = 400)
+                 plotOutput("boxplot", height = 373)
                )
              ),
              box(
                title="Dotplot of height", width=NULL,
                conditionalPanel(
                  condition = "input.showdot",
-                 plotOutput("dotplot", height = 400)
+                 plotOutput("dotplot", height = 300)
                )
              ) 
       )

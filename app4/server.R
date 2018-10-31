@@ -7,73 +7,52 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(DT)
-library(rhandsontable)
-
+library(shinyTable) 
 
 
 shinyServer <- function(input, output) {
   
-  df <- data.frame(x=rnorm(100))
+  rv <- reactiveValues(cachedTbl = NULL)
   
-  cache_tbl = NULL
-  
-  onRestore(function(state) {
-    tmp = state$input$hot
-    tmp$data = jsonlite::fromJSON(
-      jsonlite::toJSON(tmp$data), simplifyVector = FALSE)
-    cache_tbl <<- tmp
-  })
-  
-  datasetInput <- reactive({
-    # make up historical data
-    result <- data.frame(height=c(round(rnorm(90,1710,90))))
-    # 2 people who put in cm instead of mm
-    result$height[22] <- 170
-    result$height[77] <- 3500
-    # a hobbit
-    result$height[55] <- 1300
-    result
-  })
-  
-  
-  data = reactive({
+  output$tbl <- renderHtable({
     
-    if (!is.null(input$hot)) {
-      DF = hot_to_r(input$hot)
-    } else 
-      if (!is.null(cache_tbl)) {
-        DF = hot_to_r(cache_tbl)
-        cache_tbl <<- NULL
-      } else {
-        
-        DF = datasetInput()
-      }
-    DF
-  })
-  
-  output$hot <- renderRHandsontable({
-    DF = data()
-    
-    if (!is.null(DF) ) {
-      rhandsontable(DF, width = 200, height = 300) %>%
-        hot_cols(fixedColumnsLeft = 1) 
-      #%>%hot_rows(fixedRowsTop = 1)
+    if (is.null(input$tbl)){ 
+      
+      # make up historical data
+      tbl <- data.frame(height=c(round(rnorm(90,1710,90))))
+      # 2 people who put in cm instead of mm
+      tbl$height[22] <- 170
+      tbl$height[77] <- 3500
+      # a hobbit
+      tbl$height[55] <- 1300
+      rv$cachedTbl <<- tbl
+      return(tbl)
+    } else{
+      rv$cachedTbl <<- input$tbl
+      return(input$tbl)
     }
+  })  
+  
+  observeEvent(input$showhist, {
+    
+    input$actionButtonID
   })
+  
   
   getSummary <- function() {
-    if (!is.null(input$hot)) {
-      DF = hot_to_r(input$hot) 
-      n <-sum(!is.na(DF$height))
-      mn <- round(mean(DF$height,na.rm=T),1)
-      sd <- round(sqrt(var(DF$height,na.rm=T)),1)
-      line0 <- paste("Sample size n =",n,sep=" ")
-      line1 <- paste("Sample mean =",mn,sep=" ")
-      line2 <- paste("Sample standard deviation =",sd,sep=" ")      
-      result <- paste(line0,line1,line2,sep='<br>')
-      return(result)
-    }
+    
+    input$actionButtonID
+    
+    height <- isolate(as.numeric(as.character(rv$cachedTbl$height)))
+    
+    n <-length(which(!is.na(height)))
+    mn <- round(mean(height,na.rm=T),1)
+    sd <- round(sqrt(var(height,na.rm=T)),1)
+    line0 <- paste("Sample size n =",n,sep=" ")
+    line1 <- paste("Sample mean =",mn,sep=" ")
+    line2 <- paste("Sample standard deviation =",sd,sep=" ")      
+    result <- paste(line0,line1,line2,sep='<br>')
+    return(result)
   }
   
   output$summary <- renderText(
@@ -84,24 +63,29 @@ shinyServer <- function(input, output) {
   
   output$histogram <- renderPlot({
     
-    if(is.null(input$hot)) return(NULL)
-    data <- hot_to_r(input$hot)
-    d <- data.frame(data)
-    p <- ggplot(d, aes(height)) +
+    input$actionButtonID
+    
+    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    data = data.frame(height=ht)
+   
+    p <- ggplot(data, aes(x=height)) + 
       geom_histogram(binwidth=25,fill="white",colour='black') +
       scale_x_continuous(limits=c(1500,2100),breaks=seq(1500,2100,100)) +
       scale_y_continuous(breaks = seq(0,20),minor_breaks=NULL) +
       ylab("Frequency") +
-      xlab("Height (mm)")
-    p 
-    #hist(data$height,main="",xlab="height")
+      xlab("Height (mm)") 
+    p
+     
     
   }) # end histogram
   
   output$boxplot <- renderPlot({
-    if(is.null(input$hot)) return(NULL)
-    data <- hot_to_r(input$hot)
-    d <- data.frame(data)
+    
+    input$actionButtonID
+    
+    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    data = data.frame(height=ht)
+    
     p <- ggplot(data, aes(y=height)) + 
       geom_boxplot(width=0.2) +
       scale_x_continuous(breaks = NULL,minor_breaks=NULL,
@@ -109,17 +93,16 @@ shinyServer <- function(input, output) {
       )  +
       ylab("Height (mm)")
     
-    p 
-    
-    #boxplot(data$height,main="",xlab="height")
-    
-    
+    p
   }) # end boxplot
   
   output$dotplot <- renderPlot({
-    if(is.null(input$hot)) return(NULL)
-    data <- hot_to_r(input$hot) 
-    d <- data.frame(data)
+    
+    input$actionButtonID
+    
+    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    d = data.frame(height=ht)
+    
     p <- ggplot(d, aes(height)) + 
         scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
         geom_dotplot() +

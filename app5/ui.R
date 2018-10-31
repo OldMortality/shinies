@@ -29,7 +29,7 @@ shinyUI <- dashboardPage(
     fluidRow( 
       column(width = 6,
              box( 
-               title="Distribution ofthe height for the population of HUBS191 students", 
+               title="Distribution of the height for the population of HUBS191 students", 
                width=NULL,
                plotOutput("populationPlot",height=300), 
                height = 350),
