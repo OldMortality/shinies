@@ -1,5 +1,14 @@
+#
+# Shiny dashboard with all my apps for HUBS server
+#   this is a copy of allapps, with
+#   hubsapps:   window.open('../app1
+#   instead of
+#   allapps:    window.open('/app1
+#
+#
+# 
+#
 
-# Shiny dashboard with all my apps
 library(shiny)
 library(shinydashboard)
 library(shinyjs)

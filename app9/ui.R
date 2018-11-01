@@ -10,10 +10,6 @@ library(DT)
 library(rhandsontable)
 library(gridExtra)
 
-
-data <- read.csv('Lab3data.csv',header=T)
-
-
 ui <- dashboardPage(
   
   dashboardHeader(title = paste("Lab 4: Experiment 2.",

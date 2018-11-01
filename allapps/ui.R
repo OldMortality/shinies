@@ -1,5 +1,10 @@
-
 # Shiny dashboard with all my apps
+#   copy this one to shiny app: hubsapps, with 1 global change:
+#   hubsapps:   window.open('../app1
+#   instead of
+#   allapps:    window.open('/app1
+#
+#
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
