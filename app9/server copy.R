@@ -7,9 +7,8 @@ library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(DT)
-
+library(rhandsontable)
 library(gridExtra)
-library(shinyTable)
 
  
 
@@ -17,26 +16,40 @@ shinyServer <- function(input, output) {
   
   data <- read.csv('Lab3data.csv',header=T)
   
-  rv <- reactiveValues(cachedTbl = NULL)  
+  cache_tbl = NULL
   
-  output$tbl <- renderHtable({ 
-     
-    if (is.null(input$tbl)){  
-      tbl = data.frame(reflex.path.length=c(1750,rep("",9)),
-                       reflex.latency=c(47,rep("",9)),
-                       voluntary.path.length = c(3000,rep("",9)),
-                       voluntary.latency = c(200,rep("",9))
-      )
-     
-      rv$cachedTbl <<- tbl
-      return(tbl)
-    } else{
-      rv$cachedTbl <<- input$tbl
-      return(input$tbl)
+  onRestore(function(state) {
+    tmp = state$input$hot
+    tmp$data2 = jsonlite::fromJSON(
+      jsonlite::toJSON(tmp$data2), simplifyVector = FALSE)
+    cache_tbl <<- tmp
+  })
+  
+  
+  data2 = reactive({
+    
+    if (!is.null(input$hot)) {
+      DF = hot_to_r(input$hot)
+    } else 
+      if (!is.null(cache_tbl)) {
+        DF = hot_to_r(cache_tbl)
+        cache_tbl <<- NULL
+      } else {
+        
+        DF = datasetInput()
+      }
+    DF
+  })
+  
+  output$hot <- renderRHandsontable({
+    DF = data2()
+    
+    if (!is.null(DF) ) {
+      rhandsontable(DF, width = 800, height = 300) %>%
+        hot_cols(fixedColumnsLeft = 1) 
+      #%>%hot_rows(fixedRowsTop = 1)
     }
-  })  
-  
-  
+  })
   
   listvars <- reactive(  { 
     
@@ -107,19 +120,15 @@ shinyServer <- function(input, output) {
     }
   })
       
-  
    
-  getSummary <- function(){  
-    
-    input$actionButtonID
-    
+  getSummary <- function(){
     if (!is.null(input$plot.type)) {
     
       if (input$plot.type==1) {
         # histogram
         line0.a <- paste("<b>","All data","</b><p>",sep='')
-        line0.g <- paste("<p><b>","Your data","</b><p>",sep='')
-        
+        #line0.g <- paste("<p><b>","Your data","</b><p>",sep='')
+        #
         line1.a <- paste("The mean ",cname.summary()," is:",
                          theColumnData.mean(),
                          sep=' ')
@@ -131,7 +140,6 @@ shinyServer <- function(input, output) {
                          sep=' ')
         
         result <- paste(line0.a,line1.a,line2.a,line3.a,sep="<br>")
-         
         return(result)
       }
       if (input$plot.type==2) {
@@ -223,29 +231,37 @@ shinyServer <- function(input, output) {
   
   
   
-  output$summary <- renderText( 
-    
+  output$summary <- renderText(
     getSummary()
   )
       
-   
+  cache_tbl = NULL
   
+  onRestore(function(state) {
+    tmp = state$input$hot
+    tmp$data2 = jsonlite::fromJSON(
+      jsonlite::toJSON(tmp$data2), simplifyVector = FALSE)
+    cache_tbl <<- tmp
+  })
   
+  datasetInput <- reactive({
+    result <- data.frame(reflex.path.length=c(1750,rep(NA,9)),
+                         reflex.latency=c(47,rep(NA,9)),
+                         voluntary.path.length = c(3000,rep(NA,9)),
+                         voluntary.latency = c(200,rep(NA,9))
+                         )
+    result
+  })
   
   
   
   
   output$distPlot <- renderPlot({
     
-     
-    input$actionButtonID
-     
-    group.tbl <- isolate(rv$cachedTbl) 
-     
+    
     # histogram
      if (input$plot.type == 1) {
       colNumber <- as.numeric(input$variable) 
-      print(paste('colnumber:',colNumber))
       if (length(colNumber) == 0) {
         colNumber <- 1
       }
@@ -284,7 +300,20 @@ shinyServer <- function(input, output) {
       p <- p + 
         geom_vline(xintercept=mu,colour='red') 
       
-      
+      #p <- p +
+      #  geom_segment(x=mu,y=5,xend=mu+sd,yend=5,colour='red',
+      #               size=1,arrow=arrow()) +
+      #  geom_segment(x=mu,y=3,xend=mu-sd,yend=3,colour='red',
+      #               size=1,arrow=arrow()) +
+      ##
+      #  annotate("text", label = "1 SD", 
+      #           x = mu+round(sd/3), 
+      #           y= 10, hjust=0,
+      #           size = 5, colour = "red") +
+      #  annotate("text", label = "1 SD", 
+      #           x = mu-round(sd), 
+      #           y= 10, hjust=0,
+      #           size = 5, colour = "red")
       p <- p +
         annotate("text", label = mean.str, x = mu+1, 
                  y= 70, hjust=0,
@@ -292,20 +321,17 @@ shinyServer <- function(input, output) {
       p <- p +
         xlab(colName.pretty)
       
-      ## Add the group data  
+      ## Add the group data (from the hot table)
       if (!is.null(input$showgroup) && input$showgroup) {
-           
-          data2 <- group.tbl
-          
-           
+        if(is.null(input$hot)) return(NULL)
+          data2 <- hot_to_r(input$hot)
           myColumn <- data2[,colNumber]
           dropm <- which(is.na(myColumn))
           if (length(dropm) > 0 ) {
             myColumn <- myColumn[-dropm]
           } 
           if (length(myColumn)>0) {
-            myColumn <- as.numeric(as.character(data2[,colNumber]) )
-             
+            myColumn <- as.numeric(data2[,colNumber])  
           }
           thePoints <-data.frame(x=myColumn,
                              y=rep(0,length(myColumn)))
@@ -414,10 +440,9 @@ shinyServer <- function(input, output) {
       
       
       ## Add the group data (from the hot table)
-      if (!is.null(input$showgroup) && input$showgroup) { 
-        print('hello scatter')
-        data2 <- group.tbl
-        print(data2)
+      if (input$showgroup){
+        if(is.null(input$hot)) return(NULL)
+        data2 <- hot_to_r(input$hot)
         myColumn.x <- data2[,colNumber.x]
         myColumn.y <- data2[,colNumber.y]
         dropm.x <- which(is.na(myColumn.x))
@@ -428,8 +453,8 @@ shinyServer <- function(input, output) {
           myColumn.y <- myColumn.y[-dropm]
         } 
         if (length(myColumn.x)>0) {
-          myColumn.x <- as.numeric(as.character(data2[,colNumber.x]))
-          myColumn.y <- as.numeric(as.character(data2[,colNumber.y]))  
+          myColumn.x <- as.numeric(data2[,colNumber.x])  
+          myColumn.y <- as.numeric(data2[,colNumber.y])  
         
         }
         thePoints <-data.frame(x=myColumn.x,
@@ -528,48 +553,35 @@ shinyServer <- function(input, output) {
           
         }
       }
-      # add data points from the group to boxplot
-      if (!is.null(input$showgroup) && input$showgroup) {
-        print('hello box')
-        data2 <- group.tbl
-        print(data2)
-        if (colNumber==1) {
-          # length
-          myColumn.1 <- data2[,1]
-          myColumn.2 <- data2[,3]
-        } else {
-          myColumn.1 <- data2[,2]
-          myColumn.2 <- data2[,4]
-        }
-      
-        dropm.1 <- which(is.na(myColumn.1))
-        dropm.2 <- which(is.na(myColumn.2))
-      
-        if (length(dropm.1) > 0 ) {
-          myColumn.1 <- myColumn.1[-dropm.1]
-        }
-        if (length(dropm.2) > 0 ) {
-          myColumn.2 <- myColumn.2[-dropm.2]
-        }
-        if (length(myColumn.1)>0 | length(myColumn.2)>0) {
-          myColumn.1 <- as.numeric(as.character(myColumn.1))
-          myColumn.2 <- as.numeric(as.character(myColumn.2))
-          
-          thePoints1 <-data.frame(y=myColumn.1,
-                                  type='reflex')
-          thePoints2 <-data.frame(y=myColumn.2,
-                                  type='voluntary')
-          thePoints <- rbind(thePoints1,thePoints2)
-          p <- p + 
-            geom_point(data=thePoints,
-                       aes(x=type,y=y),
-                       colour='blue',size=5,shape=24,fill='blue')
-        }
-        
-        
-        
-      
+      # add data points from the hot table
+      if(is.null(input$hot)) return(NULL)
+      data2 <- hot_to_r(input$hot)
+      if (colNumber==1) {
+        # length
+        myColumn.1 <- data2[,1]
+        myColumn.2 <- data2[,3]
+      } else {
+        myColumn.1 <- data2[,2]
+        myColumn.2 <- data2[,4]
       }
+      
+      dropm.1 <- which(is.na(myColumn.1))
+      dropm.2 <- which(is.na(myColumn.2))
+      
+      if (length(dropm.1) > 0 ) {
+        myColumn.1 <- myColumn.1[-dropm.1]
+      }
+      if (length(dropm.2) > 0 ) {
+        myColumn.2 <- myColumn.2[-dropm.2]
+      }
+      if (length(myColumn.1)>0) {
+        myColumn.1 <- as.numeric(myColumn.1)  
+      }
+      if (length(myColumn.2)>0) {
+        myColumn.2 <- as.numeric(myColumn.2)  
+      }
+      
+      
       
       if (input$showmean){
       # show population mean
@@ -583,10 +595,17 @@ shinyServer <- function(input, output) {
         geom_point(data=thePoints,
                    aes(x=type,y=y),
                    colour='red',size=5,shape=4) 
-      
-     
-        
-         
+      }
+      if (input$showgroup) {
+        thePoints1 <-data.frame(y=mean(myColumn.1,na.rm=T),
+                                type='reflex')
+        thePoints2 <-data.frame(y=mean(myColumn.2,na.rm=T),
+                                type='voluntary')
+        thePoints <- rbind(thePoints1,thePoints2)
+        p <- p + 
+            geom_point(data=thePoints,
+                       aes(x=type,y=y),
+                       colour='blue',size=5,shape=24,fill='blue') 
         
         
       }

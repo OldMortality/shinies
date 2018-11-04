@@ -5,68 +5,45 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(rhandsontable)
+library(shinyTable)
 
 
 shinyServer <- function(input, output) {
   
-  df <- data.frame(x=rnorm(100))
+  rv <- reactiveValues(cachedTbl = NULL)  
   
-  cache_tbl = NULL
-  
-  onRestore(function(state) {
-    tmp = state$input$hot
-    tmp$data = jsonlite::fromJSON(
-      jsonlite::toJSON(tmp$data), simplifyVector = FALSE)
-    cache_tbl <<- tmp
-  })
-  
-  datasetInput <- reactive({
-    # make up historical data
-    result <- data.frame(velocity=c(50,rep(NA,9)))
+  output$tbl <- renderHtable({ 
     
-    result
-  })
-  
-  
-  data = reactive({
-    
-    if (!is.null(input$hot)) {
-      DF = hot_to_r(input$hot)
-    } else 
-      if (!is.null(cache_tbl)) {
-        DF = hot_to_r(cache_tbl)
-        cache_tbl <<- NULL
-      } else {
-        
-        DF = datasetInput()
-      }
-    DF
-  })
-  
-  output$hot <- renderRHandsontable({
-    DF = data()
-    
-    if (!is.null(DF) ) {
-      rhandsontable(DF, width = 200, height = 300) %>%
-        hot_cols(fixedColumnsLeft = 1) 
-      #%>%hot_rows(fixedRowsTop = 1)
+    if (is.null(input$tbl)){  
+      tbl = data.frame(data.frame(velocity=c(50,75,rep("",8))))
+      
+      rv$cachedTbl <<- tbl
+      return(tbl)
+    } else{
+      rv$cachedTbl <<- input$tbl
+      return(input$tbl)
     }
-  })
+  })  
+  
+  
+  
+   
   
   
   getSummary <- function() {
     
-    if(is.null(input$hot)) return(NULL)
-    data <- hot_to_r(input$hot)
-    d <- data.frame(data)
-    d.m <- round(mean(data$velocity,na.rm=T),1)
-    d.v <- round(var(data$velocity,na.rm=T),1)
+    input$actionButtonID
+    
+    group.tbl <- isolate(rv$cachedTbl)  
+    velocity <- as.numeric(as.character(group.tbl$velocity))
+    
+    d.m <- round(mean(velocity,na.rm=T),1)
+    d.v <- round(var(velocity,na.rm=T),1)
     d.sd <- round(sqrt(d.v),1)
-    d.me <- round(median(data$velocity,na.rm=T),1)
-    d.min <- round(range(data$velocity,na.rm=T)[1],1)
-    d.max <- round(range(data$velocity,na.rm=T)[1],1)
-    n <- length(which(!is.na(data$velocity)))
+    d.me <- round(median(velocity,na.rm=T),1)
+    d.min <- round(range(velocity,na.rm=T)[1],1)
+    d.max <- round(range(velocity,na.rm=T)[1],1)
+    n <- length(which(!is.na(velocity)))
     
     l.ci <- ""
     if (n>1) {
@@ -89,8 +66,7 @@ shinyServer <- function(input, output) {
     
     result <- paste(l1,l2,l3,l4,l5,l6,l7,sep="<br>")
     return(result)
-    
-    return("result")
+     
   }
   
   output$summary <- renderText(
@@ -100,15 +76,28 @@ shinyServer <- function(input, output) {
   
   
   output$dotplot <- renderPlot({
-    if(is.null(input$hot)) return(NULL)
-    data <- hot_to_r(input$hot) 
-    d <- data.frame(data)
-    p <- ggplot(d, aes(velocity)) + 
+    
+    input$actionButtonID
+    
+    group.tbl <- isolate(rv$cachedTbl) 
+    
+    velocity <- as.numeric(as.character(group.tbl$velocity))
+    
+    dropm <- which(is.na(velocity))
+    if (length(dropm)>0) {
+      velocity <- velocity[-dropm]
+    }
+    
+    df <- data.frame(velocity=velocity)
+    if (length(df$velocity) == 1) {
+      dotsz = 0.05
+    } else {
+      dotsz = 0.15
+    }
+    p <- ggplot(df,aes(velocity)) + 
       scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-      geom_dotplot()
-    
-    
-    p 
+      geom_dotplot(dotsize=dotsz,binwidth=10) 
+    p
     
     
   }) # end dotplot

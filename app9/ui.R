@@ -7,8 +7,9 @@ library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(DT)
-library(rhandsontable)
+ 
 library(gridExtra)
+library(shinyTable)
 
 ui <- dashboardPage(
   
@@ -37,13 +38,15 @@ ui <- dashboardPage(
     fluidRow(
       column(width = 12,
              box(title="", width=NULL,
-                 plotOutput("distPlot", height = 300)
+                 plotOutput("distPlot", height = 450)
              )
           )),
       fluidRow(
         column(width = 6,
                box(title="Enter data you have collected",width=NULL,
-                   rHandsontableOutput("hot", width = 800)
+                   htable("tbl",
+                          colHeaders = 'provided'),
+                   actionButton("actionButtonID","Save")
                    
                )),
         column(width = 6,

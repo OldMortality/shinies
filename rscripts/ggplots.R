@@ -697,3 +697,27 @@ p <- ggplot(df) + geom_histogram(aes(x=x)) +
 p
 
 seq(1600,2100,25)
+
+
+
+velocity = c(50,100)
+df <- data.frame(velocity=velocity)
+
+
+
+p <- ggplot(df,aes(velocity)) + 
+  scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
+  geom_dotplot() 
+p 
+
+p <- ggplot(d, aes(height)) + 
+  scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
+  geom_dotplot(dotsize=0.3)
+
+velocity <- c(50,75,80)
+
+df <- data.frame(velocity=velocity)
+p <- ggplot(df,aes(velocity)) + 
+  scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
+  geom_dotplot(dotsize=.1,binwidth=50) 
+p

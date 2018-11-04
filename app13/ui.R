@@ -4,8 +4,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(DT)
-library(rhandsontable)
+library(shinyTable)
 
 
 shinyUI <- dashboardPage(
@@ -24,7 +23,12 @@ shinyUI <- dashboardPage(
       column(width = 12,
              
              box(title="Enter your group's data",
-                 rHandsontableOutput("hot")
+                 box(title="Enter data you have collected",width=NULL,
+                     htable("tbl",
+                            colHeaders = 'provided'),
+                     actionButton("actionButtonID","Save")
+                     
+                 )
              ),
              box( 
                title="", 

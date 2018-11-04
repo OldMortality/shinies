@@ -1,0 +1,12 @@
+name: app14
+title: app14
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 513722
+bundleId: 1677555
+url: https://oldmortality.shinyapps.io/app14/
+when: 1541119318.91456
+asMultiple: FALSE
+asStatic: FALSE

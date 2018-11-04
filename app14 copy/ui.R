@@ -5,7 +5,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(shinyTable)
+library(rhandsontable)
 
 shinyUI <- dashboardPage(
   
@@ -18,10 +18,7 @@ shinyUI <- dashboardPage(
     fluidRow(
       column(width = 6,
              box(title="Enter your group data",width=NULL,
-                 height=450,
-                 htable("tbl",
-                        colHeaders = 'provided'),
-                 actionButton("actionButtonID","Save")
+                 rHandsontableOutput("hot", width = 200)
              ),
              box(  
                title="Summary", 
@@ -37,8 +34,7 @@ shinyUI <- dashboardPage(
              box(
                title="Dotplot", 
                width=NULL,
-                height=450,
-                plotOutput("dotplot", height = 400)
+                plotOutput("dotplot", height = 300)
                 
              )) 
       

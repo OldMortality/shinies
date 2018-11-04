@@ -3,23 +3,16 @@
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
-library(ggplot2)
-library(DT)
-library(rhandsontable)
+library(ggplot2) 
+library(shinyTable)
 
 shinyServer <- function(input, output) {
   
   df <- data.frame(x=rnorm(100))
   
-  cache_tbl = NULL
+  rv <- reactiveValues(cachedTbl = NULL)  
   
-  #onRestore(function(state) {
-  #  tmp = state$input$hot
-  #  tmp$data = jsonlite::fromJSON(
-  #    jsonlite::toJSON(tmp$data), simplifyVector = FALSE)
-  #  cache_tbl <<- tmp
-  #})
-  
+   
   datasetInput <- reactive({
     result <- data.frame(finger.length=c(70,rep(NA,9)),
                          height=c(1750,rep(NA,9)))
@@ -27,31 +20,23 @@ shinyServer <- function(input, output) {
   })
   
   
-  data = reactive({
-    
-    if (!is.null(input$hot)) {
-      DF = hot_to_r(input$hot)
-      
-    } else { 
-      #if (!is.null(cache_tbl)) {
-      #  DF = hot_to_r(cache_tbl)
-      #  cache_tbl <<- NULL
-      #} else {
-        
-        DF = datasetInput()
-      }
-    DF
-  })
+   
+   
   
-  output$hot <- renderRHandsontable({
-    DF = data()
+  output$tbl <- renderHtable({ 
     
-    if (!is.null(DF) ) {
-      rhandsontable(DF, width = 200, height = 300) %>%
-        hot_cols(fixedColumnsLeft = 1) %>%
-        hot_rows(fixedRowsTop = 1)
+    if (is.null(input$tbl)){  
+      tbl = data.frame(finger.length=c(70,rep("",9)),
+                       height=c(1750,rep("",9)))
+      
+      rv$cachedTbl <<- tbl
+      return(tbl)
+    } else{
+      rv$cachedTbl <<- input$tbl
+      return(input$tbl)
     }
-  })
+  })  
+  
   
   
   
@@ -118,12 +103,6 @@ shinyServer <- function(input, output) {
   
   output$thePlot <- renderPlot({
     
-    if (is.null(input$hot)) {
-      hot.data <- data.frame()
-    } else {
-      hot.data <- hot_to_r(input$hot)
-    }
-    
     plot.data <- data.frame(x = f$fin, y=f$hei)
     #alla0$a0s <- c(alla0$a0s) <- coefficients(m2)[1]
     p <- ggplot(data=plot.data,aes(x=x,y=y)) + geom_point() +
@@ -138,17 +117,33 @@ shinyServer <- function(input, output) {
     }
     col <- 'red'
     
+    # trigger all this when the button is pressed
+    input$actionButtonID 
     
+    group.tbl <- isolate(rv$cachedTbl) 
+     
+    # remove rows with NA
+    dropm <- which(is.na(as.numeric(as.character(group.tbl$finger.length))) |
+                             is.na(as.numeric(as.character(group.tbl$height))))
+     
+    if (length(dropm)>0) {
+      group.tbl <- group.tbl[-dropm,]
+    }
+    
+    
+    len <- as.numeric(as.character(group.tbl$finger.length))
+    hei <- as.numeric(group.tbl$height)
+     
     # show the hot table data
-    if (dim(hot.data)[1] >0) {
-      p <- p + geom_point(data=hot.data,aes(x=finger.length,
-                                           y=height),colour='blue',
+    if (dim(group.tbl)[1] > 0) {
+      p <- p + geom_point(data=group.tbl,aes(x=len,
+                                           y=hei),colour='blue',
                           shape = 4,
                           size = 5)
     }
-    if (dim(hot.data)[1] >2) {
+    if (dim(group.tbl)[1] >= 2) {
       # plot regression line
-      m <- lm(height~finger.length,data=hot.data)
+      m <- lm(hei~len)
       a <- coefficients(m)[1]
       b <- coefficients(m)[2]
       p <- p + geom_abline(intercept=a,slope=b,colour='blue')
