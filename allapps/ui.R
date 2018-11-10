@@ -84,9 +84,9 @@ shinyUI <- dashboardPage(
             box(
               title="Task C.1 What if the population mean is unknown?", width=NULL,
               tags$button("", label = "Task C.1 What if the population mean is unknown?", 
-                          tags$img(src = "app6b.png",
+                          tags$img(src = "app6c.png",
                                    height = "150px"),
-                          onclick = "window.open('/app6b/', '_blank')")
+                          onclick = "window.open('/app6c/', '_blank')")
             ),
              box(
                title="Task C.2 Comparing the sampling distribution for two means", 
@@ -97,8 +97,13 @@ shinyUI <- dashboardPage(
                            onclick = "window.open('/app7b/', '_blank')")
              ),
              box(
-               title="8", width=NULL,
-               tags$button("", label = "8. Comparison", 
+               title="Task C.3 Comparing the sampling",
+               "distribution for two means", 
+               width=NULL,
+               tags$button("", 
+                           label = 
+                             paste("Task C.3 Comparing the sampling",
+                                  "distribution for two means",sep=' '),
                            tags$img(src = "app8.png",
                                     height = "150px"),
                            onclick = "window.open('/app8/', '_blank')")

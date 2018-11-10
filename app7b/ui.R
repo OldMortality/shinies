@@ -10,8 +10,8 @@ library(DT)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Comparing 2 groups",
-                  titleWidth = 450),
+  dashboardHeader(title = "Task C.2 Comparing the sampling distribution for two means",
+                  titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"),
@@ -26,41 +26,40 @@ shinyUI <- dashboardPage(
                                   "100"= 100)),
                    checkboxInput("shownormal", "Show Normal", TRUE)),
   dashboardBody(
-    # Boxes need to be put in a row (or column)
+    # 
     fluidRow( 
       column(width = 6,
              box( 
-               title="Population", 
+               title=paste("Distribution of height for the population", 
+                           "of HUBS191 students",sep=' '),
                width=NULL,
-               plotOutput("CLTplot1",height=200), 
-               height = 250),
+               plotOutput("plot1",height=375), 
+               height = 450),
              box( 
                width=NULL,
-               plotOutput("thissamplemean",height=50),
-               height = 75),
+               plotOutput("thissamplemean",height=100),
+               height = 150),
               
              box(title="Means of all samples",  
                  width=NULL,
-                 plotOutput("samplemean",height=200), 
-                 height = 250)
+                 plotOutput("samplemean",height=375), 
+                 height = 450)
       ), 
       column(width=6, 
              box(  
                title="One sample", 
                width=NULL,
-               htmlOutput('sampleSummary',height=200), 
-               height = 250),
+               htmlOutput('topSummary',height=375), 
+               height = 450),
              box( 
-               title=htmlOutput('onesamplesummary',height=50), 
+               title=htmlOutput('middleSummary',height=100), 
                width=NULL,
-               
-               height = 75),
-              
+               height = 150),
              box( 
                width=NULL,
                title="All samples", 
-               htmlOutput('sampleMeanSummary',height=200), 
-               height = 250)
+               htmlOutput('bottomSummary',height=375), 
+               height = 450)
       )
     )
   )

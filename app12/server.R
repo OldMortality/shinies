@@ -22,7 +22,7 @@ shinyServer <- function(input, output) {
   f$hei <- f$heightmm
   f$fin <- f$indexfingerlengthmm
   
-  m <- lm(hei~fin,data=f)
+  m <- lm(fin~hei,data=f)
   a0 <- coefficients(m)[[1]]
   a1 <- coefficients(m)[[2]]
   
@@ -43,8 +43,6 @@ shinyServer <- function(input, output) {
     samp(samp)
     
     
-    
-    
   })
   
  # observeEvent(input$clear,{
@@ -63,13 +61,9 @@ shinyServer <- function(input, output) {
    
   
   # 1 sample
-  observeEvent(input$sample,{
-    
-    
-    s <- f[sample(nrow(f),size=input$n),]
-    
-    
-    m2 <- lm(hei~fin,data=s)
+  observeEvent(input$sample,{ 
+    s <- f[sample(nrow(f),size=input$n),]  
+    m2 <- lm(fin~hei,data=s)
     alla0$a0s <- c(alla0$a0s,coefficients(m2)[[1]])
     alla1$a1s <- c(alla1$a1s,coefficients(m2)[[2]])
     
@@ -82,19 +76,18 @@ shinyServer <- function(input, output) {
   
   
   output$thePlot <- renderPlot({
-    
      
-    plot.data <- data.frame(x = f$fin, y=f$hei)
-    #alla0$a0s <- c(alla0$a0s) <- coefficients(m2)[1]
+    plot.data <- data.frame(x = f$hei, y=f$fin)
+    
     p <- ggplot(data=plot.data,aes(x=x,y=y)) + geom_point() +
-      scale_x_continuous(limits=c(50,100)) +
-      scale_y_continuous(limits=c(1300,2100)) +
-      ylab('height (mm)') +
-      xlab('finger length (mm)') 
+      scale_x_continuous(limits=c(1300,2100)) +
+      scale_y_continuous(limits=c(50,100)) +
+      ylab('finger length (mm)') +
+      xlab('height (mm)') 
     
     if (!is.null(samp()) ) {
       p <- p +
-       geom_point(data=samp(),aes(x=fin,y=hei),colour='red')
+       geom_point(data=samp(),aes(x=hei,y=fin),colour='red')
     }
     col <- 'red'
      

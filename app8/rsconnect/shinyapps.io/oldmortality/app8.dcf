@@ -1,0 +1,12 @@
+name: app8
+title: app8
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 403042
+bundleId: 1693605
+url: https://oldmortality.shinyapps.io/app8/
+when: 1541881144.80441
+asMultiple: FALSE
+asStatic: FALSE

@@ -1,3 +1,4 @@
+# app1
 library(shiny)
 shinyServer <- function(input, output) {
   
@@ -8,6 +9,7 @@ shinyServer <- function(input, output) {
   x.breaks <- round(seq(xbar-3*sd,xbar+3*sd,sd))
   
   getSummary <- function() {
+    print('hello')
     ht <- as.numeric(input$yourheight) 
     diff <- xbar - ht
     absdiff <- abs(diff)

@@ -1,5 +1,6 @@
-# app 8.
-# Comparing 2 groups: difference in means.
+# app 7b.
+# Comparing 2 groups: 2 sample distributions
+#   in 1 plot
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -8,8 +9,8 @@ library(DT)
 
 
 shinyUI <- dashboardPage(
-  dashboardHeader(title = paste("Task C.2 Comparing the sampling",
-                                "distribution for two means",sep=' '),
+  
+  dashboardHeader(title = "Task C.2 Comparing the sampling distribution for two means",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
@@ -25,52 +26,42 @@ shinyUI <- dashboardPage(
                                   "100"= 100)),
                    checkboxInput("shownormal", "Show Normal", TRUE)),
   dashboardBody(
-    # Boxes need to be put in a row (or column)
+    # 
     fluidRow( 
       column(width = 6,
              box( 
                title=paste("Distribution of height for the population", 
                            "of HUBS191 students",sep=' '),
                width=NULL,
-               plotOutput("plot1",height=375), 
+               plotOutput("plot1",height=400), 
                height = 450),
              box( 
-               title="Sample mean",
                width=NULL,
-               plotOutput("thissamplemean",height=75),
+               plotOutput("thissamplemean",height=100),
                height = 150),
-             box( 
-               title="Red sample mean minus blue sample mean",
-               width=NULL,
-               plotOutput("difference",height=75),
-               height = 150),
-             box(title="Difference",  
+              
+             box(title="Means of all samples",  
                  width=NULL,
-                 plotOutput("samplemean",height=375), 
+                 plotOutput("samplemean",height=400), 
                  height = 450)
       ), 
       column(width=6, 
              box(  
                title="One sample", 
                width=NULL,
-               htmlOutput('summary1',height=375), 
+               htmlOutput('topSummary',height=400), 
                height = 450),
              box( 
-               title="",
-               htmlOutput('summary2',height=75), 
-               width=NULL,
-               height = 150),
-             box( 
-               title="",
-               htmlOutput('summary3',height=75), 
+               title=htmlOutput('middleSummary',height=100), 
                width=NULL,
                height = 150),
              box( 
                width=NULL,
                title="All samples", 
-               htmlOutput('summary4',height=375), 
+               htmlOutput('bottomSummary',height=400), 
                height = 450)
       )
     )
   )
 )
+ 

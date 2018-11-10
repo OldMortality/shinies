@@ -8,7 +8,7 @@ library(shiny)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Height vs finger length",
+  dashboardHeader(title = "Task B.3 Sampling variation in regression lines",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
