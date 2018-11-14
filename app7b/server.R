@@ -18,10 +18,10 @@ shinyServer <- function(input, output) {
   sd2 = 92
   
   # temp:
-  mu = mu1
-  sd = sd1
-  lower <- mu1-3*sd
-  upper <- mu1+3*sd
+  #mu = mu1
+  #sd = sd1
+  lower <- mu1-3*sd1
+  upper <- mu1+3*sd1
   #thisSampleMean <- 0
   shinyjs::disable("shownormal")
   
@@ -45,8 +45,8 @@ shinyServer <- function(input, output) {
     values$total2 = 0
     counter$countervalue = 0
     autorun$auto = 0
-    samp1(rnorm(0,mean=mu,sd=sd))
-    samp2(rnorm(0,mean=mu,sd=sd))
+    samp1(numeric(0))
+    samp2(numeric(0))
   })
   
   observeEvent(input$n, {
@@ -61,7 +61,6 @@ shinyServer <- function(input, output) {
     showSample(TRUE)
     sample.first <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
     sample.second <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-    
     samp1(sample.first)
     samp2(sample.second) 
     values$total1 <- c(values$total1,round(mean(sample.first),2))
@@ -159,10 +158,9 @@ shinyServer <- function(input, output) {
   })
   
   
-  sd <- 93
-  upp <- mu + 3 * sd
-  low <- mu - 3 * sd
-  x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
+  low <- mu1 - 3 * sd1
+  upp <- mu1 + 3 * sd1
+  x.breaks <- round(seq(low,upp,sd1))
   
   
   output$plot1 <- renderPlot({

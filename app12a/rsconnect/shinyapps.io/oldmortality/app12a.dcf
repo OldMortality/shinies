@@ -1,0 +1,12 @@
+name: app12a
+title: app12a
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 564895
+bundleId: 1695103
+url: https://oldmortality.shinyapps.io/app12a/
+when: 1541984020.15028
+asMultiple: FALSE
+asStatic: FALSE

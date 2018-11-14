@@ -5,7 +5,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(DT)
+
 
 
 shinyServer <- function(input, output) {

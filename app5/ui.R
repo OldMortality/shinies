@@ -9,7 +9,7 @@ library(DT)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task A.6 How much do sample means vary?",
+  dashboardHeader(title = "Task A.6 The distribution of sample means",
                   titleWidth = 850),
   dashboardSidebar(#useShinyjs(),
                    actionButton("clear",label="Clear"),
@@ -23,7 +23,7 @@ shinyUI <- dashboardPage(
                                 c("10" = 10,
                                   "50" = 50,
                                   "100"= 100)),
-                   checkboxInput("shownormal", "Show Normal distribution curve", TRUE)),
+                   checkboxInput("shownormal", "Show Normal distribution curve", FALSE)),
   dashboardBody(
     # Boxes need to be put in a row (or column)
     fluidRow( 

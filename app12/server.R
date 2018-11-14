@@ -45,20 +45,7 @@ shinyServer <- function(input, output) {
     
   })
   
- # observeEvent(input$clear,{
-    #thisSampleMean <- 0
-    #allm <- vector()
-    #samp <- round(rnorm(0,mean=mu,sd=sd),1)
-    #samp(samp)
-    #meansamp <- reactiveVal()
-    ##allmeansamp$allm = vector()
-    #values$total = 0
-    #counter$countervalue = 0
-    #autorun$auto = 0
-    #samp(samp)
-  #})
-  
-   
+ 
   
   # 1 sample
   observeEvent(input$sample,{ 
@@ -92,7 +79,7 @@ shinyServer <- function(input, output) {
     col <- 'red'
      
     if (input$showalllines) {
-      #print(length(alla1$a1s))
+      
       for (i in 1:length(alla1$a1s)) {
         p <- p + geom_abline(intercept=alla0$a0s[i],slope=alla1$a1s[i],colour=col)
       

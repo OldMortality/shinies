@@ -13,12 +13,9 @@ shinyServer <- function(input, output) {
   mu2 = 1671
   sd1 = 92
   sd2 = 92
+  #lower <- mu1-3*sd1
+  #upper <- mu1+3*sd1
   
-  # temp:
-  mu = mu1
-  sd = sd1
-  lower <- mu1-3*sd
-  upper <- mu1+3*sd
   thisSampleMean <- 0
   shinyjs::disable("shownormal")
   
@@ -30,7 +27,6 @@ shinyServer <- function(input, output) {
   samp1 <- reactiveVal()
   samp2 <- reactiveVal()
   meansamp <- reactiveVal()
-  
   values <- reactiveValues(total = 0)
   counter <- reactiveValues(countervalue = 0)
   autorun <- reactiveValues(auto = 0)
@@ -39,20 +35,15 @@ shinyServer <- function(input, output) {
   observeEvent(input$clear,{
     thisSampleMean <- 0
     thisSampleMean1 <- 0
-    
-    samp1 <- round(rnorm(0,mean=mu,sd=sd),1)
-    samp2 <- round(rnorm(0,mean=mu,sd=sd),1)
-     
-    meansamp1 <- reactiveVal()
-    meansamp2 <- reactiveVal()
-     
+    s.1 <- numeric(0)
+    s.2 <- numeric(0)
     values$total1 = 0
     values$total2 = 0
     values$diff = 0
     counter$countervalue = 0
     autorun$auto = 0
-    samp1(samp1)
-    samp2(samp2)
+    samp1(s.1)
+    samp2(s.2)
   })
   
   observeEvent(input$n, {
@@ -63,7 +54,7 @@ shinyServer <- function(input, output) {
   
   # 1 sample
   observeEvent(input$sample,{
-    showMean <-1 
+    showMean(1)
     showDiff$summary <- 1
     showSample(TRUE)
     s.1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
@@ -73,10 +64,6 @@ shinyServer <- function(input, output) {
     samp2(s.2)
     meansamp1 <- round(mean(s.1),2)
     meansamp2 <- round(mean(s.2),2)
-    thisSampleMean1 <<- meansamp1
-      
-    thisSampleMean2 <<- meansamp2
-     
     values$total1 <- c(values$total1,meansamp1)
     values$total2 <- c(values$total2,meansamp2)
     values$diff <- c(values$diff,meansamp1-meansamp2)
@@ -84,7 +71,7 @@ shinyServer <- function(input, output) {
   
   # 10 samples
   observeEvent(input$sample10,{
-    showMean <- 10
+    showMean(10)
     showSample(FALSE)
     showDiff$summary <- 0
     
@@ -96,10 +83,7 @@ shinyServer <- function(input, output) {
       samp2(s.2)
       meansamp1 <- round(mean(s.1),2)
       meansamp2 <- round(mean(s.2),2)
-      thisSampleMean1 <<- meansamp1
-      #meansamp1(meansamp1) 
-      thisSampleMean2 <<- meansamp2
-      #meansamp2(meansamp2) 
+      
       values$total1 <- c(values$total1,meansamp1)
       values$total2 <- c(values$total2,meansamp2)
       values$diff <- c(values$diff,meansamp1-meansamp2)
@@ -110,7 +94,7 @@ shinyServer <- function(input, output) {
   # 100 samples
   observeEvent(input$sample100,{
     showDiff$summary <- 0 
-    showMean <- 100
+    showMean(100)
     showSample(FALSE)
     
     for (i in 1:100) {
@@ -122,10 +106,7 @@ shinyServer <- function(input, output) {
        samp2(s.2)
        meansamp1 <- round(mean(s.1),2)
        meansamp2 <- round(mean(s.2),2)
-       thisSampleMean1 <<- meansamp1
-       meansamp1(meansamp1) 
-       thisSampleMean2 <<- meansamp2
-       meansamp2(meansamp2) 
+       
        values$total1 <- c(values$total1,meansamp1)
        values$total2 <- c(values$total2,meansamp2)
        values$diff <- c(values$diff,meansamp1-meansamp2)
@@ -188,9 +169,9 @@ shinyServer <- function(input, output) {
   
   
   sd <- 93
-  upp <- mu + 3 * sd
-  low <- mu - 3 * sd
-  x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
+  upp <- mu1 + 3 * sd1
+  low <- mu1 - 3 * sd1
+  x.breaks <- round(seq(mu1-3*sd1,mu1+3*sd1,sd1))
   
   
   output$plot1 <- renderPlot({ 
@@ -227,34 +208,28 @@ shinyServer <- function(input, output) {
   # 
   output$thissamplemean <- renderPlot({
     
-    print(showSample())
-    print(samp1())
-    print(showMean())
-    print(values$total1)
-    if (showSample()==TRUE){
+    if (showSample()==TRUE){ 
       
-    
-    
-    if (length(samp1())>0) { 
+      if (length(samp1())>0) { 
       
-      thisOne1 <- tail(values$total1,showMean())
-      thisOne2 <- tail(values$total2,showMean())
-      df1 <- data.frame(x=thisOne1,col='darkred')
-      df1$y =0.00
-      df2 <- data.frame(x=thisOne2,col='darkblue')
-      df2$y =0.00
+        thisOne1 <- tail(values$total1,showMean())
+        thisOne2 <- tail(values$total2,showMean())
+        df1 <- data.frame(x=thisOne1,col='darkred')
+        df1$y =0.00
+        df2 <- data.frame(x=thisOne2,col='darkblue')
+        df2$y =0.00
       
-      df <- rbind(df1,df2)
-      print(df)
-      p <- ggplot(df, aes(x = x,y=y)) +
-        geom_point(colour = df$col,size=3) +
-        theme(legend.position = "none") +
-        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
-        scale_y_continuous(breaks = NULL,minor_breaks=NULL,
+        df <- rbind(df1,df2)
+        
+        p <- ggplot(df, aes(x = x,y=y)) +
+          geom_point(colour = df$col,size=3) +
+          theme(legend.position = "none") +
+          scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
+          scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
-        ylab("") + 
-        xlab("Sample mean")  
-      p
+          ylab("") + 
+          xlab("Sample mean")  
+        p
     }
   }  
   })

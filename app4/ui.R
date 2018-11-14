@@ -12,8 +12,8 @@ library(shinyTable)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task A4. Heights for a lab stream (n=90)",
-                  titleWidth = 450),
+  dashboardHeader(title = "Task A4. How tall are the people in a HUBS191 lab stream?",
+                  titleWidth = 850),
   dashboardSidebar(useShinyjs(), 
                    checkboxInput("showhist", "Histogram", FALSE),
                    checkboxInput("showbox", "Boxplot", FALSE),

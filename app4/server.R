@@ -33,10 +33,10 @@ shinyServer <- function(input, output) {
     }
   })  
   
-  observeEvent(input$showhist, {
-    
-    input$actionButtonID
-  })
+  #observeEvent(input$showhist, {
+  #  
+  #  input$actionButtonID
+  #})
   
   
   getSummary <- function() {

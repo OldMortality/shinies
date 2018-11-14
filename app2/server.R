@@ -23,11 +23,11 @@ shinyserver <- function(input, output) {
       #colnames= c('Height (mm)')
       #dimnames(tbl) <- list(rownames, colnames) 
       
-      rv$cachedTbl <<- tbl
+      rv$cachedTbl <- tbl
        
       return(tbl)
     } else{
-      rv$cachedTbl <<- input$tbl
+      rv$cachedTbl <- input$tbl
       return(input$tbl)
     }
   })  

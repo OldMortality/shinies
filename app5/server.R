@@ -224,7 +224,7 @@ shinyServer <- function(input, output) {
                              breaks = x.breaks,minor_breaks=NULL) + 
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
           xlab("Height (mm)") +
-          ylab("Frequency")
+          ylab("")
       }
       
       if (length(sampleMeans > 1)) {

@@ -8,8 +8,8 @@ library(DT)
 
 
 shinyUI <- dashboardPage(
-  dashboardHeader(title = paste("Task C.2 Comparing the sampling",
-                                "distribution for two means",sep=' '),
+  dashboardHeader(title = paste("Task C.3 Sampling distribution for a ",
+                                "difference in sample means",sep=' '), 
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),

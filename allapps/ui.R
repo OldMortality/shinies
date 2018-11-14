@@ -37,8 +37,8 @@ shinyUI <- dashboardPage(
                            onclick = "window.open('/app2/', '_blank')")
                ),
             box(
-               title="Task A.4 Heights for a lab stream (n=90)", width=NULL,
-               tags$button("", label = "Task A.4 Heights for a lab stream (n=90)", 
+               title="Task A.4 Task A.4 How tall are the people in a HUBS191 lab stream?", width=NULL,
+               tags$button("", label = "Task A4. How tall are the people in a HUBS191 lab stream?", 
                            tags$img(src = "app4.png",
                                     height = "150px"),
                            onclick = "window.open('/app4/', '_blank')")
@@ -52,8 +52,8 @@ shinyUI <- dashboardPage(
                ), 
                 
              box(
-               title="Task A.6 How much do sample means vary?", width=NULL,
-               tags$button("", label = "Task A.6 How much do sample means vary?", 
+               title="Task A.6 The distribution of sample means", width=NULL,
+               tags$button("", label = "Task A.6 The distribution of sample means", 
                            tags$img(src = "app5.png",
                                     height = "150px"),
                            onclick = "window.open('/app5/', '_blank')")
@@ -61,8 +61,8 @@ shinyUI <- dashboardPage(
              
              
              box(
-               title="Task A.7 Confidence intervals for the population mean height", width=NULL,
-               tags$button("", label = "Task A.7 Confidence intervals for the population mean height", 
+               title="Task A.7 Confidence intervals for the population mean", width=NULL,
+               tags$button("", label = "Task A.7 Confidence intervals for the population mean", 
                            tags$img(src = "app6.png",
                                     height = "150px"),
                            onclick = "window.open('/app6/', '_blank')")
@@ -74,6 +74,13 @@ shinyUI <- dashboardPage(
                                     height = "150px"),
                            onclick = "window.open('/app7/', '_blank')")
              ),
+            box(
+              title="Task B.2 Estimating a linear relationship", width=NULL,
+              tags$button("", label = "B.2 Estimating a linear relationship", 
+                          tags$img(src = "app12a.png",
+                                   height = "150px"),
+                          onclick = "window.open('/app12a/', '_blank')")
+            ),
             box(
               title="Task B.3 Sampling variation in regression lines", width=NULL,
               tags$button("", label = "B.3 Sampling variation in regression lines", 
@@ -97,17 +104,24 @@ shinyUI <- dashboardPage(
                            onclick = "window.open('/app7b/', '_blank')")
              ),
              box(
-               title="Task C.3 Comparing the sampling",
-               "distribution for two means", 
+               title=paste("Task C.3 Sampling distribution for a ",
+               "difference in sample means",sep=' '), 
                width=NULL,
                tags$button("", 
                            label = 
-                             paste("Task C.3 Comparing the sampling",
-                                  "distribution for two means",sep=' '),
+                             paste("Task C.3 Sampling distribution for a ",
+                                   "difference in sample means",sep=' '), 
                            tags$img(src = "app8.png",
                                     height = "150px"),
                            onclick = "window.open('/app8/', '_blank')")
              ),
+            box(
+              title="Task D.2 Joint laxity", width=NULL,
+              tags$button("", label = "Task D.2 Joint laxity", 
+                          tags$img(src = "app16.png",
+                                   height = "150px"),
+                          onclick = "window.open('/app16/', '_blank')")
+            ),
              box(
                title="9", width=NULL,
                tags$button("", label = "9. Plots of lab data (heights)", 
@@ -151,6 +165,8 @@ shinyUI <- dashboardPage(
                                     height = "150px"),
                            onclick = "window.open('/app15/', '_blank')")
              )
+            
+            
              
       ))
   )

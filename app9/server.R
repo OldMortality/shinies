@@ -396,7 +396,7 @@ shinyServer <- function(input, output) {
       
       if (!is.null(input$showall) && input$showall) {
         p <- p +
-        geom_abline(intercept=a0(),slope=a1(),colour='darkred')
+        geom_abline(intercept=a0(),slope=a1(),colour='orange')
       }
       
       p <- p + 

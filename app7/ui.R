@@ -4,9 +4,7 @@
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
-library(ggplot2)
-library(DT)
-
+library(ggplot2) 
 
 shinyUI <- dashboardPage(
   
@@ -34,22 +32,22 @@ shinyUI <- dashboardPage(
                            " in the population of HUBS191 students.",sep=' '),
                width=NULL,
                plotOutput("plot1",height=300), 
-               height = 350),
+               height = 400),
              box( 
                width=NULL,
                plotOutput("thissamplemean",height=50),
                height = 75),
              box(title="Distribution of all sample proportions",  
                  width=NULL,
-                 plotOutput("samplemean",height=300), 
-                 height = 350)
+                 plotOutput("samplemean",height=400), 
+                 height = 500)
       ), 
       column(width=6, 
              box(  
                title="", 
                width=NULL,
                htmlOutput('sampleSummary',height=300), 
-               height = 350),
+               height = 400),
              box( 
                title=htmlOutput('onesamplesummary',height=50), 
                width=NULL,
@@ -58,8 +56,8 @@ shinyUI <- dashboardPage(
              box( 
                width=NULL,
                title="All samples", 
-               htmlOutput('sampleMeanSummary',height=300), 
-               height = 350)
+               htmlOutput('sampleMeanSummary',height=400), 
+               height = 500)
       )
     )
   )

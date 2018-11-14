@@ -96,7 +96,7 @@ shinyServer <- function(input, output) {
   #    were true.
   output$samplingdistribution <- renderPlot({ 
     
-      sd=93
+      sd=as.numeric(input$samplesd)
       
       # sd of the sampling distribution
       sd.samp <- sd/sqrt(as.numeric(input$samplesize))
