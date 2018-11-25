@@ -26,8 +26,9 @@ shinyServer <- function(input, output) {
   allmeansamp <- reactiveValues(allm=vector())
   values <- reactiveValues(total = 0)
   counter <- reactiveValues(countervalue = 0)
-  autorun <- reactiveValues(auto = 0) 
-  
+  autorun <- reactiveValues(auto = 0)
+  animate.counter <- 0
+  max.animate <- 25
   
   output$start <- renderUI({
     actionButton("click", 
@@ -56,26 +57,29 @@ shinyServer <- function(input, output) {
   })
   
   observeEvent(input$click, {
-    print("clicked start button")
-    print(autorun$auto)
     if (autorun$auto == 1) {
-      print('set autorun$auto to zero')
-      autorun$auto <- 0  
-      print(autorun$auto)
+      autorun$auto <- 0 
     } else {
-      print('set autorun$auto to one')
       autorun$auto <- 1
-      print(autorun$auto)
     }
-    
   })
   
-  # click sample repeatedly
+  
+  
+  # animate: click sample repeatedly
   observe({
     if (autorun$auto == 1) {
-      print("before clicking sample")
-      click("sample")
-      invalidateLater(1)
+        
+        # run this function again in 2000ms
+        invalidateLater(2000)
+        click("sample")
+        animate.counter <<- animate.counter + 1
+        if (animate.counter > max.animate) {
+          # stop animation.
+          autorun$auto <- 0
+          animate.counter <<- 0
+        } 
+        
     }
   })
   
@@ -378,8 +382,6 @@ shinyServer <- function(input, output) {
   
   getSampleMeansSummary <- function() {
     # the vector of sample means
-    #df <- data.frame(x = values$total[-1])
-    #print(paste('.....',values$total))
     sampleMeans <- values$total[-1]
     
     m.hat <- round(100* mean(sampleMeans))/100

@@ -30,6 +30,9 @@ shinyServer <- function(input, output) {
   counter <- reactiveValues(countervalue = 0)
   autorun <- reactiveValues(auto = 0)
   
+  animate.counter <- 0
+  max.animate <- 25
+  
   
   output$start <- renderUI({
     actionButton("click", label = label(),
@@ -155,15 +158,23 @@ shinyServer <- function(input, output) {
     }
   })
   
-   
-  
-  # click sample every 10 ms
+  # animate: click sample repeatedly
   observe({
     if (autorun$auto == 1) {
+      
+      # run this function again in 2000ms
+      invalidateLater(2000)
       click("sample")
-      invalidateLater(1)
-    }
+      animate.counter <<- animate.counter + 1
+      if (animate.counter > max.animate) {
+        # stop animation.
+        autorun$auto <- 0
+        animate.counter <<- 0
+      } 
+      
+    }  
   })
+ 
   
   
   
