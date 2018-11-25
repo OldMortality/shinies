@@ -9,7 +9,7 @@ library(shinyTable)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Group velocity",
+  dashboardHeader(title = "Task B.2 Visualising your data",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs()
   ), 

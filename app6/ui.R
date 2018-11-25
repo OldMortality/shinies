@@ -4,7 +4,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-#library(DT)
+
 
 
 shinyUI <- dashboardPage(
@@ -16,8 +16,7 @@ shinyUI <- dashboardPage(
                    actionButton("sample",label="Take 1 sample"),
                    actionButton("sample10",label="Take 10 samples"),
                    actionButton("sample100",label="Take 100 samples"),
-                   actionButton("start",label="Start "),
-                   actionButton("stop",label="Stop "),  
+                   uiOutput("start"),
                    
                    radioButtons("n", "Sample size:",
                                 c("10" = 10,

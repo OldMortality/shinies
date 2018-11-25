@@ -23,8 +23,7 @@ shinyUI <- dashboardPage(
                    actionButton("sample",label="Take 1 sample"),
                    actionButton("sample10",label="Take 10 samples"),
                    actionButton("sample100",label="Take 100 samples"),
-                   actionButton("start",label="Start "),
-                   actionButton("stop",label="Stop "),  
+                   uiOutput("start"),
                    
                    radioButtons("n", "Sample size:",
                                 c("10" = 10,
@@ -38,23 +37,23 @@ shinyUI <- dashboardPage(
              box( 
                title="Population", 
                width=NULL,
-               plotOutput("CLTplot1",height=200), 
-               height = 250),
+               plotOutput("CLTplot1",height=400), 
+               height = 450),
              box( 
                width=NULL,
                plotOutput("thissamplemean",height=50),
                height = 75),
              box(title="Means of all samples",  
                  width=NULL,
-                 plotOutput("samplemean",height=200), 
-                 height = 250)
+                 plotOutput("samplemean",height=400), 
+                 height = 450)
       ), 
       column(width=6, 
              box(  
                title="One sample", 
                width=NULL,
-               htmlOutput('sampleSummary',height=200), 
-               height = 250),
+               htmlOutput('sampleSummary',height=400), 
+               height = 450),
              box( 
                title=htmlOutput('onesamplesummary',height=50), 
                width=NULL,
@@ -63,8 +62,8 @@ shinyUI <- dashboardPage(
              box( 
                width=NULL,
                title="All samples", 
-               htmlOutput('sampleMeanSummary',height=200), 
-               height = 250)
+               htmlOutput('sampleMeanSummary',height=400), 
+               height = 450)
       )
     )
   )

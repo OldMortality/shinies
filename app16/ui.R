@@ -29,13 +29,10 @@ shinyUI <- dashboardPage(
                )
              ),
              box( 
-               title="Summary", 
+               title="Pre-puberty", 
                width=NULL,
-               htmlOutput('summary', height = 200), 
-               height = 300)
-             
-             
-             ),
+               htmlOutput('summary.pre', height = 200), 
+               height = 300) ),
       column(width=6,
              box(
                title="Dotplot - post-puberty", width=NULL,
@@ -43,8 +40,14 @@ shinyUI <- dashboardPage(
                  condition = "input.showdots",
                  plotOutput("dot.post", height = 400)
                )
-             )
-      )
+             ),
+             box( 
+               title="Post-puberty", 
+               width=NULL,
+               htmlOutput('summary.post', height = 200), 
+               height = 300)
+        )
+      
     )
     
   )

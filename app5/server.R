@@ -21,14 +21,64 @@ shinyServer <- function(input, output) {
   # do we show the sample dots in the top chart?
   showSample <- TRUE
   
-  
-  #allm <- vector()
   samp <- reactiveVal()
   meansamp <- reactiveVal()
   allmeansamp <- reactiveValues(allm=vector())
   values <- reactiveValues(total = 0)
   counter <- reactiveValues(countervalue = 0)
-  autorun <- reactiveValues(auto = 0)
+  autorun <- reactiveValues(auto = 0) 
+  
+  
+  output$start <- renderUI({
+    actionButton("click", 
+                 label = label(),
+                 style=style()
+                 #icon=icon("running",lib = "font-awesome")
+                 )
+  })
+  
+  style <- reactive({
+    if (autorun$auto == 1) {
+      style="color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    } else {
+      # default
+      style="color: #444444; background-color: #F4F4F4; border-color: #444444"
+    }
+    
+  })
+  
+  label <- reactive({
+      if (autorun$auto == 1) {
+        label <- "Stop"
+      } else {
+        label <- "Start"
+      }
+  })
+  
+  observeEvent(input$click, {
+    print("clicked start button")
+    print(autorun$auto)
+    if (autorun$auto == 1) {
+      print('set autorun$auto to zero')
+      autorun$auto <- 0  
+      print(autorun$auto)
+    } else {
+      print('set autorun$auto to one')
+      autorun$auto <- 1
+      print(autorun$auto)
+    }
+    
+  })
+  
+  # click sample repeatedly
+  observe({
+    if (autorun$auto == 1) {
+      print("before clicking sample")
+      click("sample")
+      invalidateLater(1)
+    }
+  })
+  
   
   observeEvent(input$clear,{
     thisSampleMean <- 0
@@ -51,25 +101,26 @@ shinyServer <- function(input, output) {
   
   # 1 sample
   observeEvent(input$sample,{
-    showMean <<- 1
-    showSample <<- TRUE
+    
+    showMean <- 1
+    showSample <- TRUE
     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
     samp(samp)
     meansamp <- round(mean(samp),2)
-    thisSampleMean <<- meansamp
+    thisSampleMean <- meansamp
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
   })
   
   # 10 samples
   observeEvent(input$sample10,{
-    showMean <<- 10
-    showSample <<- FALSE
+    showMean <- 10
+    showSample <- FALSE
     for (i in 1:10) {
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
       samp(samp)
       meansamp <- round(mean(samp),2)
-      thisSampleMean <<- meansamp
+      thisSampleMean <- meansamp
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
     }
@@ -80,12 +131,12 @@ shinyServer <- function(input, output) {
   # 100 samples
   observeEvent(input$sample100,{
     for (i in 1:100) {
-      showMean <<- 100
-      showSample <<- FALSE
+      showMean <- 100
+      showSample <- FALSE
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
       samp(samp)
       meansamp <- round(mean(samp),2)
-      thisSampleMean <<- meansamp
+      thisSampleMean <- meansamp
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
     }
@@ -118,27 +169,17 @@ shinyServer <- function(input, output) {
     }
   })
   
-  observeEvent(input$start, {
-    autorun$auto <<- 1
-  })
-  
-  observeEvent(input$stop, {
-    autorun$auto <<- 0
-  })
-  
-  # click sample every 10 ms
-  observe({
-    if (autorun$auto == 1) {
-      click("sample")
-      invalidateLater(1)
-    }
-  })
   
   
   
   
   
   
+  
+  
+  
+
+
   output$sampleCounter <- renderInfoBox({
     infoBox(
       "Samples: ", paste0(counter$counterValues), icon = icon("list"),

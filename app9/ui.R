@@ -5,16 +5,15 @@
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
-library(ggplot2)
-library(DT)
- 
+library(ggplot2) 
 library(gridExtra)
 library(shinyTable)
 
 ui <- dashboardPage(
   
-  dashboardHeader(title = paste("Lab 4: Experiment 2.",
-                  "Voluntary movement in response to sensory stimulus"  ),
+  dashboardHeader(title = paste("Lab 4.",
+                  "Voluntary movement in response to sensory stimulus",
+                  sep=' '),
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    

@@ -1,0 +1,12 @@
+name: lab5
+title: lab5
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 579484
+bundleId: 1708319
+url: https://oldmortality.shinyapps.io/lab5/
+when: 1542615889.32033
+asMultiple: FALSE
+asStatic: FALSE

@@ -11,13 +11,20 @@ shinyUI <- dashboardPage(
   
   dashboardHeader(title = "Task A.6 The distribution of sample means",
                   titleWidth = 850),
-  dashboardSidebar(#useShinyjs(),
+  dashboardSidebar(useShinyjs(),
+                   #tags$head(
+                  #   tags$style(HTML('#sample{background-color:orange}'))
+                   #),
+                   #actionButton("run", "Run Analysis", icon("paper-plane"), 
+                  #              style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                    
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"),
                    actionButton("sample10",label="Take 10 samples"),
                    actionButton("sample100",label="Take 100 samples"),
-                   actionButton("start",label="Start "),
-                   actionButton("stop",label="Stop "),  
+                   #actionButton("start",label="Start "),
+                   uiOutput("start"),
+                   #actionButton("stop",label="Stop "),  
                    
                    radioButtons("n", "Sample size:",
                                 c("10" = 10,

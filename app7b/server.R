@@ -37,6 +37,42 @@ shinyServer <- function(input, output) {
   counter <- reactiveValues(countervalue = 0)
   autorun <- reactiveValues(auto = 0)
   
+  output$start <- renderUI({
+    actionButton("click", label = label(),
+                 style=style()
+                 #icon=icon("running",lib = "font-awesome")
+    )
+  })
+  
+  style <- reactive({
+    if (autorun$auto == 1) {
+      style="color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    } else {
+      # default
+      style="color: #444444; background-color: #F4F4F4; border-color: #444444"
+    }
+    
+  })
+  
+  label <- reactive({
+    if (autorun$auto == 1) {
+      label <- "Stop"
+    } else {
+      label <- "Start"
+    }
+  })
+  
+  observeEvent(input$click, {
+    
+    if (autorun$auto == 1) {
+      autorun$auto <- 0  
+    } else {
+      autorun$auto <- 1
+    }
+    
+  }) 
+  
+  
   observeEvent(input$clear,{
     thisSampleMean <- 0  
     meansamp1 <- reactiveVal()
@@ -133,13 +169,8 @@ shinyServer <- function(input, output) {
     }
   })
   
-  observeEvent(input$start, {
-    autorun$auto <- 1
-  })
-  
-  observeEvent(input$stop, {
-    autorun$auto <- 0
-  })
+   
+   
   
   # click sample every 10 ms
   observe({

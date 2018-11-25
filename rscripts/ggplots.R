@@ -757,7 +757,8 @@ library(ggplot2)
                        sex = rep('boys',boys.post.n),
                        col = rep('blue',boys.post.n))        
   
-  
+  g.pre$score <- g.pre$score - 0.08
+  b.pre$score <- b.pre$score + 0.08
   pre <- rbind(g.pre,b.pre)
   post <- rbind(g.post,b.post)
   

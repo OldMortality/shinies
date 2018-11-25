@@ -29,6 +29,35 @@ shinyServer <- function(input, output) {
   # number of red intervals
   countReds <- reactiveValues(counter=0)
   
+  
+  output$start <- renderUI({
+    actionButton("click", 
+                 label = label(),
+                 style=style()
+                 #icon=icon("running",lib = "font-awesome")
+    )
+  })
+  
+  style <- reactive({
+    if (autorun$auto == 1) {
+      style="color: #fff; background-color: #337ab7; border-color: #2e6da4"
+    } else {
+      # default
+      style="color: #444444; background-color: #F4F4F4; border-color: #444444"
+    }
+    
+  })
+  
+  label <- reactive({
+    if (autorun$auto == 1) {
+      label <- "Stop"
+    } else {
+      label <- "Start"
+    }
+  })
+  
+  
+  
   observeEvent(input$clear,{
     thisSampleMean <- 0
     allm <- vector()
@@ -52,7 +81,7 @@ shinyServer <- function(input, output) {
     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
     samp(samp)
     meansamp <- round(mean(samp),2)
-    thisSampleMean <<- meansamp
+    thisSampleMean <- meansamp
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
     #s <- sd
@@ -75,7 +104,7 @@ shinyServer <- function(input, output) {
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
       samp(samp)
       meansamp <- round(mean(samp),2)
-      thisSampleMean <<- meansamp
+      thisSampleMean <- meansamp
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
       s <- sqrt(var(samp))
@@ -95,7 +124,7 @@ shinyServer <- function(input, output) {
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
       samp(samp)
       meansamp <- round(mean(samp),2)
-      thisSampleMean <<- meansamp
+      thisSampleMean <- meansamp
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
       s <- sqrt(var(samp))
@@ -121,13 +150,17 @@ shinyServer <- function(input, output) {
     counter$countervalue <- counter$countervalue + 100
   })
   
-  observeEvent(input$start, {
-    autorun$auto <<- 1
+ 
+  
+  observeEvent(input$click, {
+    if (autorun$auto == 1) {
+      autorun$auto <- 0  
+    } else {
+      autorun$auto <- 1
+    }
+    
   })
   
-  observeEvent(input$stop, {
-    autorun$auto <<- 0
-  })
   
   # click sample every 10 ms
   observe({
