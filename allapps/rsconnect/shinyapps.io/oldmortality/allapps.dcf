@@ -1,0 +1,12 @@
+name: allapps
+title: allapps
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 392815
+bundleId: 1727309
+url: https://oldmortality.shinyapps.io/allapps/
+when: 1543453670.86934
+asMultiple: FALSE
+asStatic: FALSE

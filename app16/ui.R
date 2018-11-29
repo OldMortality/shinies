@@ -11,11 +11,10 @@ library(ggplot2)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task D.2 Joint laxity",
+  dashboardHeader(title = "Joint laxity",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(), 
-                   checkboxInput("showdots", "Show dotplots", TRUE),
-                   checkboxInput("showmeans", "Boxplot", TRUE)
+                   checkboxInput("showdots", "Show dotplots", FALSE)
   ), 
   dashboardBody(
     fluidRow(

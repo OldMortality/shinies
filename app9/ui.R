@@ -11,19 +11,17 @@ library(shinyTable)
 
 ui <- dashboardPage(
   
-  dashboardHeader(title = paste("Lab 4.",
-                  "Voluntary movement in response to sensory stimulus",
-                  sep=' '),
+  dashboardHeader(title = 
+                  "Movement in response to sensory stimuli",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
-                   
-                   
                    selectInput("plot.type", h3("Graph type"), 
                                choices = list("Histogram" = 1, 
                                               "Scatter" = 2,
                                               "Boxplot" = 3
                                ), selected = 1),
                    uiOutput("B_ui"),
+                   checkboxInput("showall", "Show HUBS191 data", FALSE),
                    checkboxInput("showmean", "Show population mean (red)", FALSE),
                    
                     uiOutput("checkboxes")
@@ -46,6 +44,7 @@ ui <- dashboardPage(
                    htable("tbl",
                           colHeaders = 'provided'),
                    actionButton("actionButtonID","Save")
+                   
                    
                )),
         column(width = 6,

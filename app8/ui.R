@@ -4,12 +4,12 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(DT)
+
 
 
 shinyUI <- dashboardPage(
-  dashboardHeader(title = paste("Task C.3 Sampling distribution for a ",
-                                "difference in sample means",sep=' '), 
+  dashboardHeader(title = 
+                    "Sampling distribution for a difference in sample means ",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),

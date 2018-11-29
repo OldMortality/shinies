@@ -21,8 +21,7 @@ shinyServer <- function(input, output) {
   # do we show the sample dots in the top chart?
   showSample <- TRUE
   
-  
-  #allm <- vector()
+   
   samp <- reactiveVal()
   meansamp <- reactiveVal()
   allmeansamp <- reactiveValues(allm=vector())
@@ -37,7 +36,7 @@ shinyServer <- function(input, output) {
   output$start <- renderUI({
     actionButton("click", label = label(),
                  style=style()
-                 #icon=icon("running",lib = "font-awesome")
+                 
     )
   })
   
@@ -74,7 +73,7 @@ shinyServer <- function(input, output) {
     thisSampleMean <- 0
     allm <- vector()
     samp <- rbinom(0,0,0.5)
-    #samp(samp)
+     
     meansamp <- reactiveVal()
     allmeansamp$allm = vector()
     values$total = 0
@@ -113,8 +112,7 @@ shinyServer <- function(input, output) {
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
     }
-    #samp <- NULL
-    #samp(samp)
+     
   })
   
   # 100 samples

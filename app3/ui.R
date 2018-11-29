@@ -11,7 +11,7 @@ library(shinyBS)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task A5. Several sample means",
+  dashboardHeader(title = "Several sample means",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    checkboxInput("showmean", "Show population mean (red)", FALSE),

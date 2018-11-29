@@ -8,7 +8,7 @@ library(ggplot2)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "B.1 Estimating a proportion",
+  dashboardHeader(title = "Estimating a proportion",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),

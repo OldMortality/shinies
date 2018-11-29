@@ -27,8 +27,8 @@ shinyUI <- dashboardPage(
       column(width = 6,height=2, 
              
              box(
-               title="Task B.2 Visualising your data", width=NULL,
-               tags$button("", label = "Task B.2 Visualising your data", 
+               title="Visualising your data", width=NULL,
+               tags$button("", label = "Visualising your data", 
                            tags$img(src = "app14.png",
                                     height = "150px"),
                            onclick = "window.open('/app14/', '_blank')")

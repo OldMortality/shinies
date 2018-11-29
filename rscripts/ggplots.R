@@ -63,17 +63,24 @@ p
 
 result <- data.frame(height=c(round(rnorm(90,1710,90))))
 # 2 people who put in cm instead of mm
-result$height[22] <- 170
-result$height[77] <- 3500
-# a hobbit
-result$height[55] <- 1300
 result
-
+dim(result)
+result$sex <- 'male'
+result[51:90,"sex"] <- 'female'
+result[51:90,"sex"] <-  rnorm(40,1910,90)
+library(ggplot2)
 d <- data.frame(result)
-p <- ggplot(d, aes(height)) + 
-  scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-  geom_dotplot(dotsize=0.3)
-p
+head(d)
+ggplot(mtcars, aes(y = factor(cyl), x = mpg)) 
+  
+ggplot(data=d, aes(height,
+                   x = factor(sex), y = height)) +
+  geom_dotplot(aes(group=sex),dotsize=0.3,stackdir="up"
+               )+
+  
+  
+
+hist(d$height)
 
 d$height[77] = 1700
 d$height[22] = 1700
@@ -774,3 +781,97 @@ library(ggplot2)
     
 }
  
+ggplot(mtcars, aes(x = 1, y = mpg)) +
+  geom_dotplot(binaxis = "y", stackdir = "center")
+
+d1 <- d[which(d$sex=='male'),]
+d2 <- d[which(d$sex=='female'),]
+d$height <-round(d$height)
+
+ggplot(data=d,aes(x=sex,y=height) )+
+  geom_dotplot(stackdir = "center",
+                   binaxis = 'y') +
+  scale_y_continuous(limits=c(0,2000),
+                   breaks=seq(0,2000,100)) 
+  
+
+
+e <- data.frame(height=rnorm(5000))
+ggplot(data=e,aes(x=height)) +
+  geom_dotplot(dotsize=0.1) 
+
+
+head(d)
+
+table()
+
+
+ggplot(mtcars, aes(x = factor(cyl), y = mpg)) +
+  geom_dotplot(binaxis = "y", stackdir = "centerwhole")
+ggplot(mtcars, aes(y = factor(cyl), x = mpg)) +
+  geom_dotplot(binaxis = "x", stackdir = "centerwhole")
+
+
+
+ggplot(mtcars, aes(x = factor(vs), fill = factor(cyl), y = mpg)) +
+  geom_dotplot(binaxis = "y", stackdir = "center", position = "dodge")
+
+ggplot(mtcars, aes(y = factor(vs), fill = factor(cyl), x = mpg)) +
+  geom_dotplot(binaxis = "x", stackdir = "center", position = "dodge")
+
+
+# binpositions="all" ensures that the bins are aligned between groups
+ggplot(mtcars, aes(x = factor(am), y = mpg)) +
+  geom_dotplot(binaxis = "y", stackdir = "center", binpositions="all")
+
+# Stacking multiple groups, with different fill
+ggplot(mtcars, aes(x = mpg, fill = factor(cyl))) +
+  geom_dotplot(stackgroups = TRUE, binwidth = 1, binpositions = "all")
+
+ggplot(mtcars, aes(x = mpg, fill = factor(cyl))) +
+  geom_dotplot(stackgroups = TRUE, binwidth = 1, method = "histodot")
+
+ggplot(mtcars, aes(x = 1, y = mpg, fill = factor(cyl))) +
+  geom_dotplot(binaxis = "y", stackgroups = TRUE, binwidth = 1, method = "histodot")
+# }
+
+
+
+g.pre <- data.frame(score = rbinom(girls.pre.n,size=9,prob=2/9),
+                    sex = rep('girls',girls.pre.n),
+                    col = rep('red',girls.pre.n))
+b.pre <- data.frame(score = rbinom(boys.pre.n,size=9,prob=1.7/9),
+                    sex = rep('boys',boys.pre.n),
+                    col = rep('blue',boys.pre.n))
+# make sure dotplots don't overlap
+#g.pre$score <- g.pre$score - 0.08
+#b.pre$score <- b.pre$score + 0.08
+
+
+g.post <- data.frame(score = rbinom(girls.post.n,size=9,prob=3/9),
+                     sex = rep('girls',girls.post.n),
+                     col = rep('red',girls.post.n))
+b.post <- data.frame(score = rbinom(boys.post.n,size=9,prob=1.3/9),
+                     sex = rep('boys',boys.post.n),
+                     col = rep('blue',boys.post.n))        
+#g.post$score <- g.post$score - 0.08
+#b.post$score <- b.post$score + 0.08
+
+
+
+pre <- rbind(g.pre,b.pre)
+post <- rbind(g.post,b.post)
+
+ 
+   ggplot(data=pre, aes(x = sex,y=score)) +
+    geom_dotplot(
+      stackdir="center",
+      binaxis = 'y') +
+    xlab("") + 
+    ylab("laxity score") +
+    scale_y_continuous(
+      limits=c(0,9),
+      breaks=seq(0,9)
+                       )
+  
+  

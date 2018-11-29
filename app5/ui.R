@@ -9,7 +9,7 @@ library(DT)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task A.6 The distribution of sample means",
+  dashboardHeader(title = "The distribution of sample means",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    #tags$head(

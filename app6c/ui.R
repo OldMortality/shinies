@@ -8,10 +8,10 @@ library(ggplot2)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task C.1 What if the population mean is unknown?",
+  dashboardHeader(title = "What can we say based on a single sample mean?",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
-                    sliderInput("mu.2", "Population mean:",
+                    sliderInput("mu.2", "Hypothesized mean:",
                                 min = 1400, max = 2000, value = 1740,step=1
                                ),
                     textInput("samplemean", label = h4("Your sample mean (mm)")

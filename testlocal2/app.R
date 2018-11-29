@@ -18,6 +18,7 @@ ui <- fluidPage(
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
+         actionButton("add","add"),
          sliderInput("bins",
                      "Number of bins:",
                      min = 1,
@@ -35,40 +36,33 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-   x <- 3
+   y <- 0
    
-   y <- reactiveValues(val=0)
+   
+   observeEvent(input$do, {
+     session$sendCustomMessage(type = 'testmessage',
+                               message = 'Thank you for clicking')
+   })
+   
+   observeEvent(input$add, {
     
-   testit <- function() {
-     x <<- x + 1
-     print(x)
-   }
-   
-   testit2 <- function(){
-      print(x)
-   }
-   
-   testit3 <- function() {
-     y$val <- 99
-   }
-   
-   testit4 <- function() {
-     print(y$val)
-   }
+     y <<- y + 1
+     print(paste('y is ',y))
+     
+   })
    
    output$distPlot <- renderPlot({
-      testit()
-      testit2()
-      testit3()
-      testit4()
       # generate bins based on input$bins from ui.R
+      print(y)
       x    <- faithful[, 2] 
       bins <- seq(min(x), max(x), length.out = input$bins + 1)
       
       # draw the histogram with the specified number of bins
       hist(x, breaks = bins, col = 'darkgray', border = 'white')
    })
+
 }
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)

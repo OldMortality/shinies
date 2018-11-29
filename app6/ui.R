@@ -9,7 +9,7 @@ library(ggplot2)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task A.7 Confidence intervals for the population mean",
+  dashboardHeader(title = "Confidence intervals for the population mean",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),

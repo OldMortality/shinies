@@ -10,7 +10,7 @@ library(DT)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task C.2 Comparing the sampling distribution for two means",
+  dashboardHeader(title = "Comparing the sampling distribution for two means",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),

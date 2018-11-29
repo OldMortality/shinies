@@ -6,7 +6,7 @@ library(shinydashboard)
 library(ggplot2) 
 
 shinyUI <- dashboardPage(  
-  dashboardHeader(title = "Task A.1 and A.2 How tall are HUBS191 students?",
+  dashboardHeader(title = "How tall are HUBS191 students?",
                   titleWidth = 800),
   dashboardSidebar(
       checkboxInput("showmean", "Show population mean (red)", FALSE),

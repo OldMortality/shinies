@@ -18,7 +18,7 @@ library(shinyBS)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "HUBS191. Lab 4: Statistics",
+  dashboardHeader(title = "HUBS191. Lab 4: Anatomy & Physiology of the Nervous Systems",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs()
                    ),
@@ -26,8 +26,8 @@ shinyUI <- dashboardPage(
     fluidRow(
       column(width = 6,height=2, 
              box(
-               title="Lab 4. Voluntary movement in response to sensory stimulus ", width=NULL,
-               tags$button("", label = "Lab 4. Voluntary movement in response to sensory stimulus ", 
+               title="Movement in response to sensory stimuli", width=NULL,
+               tags$button("", label = "Movement in response to sensory stimuli", 
                            tags$img(src = "app9.png",
                                     height = "150px"),
                            onclick = "window.open('/app9/', '_blank')")

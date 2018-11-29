@@ -5,7 +5,7 @@ library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(DT)
-#library(shinyBS)
+
 
 
 shinyUI <- dashboardPage(

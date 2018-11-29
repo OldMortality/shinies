@@ -35,7 +35,7 @@ shinyUI <- dashboardPage(
                width=NULL,
                tags$button("", label = "HUBS191. Lab2: Statistics", 
                            tags$img(src = "lab2.png",
-                                    height = "150px"),
+                                    height = "150px",width="200px"),
                             onclick ="window.open('/lab2/', '_blank')")
                ),
              box(
@@ -43,7 +43,7 @@ shinyUI <- dashboardPage(
                width=NULL,
                tags$button("", label = "HUBS191. Lab4: Anatomy and Physiology of the nervous system", 
                            tags$img(src = "lab4.png",
-                                    height = "150px"),
+                                    height = "150px",width="200px"),
                            onclick ="window.open('/lab4/', '_blank')")
              ),
              box(
@@ -51,13 +51,9 @@ shinyUI <- dashboardPage(
                width=NULL,
                tags$button("", label = "HUBS191. Lab2: Statistics", 
                            tags$img(src = "lab5.png",
-                                    height = "150px"),
+                                    height = "150px",width="200px"),
                            onclick ="window.open('/lab5/', '_blank')")
              )
-             
-            
-            
-             
-      ))
+        ))
   )
 ) 

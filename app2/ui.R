@@ -9,7 +9,7 @@ library(DT)
 library(shinyTable)
  
 shinyUI <- dashboardPage( 
-  dashboardHeader(title = "Task A.3 How tall are the people at your table?",
+  dashboardHeader(title = "How tall are the people at your table?",
                   titleWidth = 800),
   dashboardSidebar(useShinyjs(), 
                    checkboxInput("showhist", "Histogram", FALSE),

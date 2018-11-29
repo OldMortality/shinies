@@ -82,6 +82,7 @@ shinyServer <- function(input, output) {
   
   
   output$B_ui <- renderUI({
+    
     if (input$plot.type == "1"  ) {
       
       selectInput("variable", h3("Variable"), 
@@ -136,13 +137,16 @@ shinyServer <- function(input, output) {
       }
       if (input$plot.type==2) {
         # scatter
-        line0.a <- paste("<b>","All data","</b><p>",sep='')
-        line1.a <- paste('intercept',round(a0(),1),sep=' ')
-        line2.a <- paste('slope',round(a1(),4),sep=' ')
-        line3.a <- paste(cname.y(),"=",round(a0(),1),
+        result.a <- ""
+        if (!is.null(a0)) {
+          line0.a <- paste("<b>","All data","</b><p>",sep='')
+          line1.a <- paste('intercept',round(a0(),1),sep=' ')
+          line2.a <- paste('slope',round(a1(),4),sep=' ')
+          line3.a <- paste(cname.y(),"=",round(a0(),1),
                          "+",round(a1(),4),"*",cname.x(),sep=' ')
-        result.a <- paste(line0.a,line1.a,line2.a,sep="<p>")
-        result.a <- paste(line0.a,line3.a)
+          result.a <- paste(line0.a,line1.a,line2.a,sep="<p>")
+          result.a <- paste(line0.a,line3.a)
+        }
         
         result.b <- NULL
         #if (!is.null(group.regression()) && group.regression() == T) { 
@@ -155,7 +159,7 @@ shinyServer <- function(input, output) {
           line3.a <- paste(cname.y(),"=",round(a0.g(),1),
                            "+",round(a1.g(),4),"*",cname.x(),sep=' ')
           result.b <- paste(line0.g,line3.a)
-          print(result.b)
+          
         }
         if (!is.null(result.b)) {
           result <- paste(result.a,result.b,sep="<p>")  
@@ -169,12 +173,11 @@ shinyServer <- function(input, output) {
       }
       if (input$plot.type==3) {
         #boxplot
-        #print(head(data))
+        
         colNumber <- as.numeric(input$variable) 
         if (length(colNumber) == 0) {
           colNumber <- 1
         }
-        #print(head(data))
         colName <- colnames(data)[colNumber]
         if (colNumber == 1) {
           # length
@@ -245,7 +248,6 @@ shinyServer <- function(input, output) {
     # histogram
      if (input$plot.type == 1) {
       colNumber <- as.numeric(input$variable) 
-      print(paste('colnumber:',colNumber))
       if (length(colNumber) == 0) {
         colNumber <- 1
       }
@@ -264,14 +266,19 @@ shinyServer <- function(input, output) {
       theColumnData.mean(theColumnData.mean)
       theColumnData.var(theColumnData.var)
       df <- data.frame(x = theColumnData)
-      #print(head(df))
-      p <- ggplot(df,aes(x=x)) + geom_histogram(color="black", fill="white") +
-        xlab(colName)
-      t <- paste('Histogram of',colName.pretty,
-                 '(N=615)',sep=' ')
-      p <- p +
-        ggtitle(t) + 
-        theme(plot.title = element_text(size=22))
+      p <- ggplot(df,aes(x=x))
+      
+      if (input$showall) {
+        p <-  p + geom_histogram(color="black", fill="white") +
+          xlab(colName)
+        t <- paste('Histogram of',colName.pretty,
+                   '(N=615)',sep=' ')
+        p <- p +
+          ggtitle(t) + 
+          theme(plot.title = element_text(size=22))
+        
+      }
+      
       
       mu <- mean(theColumnData,na.rm=T)
       sd <- sqrt(var(theColumnData,na.rm=T))
@@ -415,9 +422,7 @@ shinyServer <- function(input, output) {
       
       ## Add the group data (from the hot table)
       if (!is.null(input$showgroup) && input$showgroup) { 
-        print('hello scatter')
         data2 <- group.tbl
-        print(data2)
         myColumn.x <- data2[,colNumber.x]
         myColumn.y <- data2[,colNumber.y]
         dropm.x <- which(is.na(myColumn.x))
@@ -530,9 +535,9 @@ shinyServer <- function(input, output) {
       }
       # add data points from the group to boxplot
       if (!is.null(input$showgroup) && input$showgroup) {
-        print('hello box')
+         
         data2 <- group.tbl
-        print(data2)
+         
         if (colNumber==1) {
           # length
           myColumn.1 <- data2[,1]
