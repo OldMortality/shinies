@@ -76,13 +76,17 @@ shinyServer <- function(input, output) {
   }
   
   output$summary.pre <- renderText(
-    paste("<font size=4>",getSummary.pre(),
+    if (input$showpre) {
+      paste("<font size=4>",getSummary.pre(),
           "</font>")
+    } 
   )
   
   output$summary.post <- renderText(
-    paste("<font size=4>",getSummary.post(),
+    if (input$showpost) {
+      paste("<font size=4>",getSummary.post(),
           "</font>")
+    }
   )
   
   

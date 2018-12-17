@@ -27,8 +27,8 @@ shinyUI <- dashboardPage(
       column(width = 6,height=2, 
              
              box(
-               title="Visualising your data", width=NULL,
-               tags$button("", label = "Visualising your data", 
+               title="Nerve conduction velocity", width=NULL,
+               tags$button("", label = "Nerve conduction velocity", 
                            tags$img(src = "app14.png",
                                     height = "150px"),
                            onclick = "window.open('/app14/', '_blank')")

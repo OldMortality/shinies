@@ -72,10 +72,10 @@ shinyServer <- function(input, output) {
       # scatter
         tagList(
           checkboxInput("showall", "Show all data (black)", TRUE),
-          checkboxInput("showgroup", "Show your group data (blue)", FALSE)
+          checkboxInput("showgroup", "Your data (blue)", FALSE)
         )
       } else {
-        checkboxInput("showgroup", "Show your group data (blue)", FALSE)
+        checkboxInput("showgroup", "Your data (blue)", FALSE)
       }
     }
   })
@@ -268,7 +268,7 @@ shinyServer <- function(input, output) {
       df <- data.frame(x = theColumnData)
       p <- ggplot(df,aes(x=x))
       
-      if (input$showall) {
+      
         p <-  p + geom_histogram(color="black", fill="white") +
           xlab(colName)
         t <- paste('Histogram of',colName.pretty,
@@ -277,7 +277,7 @@ shinyServer <- function(input, output) {
           ggtitle(t) + 
           theme(plot.title = element_text(size=22))
         
-      }
+      
       
       
       mu <- mean(theColumnData,na.rm=T)

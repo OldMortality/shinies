@@ -66,18 +66,18 @@ shinyUI <- dashboardPage(
              
              
              box(
-               title="App 6 - Confidence intervals for the population mean height", width=NULL,
+               title="App 6 - Confidence intervals for the population mean", width=NULL,
                tags$button("", label = "Confidence intervals for the population mean height", 
                            tags$img(src = "app6.png",
                                     height = "150px"),
                            onclick = "window.open('/app6/', '_blank')")
              ),
              box(
-               title="App 7 - Estimating a proportion", width=NULL,
-               tags$button("", label = "Estimating a proportion", 
-                           tags$img(src = "app7.png",
+               title="App 7 - Estimating a linear relationshiop", width=NULL,
+               tags$button("", label = "Estimating a linear relationship", 
+                           tags$img(src = "app12a.png",
                                     height = "150px"),
-                           onclick = "window.open('/app7/', '_blank')")
+                           onclick = "window.open('/app12a/', '_blank')")
              ),
             box(
               title="App 8 - Sampling variation in regression lines", width=NULL,

@@ -9,7 +9,7 @@ library(shinyTable)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task B.2 Visualising your data",
+  dashboardHeader(title = "Nerve conduction velocity",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs()
   ), 

@@ -19,7 +19,9 @@ shinyUI <- dashboardPage(
                     textInput("samplesd", label = h4("Your sample sd (mm)")
                              ,value=213),
                     textInput("samplesize", label = h4("Your sample size")
-                             ,value=10)
+                             ,value=10),
+                    checkboxInput("showsamplemean","Show sample mean and CI",FALSE),
+                    checkboxInput("showsampledist","Show sampling distribution",TRUE) 
   ),
   
   dashboardBody(

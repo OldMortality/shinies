@@ -314,7 +314,9 @@ shinyServer <- function(input, output) {
           theme(legend.position = "none") 
         if (input$shownormal ) {
           sample.size <- as.numeric(input$n)
-          s <- sd/sqrt(sample.size)
+          
+          # sd1==sd2 so we can take either 
+          s <- sd1/sqrt(sample.size)
           p <- p + stat_function( 
             color="red",
             fun = function(x, mean, sd, n, bw){ 

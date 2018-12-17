@@ -13,11 +13,13 @@ shinyUI <- dashboardPage(
   dashboardSidebar(useShinyjs(),
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"), 
+                   
                    radioButtons("n", "Sample size:",
                     c("10" = 10,
                     "50" = 50,
                     "100"= 100)),
-                   checkboxInput("showalllines", "Show all lines", FALSE)),
+                   checkboxInput("showall","Show all (N=615)",FALSE), 
+                   checkboxInput("showalllines", "Show all red lines", FALSE)),
   dashboardBody(
     # Boxes need to be put in a row (or column)
     fluidRow( 

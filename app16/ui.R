@@ -14,7 +14,9 @@ shinyUI <- dashboardPage(
   dashboardHeader(title = "Joint laxity",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(), 
-                   checkboxInput("showdots", "Show dotplots", FALSE)
+                   checkboxInput("showdots", "Show dotplots", FALSE),
+                   checkboxInput("showpre",  "Show summary pre-puberty", FALSE),
+                   checkboxInput("showpost", "Show summary post-puberty", FALSE)
   ), 
   dashboardBody(
     fluidRow(

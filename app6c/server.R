@@ -7,6 +7,13 @@ library(ggplot2)
 
 shinyServer <- function(input, output) {
   
+  observeEvent(input$mu.2, {
+    if (input$showsampledist) {
+      click("showsampledist")
+    } 
+  })
+  
+  
   output$sampleCounter <- renderInfoBox({
     infoBox(
       "Samples: ", paste0(counter$counterValues), icon = icon("list"),
@@ -16,6 +23,7 @@ shinyServer <- function(input, output) {
   
   
   
+  # this is the top plot, i.e. the population Normal curve.
   output$plot1 <- renderPlot({ 
     
     mu <- as.numeric(input$mu.2)
@@ -45,7 +53,9 @@ shinyServer <- function(input, output) {
                y= 0.00475, hjust=0,
                size = 5, colour = "red")
     
-    if (!is.na(xbar)) {
+    # show the user's sample mean if there is one, and
+    #  the box is ticked
+    if (!is.na(xbar) & input$showsamplemean) {
       # points for the sample
       pts <- data.frame(x = as.numeric(input$samplemean),y=0) 
       p <- p + geom_point(data=pts,aes(y=y),
@@ -70,7 +80,8 @@ shinyServer <- function(input, output) {
     x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
     
     
-    if (input$samplemean>0) {
+    
+    if (input$samplemean>0 & input$showsamplemean) {
       
       xbar <- as.numeric(input$samplemean)
       s <- as.numeric(input$samplesd)
@@ -95,6 +106,8 @@ shinyServer <- function(input, output) {
   # sampling distribution, if the blue distribution
   #    were true.
   output$samplingdistribution <- renderPlot({ 
+    
+      if (input$showsampledist) {
     
       sd=as.numeric(input$samplesd)
       
@@ -140,7 +153,7 @@ shinyServer <- function(input, output) {
         geom_ribbon(data=df.norm.upp,aes(x=df.norm.upp$x,ymin=0,ymax=df.norm.upp$y),
                     fill='blue',alpha=0.1)  
      p
-    
+      }
   })
   
   getSampleSummary <- function() {

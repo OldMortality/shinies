@@ -21,7 +21,6 @@ ui <- dashboardPage(
                                               "Boxplot" = 3
                                ), selected = 1),
                    uiOutput("B_ui"),
-                   checkboxInput("showall", "Show HUBS191 data", FALSE),
                    checkboxInput("showmean", "Show population mean (red)", FALSE),
                    
                     uiOutput("checkboxes")

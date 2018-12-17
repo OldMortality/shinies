@@ -34,8 +34,8 @@ shinyServer <- function(input, output) {
   
   observeEvent(input$clear,{
     
-    a0 <- coefficients(m)[[1]]
-    a1 <- coefficients(m)[[2]]
+    #a0 <- coefficients(m)[[1]]
+    #a1 <- coefficients(m)[[2]]
     alla0$a0s <- vector()
     alla1$a1s <- vector()
     # clear samp
@@ -66,11 +66,26 @@ shinyServer <- function(input, output) {
      
     plot.data <- data.frame(x = f$hei, y=f$fin)
     
-    p <- ggplot(data=plot.data,aes(x=x,y=y)) + geom_point() +
+    p <- ggplot(data=plot.data,aes(x=x,y=y)) + 
       scale_x_continuous(limits=c(1300,2100)) +
       scale_y_continuous(limits=c(50,100)) +
       ylab('finger length (mm)') +
       xlab('height (mm)') 
+    
+    if (input$showall) {
+      p <- p+ geom_point()
+      p <- p + geom_abline(intercept=a0,
+                           slope=a1,
+                           colour='black')
+      p <- p + geom_vline(linetype=5,
+                          xintercept=mean(f$hei,na.rm=T),
+                          colour='black')
+      p <- p + geom_hline(linetype=5,
+                          yintercept=mean(f$fin,na.rm=T),
+                          colour='black')
+      
+      
+    } 
     
     if (!is.null(samp()) ) {
       p <- p +

@@ -42,7 +42,7 @@ shinyServer <- function(input, output) {
     d.sd <- round(sqrt(d.v),1)
     d.me <- round(median(velocity,na.rm=T),1)
     d.min <- round(range(velocity,na.rm=T)[1],1)
-    d.max <- round(range(velocity,na.rm=T)[1],1)
+    d.max <- round(range(velocity,na.rm=T)[2],1)
     n <- length(which(!is.na(velocity)))
     
     l.ci <- ""
@@ -52,16 +52,16 @@ shinyServer <- function(input, output) {
       ci.low <- round(ci.low,1)
       ci.upp <- round(ci.upp,1)
       l.ci <- paste("A 95% confidence interval for the mean velocity is",
-                    "from",ci.low,"to",ci.upp)
+                    "from",ci.low,"ms","to",ci.upp,"ms",sep=' ')
      
     }
     
-    l1 <- paste("The mean is:",d.m,sep=' ')
+    l1 <- paste("The mean is:",d.m,"ms",sep=' ')
     l2 <- paste("The variance is:",d.v,sep=' ')
-    l3 <- paste("The standard deviation is:",d.sd,sep=' ')
-    l4 <- paste("The median is:",d.me,sep=' ')
-    l5 <- paste("The lowest velocity is:",d.min,sep=' ')
-    l6 <- paste("The highest velocity is:",d.max,sep=' ')
+    l3 <- paste("The standard deviation is:",d.sd,"ms",sep=' ')
+    l4 <- paste("The median is:",d.me,"ms",sep=' ')
+    l5 <- paste("The lowest velocity is:",d.min,"ms",sep=' ')
+    l6 <- paste("The highest velocity is:",d.max,"ms",sep=' ')
     l7 <- l.ci
     
     result <- paste(l1,l2,l3,l4,l5,l6,l7,sep="<br>")
@@ -89,14 +89,16 @@ shinyServer <- function(input, output) {
     }
     
     df <- data.frame(velocity=velocity)
+    
     if (length(df$velocity) == 1) {
-      dotsz = 0.05
+      dotsz = 0.03
     } else {
       dotsz = 0.15
     }
     p <- ggplot(df,aes(velocity)) + 
       scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-      geom_dotplot(dotsize=dotsz,binwidth=10) 
+      geom_dotplot(dotsize=dotsz,binwidth=10) + 
+      xlab("velocity (ms)")
     p
     
     

@@ -10,7 +10,7 @@ shinyUI <- dashboardPage(
   dashboardHeader(title = "Confidence intervals for the mean",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(),
-                   actionButton("clear",label="Clear"),
+                   actionButton("clear",label=""),
                    actionButton("sample",label="Take 1 sample"),
                    sliderInput("mu.2", "Blue mean:",
                                min = 1400, max = 2000, value = 1740,step=1

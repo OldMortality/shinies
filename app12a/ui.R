@@ -9,7 +9,7 @@ library(shinyTable)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "Task B.2 Estimating a linear relationship",
+  dashboardHeader(title = "Estimating a linear relationship",
                   titleWidth = 850),
   dashboardSidebar(
     useShinyjs(),
