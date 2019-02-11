@@ -345,35 +345,41 @@ shinyServer <- function(input, output) {
   
   # first box down
   getTopSummary <- function() {
-    x1 <- samp1()
     
+    topSum1 <- "<b>HUBS191 data</b>"
+    topSum2 <- "The mean height of non-exercisers is 1671 mm"
+    topSum3 <- "The standard deviation of the height of non-exercisers is 92 mm"
+    topSum4 <- "The mean height of exercisers is 1712 mm"
+    topSum5 <- "The standard deviation of the height of exercisers is 92 mm"
+    topSum <- paste(topSum1,topSum2,topSum3,topSum4,topSum5,sep="<br>")
+     
+    x1 <- samp1()
     x2 <- samp2()
     points <- data.frame(x1 = x1,x2=x2 )
-    
+    line0 <- "<b>One sample</b>"
     line1 <-"Red dots indicate sample of exercisers"
-    line2 <-"Blue dots indicate sample of non-exercisers"
-    
+    line2 <-"Blue dots indicate sample of non-exercisers" 
     line3 <- ""
     line4 <- ""
     line5 <- ""
     line6 <- ""
-    if (dim( points )[1] > 0 ) {
-      
+    if (dim( points )[1] > 0 ) { 
       xbar1 <- round(mean(points$x1),2)
       xbar2 <- round(mean(points$x2),2)
       sd1 <- round(sqrt(var(points$x1)),2)
       sd2 <- round(sqrt(var(points$x2)),2)
-      line3 <- paste("Mean height of exercisers:",xbar1,"(mm)",sep=' ')
-      line4 <- paste("Mean height of non-exercisers:",xbar2,"(mm)",sep=' ')
+      line3 <- paste("Mean height of exercisers:",xbar1,"mm",sep=' ')
+      line4 <- paste("Mean height of non-exercisers:",xbar2,"mm",sep=' ')
       line5 <- paste("Standard deviation of exercisers is:",
-                   sd1,"(mm)",sep=' ')
+                   sd1,"mm",sep=' ')
       line6 <- paste("Standard deviation of non-exercisers is:",
-                   sd2,"(mm)",sep=' ')
+                   sd2,"mm",sep=' ')
     } 
        
-    result <- paste(line1,line2,line3,line4,line5,line6,sep="<br>") 
+    result <- paste(topSum,line0,
+                    line1,line2,line3,line4,line5,line6,sep="<br>") 
     if (showSample()==FALSE) {
-      result <- ""
+      result <- topSum
     }
      
     return(result)

@@ -48,8 +48,7 @@ shinyUI <- dashboardPage(
                  height = 350)
       ), 
       column(width=6, 
-             box(  
-               title="One sample", 
+             box(   
                width=NULL,
                htmlOutput('topSummary',height=275), 
                height = 350),
