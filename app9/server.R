@@ -15,9 +15,27 @@ library(shinyTable)
 
 shinyServer <- function(input, output) {
   
-  data <- read.csv('Lab3data.csv',header=T)
+
+  observe({
+    if (!is.null(input$variable.x) && 
+        (input$variable.x == 5||input$variable.x == 6 ))  {
+      shinyjs::hide("variable.y")
+    } else {
+        if (!is.null(input$variable.y) && 
+          (input$variable.x == 5 || input$variable.x == 6 ))  {
+        shinyjs::hide("variable.x")
+      }
+    }
+  })
+  
+  
+    data <- read.csv('Lab3data.csv',header=T)
+  
   
   rv <- reactiveValues(cachedTbl = NULL)  
+  
+  all.pathlength <- c(data$reflexpathlength, data$voluntarypathlength)
+  all.latency    <- c(data$meanreflexlatency, data$meanvoluntarylatency)
   
   output$tbl <- renderHtable({ 
      
@@ -26,8 +44,7 @@ shinyServer <- function(input, output) {
                        reflex.latency=c(47,rep("",9)),
                        voluntary.path.length = c(3000,rep("",9)),
                        voluntary.latency = c(200,rep("",9))
-      )
-     
+      ) 
       rv$cachedTbl <<- tbl
       return(tbl)
     } else{
@@ -52,8 +69,26 @@ shinyServer <- function(input, output) {
     return( result)
   })
   
+  listvars.scatter <- reactive(  { 
+    
+    v1 = 1
+    v2 = 2
+    v3 = 3
+    v4 = 4
+    v5 = 5
+    v6 = 6
+    result <- list("Reflex path length"=v1,
+                   "Reflex latency"=v2,
+                   "Voluntary path length"=v3,
+                   "Voluntary latency"=v4,
+                   "Path length"=v5,
+                   "Latency"=v6)
+    
+    return( result)
+  })
   
-  listvars2 <- reactive(  { 
+  
+  listvars.boxplot <- reactive(  { 
     
     v1 = 1
     v2 = 2
@@ -92,16 +127,16 @@ shinyServer <- function(input, output) {
       if (input$plot.type == "3" ) {
         # boxplot
         selectInput("variable", h3("Variable"), 
-                    choices = listvars2()
+                    choices = listvars.boxplot()
                     , selected = 1)
       } else
       if (input$plot.type == "2" ) {
         tagList(
-          selectInput("variable.x", h4("variable 1"), 
-                      choices = listvars()
+          selectInput("variable.x", h4("Variable 1"), 
+                      choices = listvars.scatter()
                       , selected = 1),
           selectInput("variable.y", h4("Variable 2"), 
-                      choices = listvars()
+                      choices = listvars.scatter()
                       , selected = 2)
         )
       }
@@ -151,7 +186,7 @@ shinyServer <- function(input, output) {
       if (input$plot.type==2) {
         # scatter
         result.a <- ""
-        if (!is.null(a0)) {
+        if ((!is.null(a0()) && !is.na(a1()))) {
           line0.a <- paste("<b>","All data","</b><p>",sep='')
           
           line3.a <- paste(cname.y(),"=",round(a0(),1),
@@ -174,8 +209,6 @@ shinyServer <- function(input, output) {
         } else {
           result <- result.a
         }
-        
-        
         result <- paste(result.a,result.b,sep=" ")
         return(result)
       }
@@ -274,12 +307,15 @@ shinyServer <- function(input, output) {
       if (colNumber==2) { colName.pretty = 'Mean reflex latency (ms)'}
       if (colNumber==3) { colName.pretty = 'Voluntary path length (mm)'}
       if (colNumber==4) { colName.pretty = 'Mean voluntary latency (ms)'}
+     
       # for use in summary
       cname.summary <- colName.pretty
       cname.summary(cname.summary)
       theColumnData <- as.numeric(data[,colNumber])
       theColumnData.mean <- round(mean(theColumnData,na.rm=T),1)
       theColumnData.var <- round(var(theColumnData,na.rm=T),1)
+      #print(theColumnData.mean)
+      #print(theColumnData.var)
       # update reflective values
       theColumnData.mean(theColumnData.mean)
       theColumnData.var(theColumnData.var)
@@ -363,17 +399,38 @@ shinyServer <- function(input, output) {
       }
       colName.x <- colnames(data)[colNumber.x]
       colName.y <- colnames(data)[colNumber.y]
+      
+      if (colNumber.x==5) {
+        colNumber.y <- 6
+      } else {
+        if (colNumber.x == 6) {
+          colNumber.y = 5
+        }
+      }
+      if (colNumber.y==5) {
+        colNumber.x <- 6
+      } else {
+        if (colNumber.y == 6) {
+          colNumber.x = 5
+        }
+      }
+      
+      
      
       colName.x.pretty <- ""
       if (colNumber.x==1) { colName.x.pretty = 'Reflex path length (mm)'}
       if (colNumber.x==2) { colName.x.pretty = 'Mean reflex latency (ms)'}
       if (colNumber.x==3) { colName.x.pretty = 'Voluntary path length (mm)'}
       if (colNumber.x==4) { colName.x.pretty = 'Mean voluntary latency (ms)'}
+      if (colNumber.x==5) { colName.x.pretty = 'Path length (mm)'}
+      if (colNumber.x==6) { colName.x.pretty = 'Latency (ms)'}
       colName.y.pretty <- ""
       if (colNumber.y==1) { colName.y.pretty = 'Reflex path length (mm)'}
       if (colNumber.y==2) { colName.y.pretty = 'Mean reflex latency (ms)'}
       if (colNumber.y==3) { colName.y.pretty = 'Voluntary path length (mm)'}
       if (colNumber.y==4) { colName.y.pretty = 'Mean voluntary latency (ms)'}
+      if (colNumber.y==5) { colName.y.pretty = 'Path length (mm)'}
+      if (colNumber.y==6) { colName.y.pretty = 'Latency (ms)'}
       
       # for use in the summary only
       cname.x <- colName.x.pretty
@@ -384,10 +441,30 @@ shinyServer <- function(input, output) {
       t <- paste('Scatterplot of ',colName.y.pretty,'vs',
                  colName.x.pretty,
                  '(N=615)',sep=' ')
-      
-      df <- data.frame(x=as.numeric(data[,colNumber.x]),
+      print(colNumber.x)
+      print(colNumber.y)
+      print('pppp')
+      if (colNumber.x %in% c(1,2,3,4) && colNumber.y %in% c(1,2,3,4)) {
+        df <- data.frame(x=as.numeric(data[,colNumber.x]),
                          y=as.numeric(data[,colNumber.y])
                          )
+      } else {
+        if ((colNumber.x==5) ) {
+          
+          df <- data.frame(x=as.numeric(all.pathlength),
+                           y=as.numeric(all.latency) )
+        } else {
+         
+            if (colNumber.x==6 ) {
+              # the reverse
+              df <- data.frame(y=as.numeric(all.pathlength),
+                               x=as.numeric(all.latency)) 
+            }
+          }
+        }
+      print('......')
+      print(head(df))
+      print('......')
       mu.x <- mean(df$x,na.rm=T)
       sd.x <- sqrt(var(df$x,na.rm=T))
       mu.y <- mean(df$y,na.rm=T)
@@ -399,9 +476,6 @@ shinyServer <- function(input, output) {
       a1 <- coefficients(m)[2]
       a0(a0)
       a1(a1)
-      
-      
-       
       sz = 1
       if (!is.null(input$showall) && !input$showall) {
         # invisible
@@ -428,7 +502,6 @@ shinyServer <- function(input, output) {
         p <- p +
         geom_abline(intercept=a0(),slope=a1(),colour='black')
       }
-      
       p <- p + 
         scale_x_continuous(breaks=x.breaks) +
         scale_y_continuous(breaks=y.breaks)
@@ -444,28 +517,55 @@ shinyServer <- function(input, output) {
       
       
       ## Add the group data (from the hot table)
+        
       if (!is.null(input$showgroup) && input$showgroup) { 
         data2 <- group.tbl
-        myColumn.x <- data2[,colNumber.x]
-        myColumn.y <- data2[,colNumber.y]
-        dropm.x <- which(is.na(myColumn.x))
-        dropm.y <- which(is.na(myColumn.y))
-        dropm <- c(dropm.x,dropm.y)
-        if (length(dropm) > 0 ) {
-          myColumn.x <- myColumn.x[-dropm]
-          myColumn.y <- myColumn.y[-dropm]
-        } 
-        if (length(myColumn.x)>0) {
-          myColumn.x <- as.numeric(as.character(data2[,colNumber.x]))
-          myColumn.y <- as.numeric(as.character(data2[,colNumber.y]))  
+        if (colNumber.x %in% c(1,2,3,4) && colNumber.y %in% c(1,2,3,4)) {
+          myColumn.x <- data2[,colNumber.x]
+          myColumn.y <- data2[,colNumber.y]
+          dropm.x <- which(is.na(myColumn.x))
+          dropm.y <- which(is.na(myColumn.y))
+          dropm <- c(dropm.x,dropm.y)
+          if (length(dropm) > 0 ) {
+            myColumn.x <- myColumn.x[-dropm]
+            myColumn.y <- myColumn.y[-dropm]
+          } 
+          if (length(myColumn.x)>0) {
+            myColumn.x <- as.numeric(as.character(data2[,colNumber.x]))
+            myColumn.y <- as.numeric(as.character(data2[,colNumber.y]))  
+          }
+          thePoints <-data.frame(x=myColumn.x,
+                                 y=myColumn.y)
+        } else { # we have column 5 or 6
+            if (colNumber.x == 5 ) {
+            
+              # x is path length, y is latency (all of them)
+              x. <- c(as.numeric(as.character(data2[,1])),
+                      as.numeric(as.character(data2[,3])))
+              y. <- c(as.numeric(as.character(data2[,2])),
+                      as.numeric(as.character(data2[,4])))
+                      
+              myColumn.x <- x.
+              myColumn.y <- y.
+              thePoints <-data.frame(x=myColumn.x,
+                                     y=myColumn.y)
+            } else {
+                if (colNumber.x == 6 ) {
+                  # x is latency, y is path length
+                  x. <- c(as.numeric(as.character(data2[,2])),
+                          as.numeric(as.character(data2[,4])))
+                  y. <- c(as.numeric(as.character(data2[,1])),
+                          as.numeric(as.character(data2[,3])))
+                  myColumn.x <- x.
+                  myColumn.y <- y.
+                  thePoints <-data.frame(x=myColumn.x,
+                                         y=myColumn.y)
+                } #if (6,5) 
+              } #else (6,5)
+            } # we have column 5 or 6
         
-        }
-        thePoints <-data.frame(x=myColumn.x,
-                             y=myColumn.y)
-        #print(thePoints)
         p <- p + geom_point(data=thePoints,aes(x=x,y=y),
                           colour='blue',fill='blue',size=4,shape=24,fill='blue')
-        
         
         # add the regression line for the group data
         group.regression <- F
@@ -565,6 +665,8 @@ shinyServer <- function(input, output) {
           
         }
       }
+      
+      
       # add data points from the group to boxplot
       if (!is.null(input$showgroup) && input$showgroup) {
          
