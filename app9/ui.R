@@ -15,15 +15,18 @@ ui <- dashboardPage(
                   "Movement in response to sensory stimuli",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
+                   tags$head(
+                     # link to the css stylesheet. It is in the www folder.
+                     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+                   ),
                    selectInput("plot.type", h3("Graph type"), 
                                choices = list("Histogram" = 1, 
                                               "Scatter" = 2,
                                               "Boxplot" = 3
                                ), selected = 1),
                    uiOutput("B_ui"),
-                   checkboxInput("showmean", "Show population mean (red)", FALSE),
-                   
-                    uiOutput("checkboxes")
+                   checkboxInput("showmean", "Show HUBS191 mean (red)", FALSE), 
+                   uiOutput("checkboxes")
                    
                    
                    
@@ -43,18 +46,14 @@ ui <- dashboardPage(
                    htable("tbl",
                           colHeaders = 'provided'),
                    actionButton("actionButtonID","Save")
-                   
-                   
-               )),
+                   )
+              ),
         column(width = 6,
-               
-               box(  
-                 title="Summary", 
-                 width=NULL,
-                 htmlOutput('summary')
-               ))
+               box(title="",
+                   width=NULL,
+                   htmlOutput('summary')
+               )
         )
       )
-    )
-    
-  
+      )
+)

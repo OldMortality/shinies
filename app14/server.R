@@ -70,7 +70,8 @@ shinyServer <- function(input, output) {
   }
   
   output$summary <- renderText(
-    getSummary()
+    paste("<font size=5>",getSummary(),
+          "</font>")
   )
   
   
@@ -95,9 +96,12 @@ shinyServer <- function(input, output) {
     } else {
       dotsz = 0.15
     }
+    col = '#696969'
     p <- ggplot(df,aes(velocity)) + 
       scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-      geom_dotplot(dotsize=dotsz,binwidth=10) + 
+      geom_dotplot(dotsize=dotsz,binwidth=10,
+                   colour=col,
+                   fill=col) + 
       xlab("velocity (ms)")
     p
     

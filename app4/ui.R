@@ -15,6 +15,10 @@ shinyUI <- dashboardPage(
   dashboardHeader(title = "How tall are the people in a HUBS191 lab stream?",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(), 
+                   tags$head(
+                     # link to the css stylesheet. It is in the www folder.
+                     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+                   ),
                    checkboxInput("showhist", "Histogram", FALSE),
                    checkboxInput("showbox", "Boxplot", FALSE),
                    checkboxInput("showdot", "Dotplot", FALSE) 

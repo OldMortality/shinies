@@ -14,6 +14,9 @@ shinyUI <- dashboardPage(
   dashboardHeader(title = "Joint laxity",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(), 
+                   # link to the css stylesheet. It is in the www folder.
+                   tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+                   
                    checkboxInput("showdots", "Show dotplots", FALSE),
                    checkboxInput("showpre",  "Show summary pre-puberty", FALSE),
                    checkboxInput("showpost", "Show summary post-puberty", FALSE)

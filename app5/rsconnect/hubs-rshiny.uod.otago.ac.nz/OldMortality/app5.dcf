@@ -1,0 +1,12 @@
+name: app5
+title: app5
+username: OldMortality
+account: OldMortality
+server: hubs-rshiny.uod.otago.ac.nz
+hostUrl: http://hubs-rshiny.uod.otago.ac.nz:3838/__api__
+appId: 6
+bundleId: 47
+url: http://hubs-rshiny.uod.otago.ac.nz:3838/app5/
+when: 1549590023.02798
+asMultiple: FALSE
+asStatic: FALSE

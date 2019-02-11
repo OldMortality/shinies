@@ -5,7 +5,6 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-library(DT)
 library(shinyTable)
 
 shinyserver <- function(input, output) { 
@@ -16,13 +15,7 @@ shinyserver <- function(input, output) {
     if (is.null(input$tbl)){
       
       #fill table 
-      tbl <- data.frame(list('height'=c(1750,rep('',9))))
-      
-      # mdl
-      #rownames=NULL
-      #colnames= c('Height (mm)')
-      #dimnames(tbl) <- list(rownames, colnames) 
-      
+      tbl <- data.frame(list('height'=c(1750,rep('',9)))) 
       rv$cachedTbl <- tbl
        
       return(tbl)
@@ -38,9 +31,7 @@ shinyserver <- function(input, output) {
   x.breaks <- round(seq(xbar-3*sd,xbar+3*sd,sd))
   
   
-  getSummary <- function() {
-     
-     
+  getSummary <- function() { 
       input$actionButtonID
       
       height <- isolate(rv$cachedTbl$height)
@@ -48,11 +39,11 @@ shinyserver <- function(input, output) {
       # need as.character, or we get factor levels!
       ht <- as.numeric(as.character(height))
       n <-length(which(!is.na(ht)))
-      #print(n)
+      
       mn <- round(mean(ht,na.rm=T),1)
-      #print(mn)
+       
       sd <- round(sqrt(var(ht,na.rm=T)),1)
-      #print(sd)
+       
       line0 <- paste("Sample size n =",n,sep=" ")
       line1 <- paste("Sample mean =",mn,sep=" ")
       line2 <- paste("Sample standard deviation =",sd,sep=" ")      
@@ -71,10 +62,11 @@ shinyserver <- function(input, output) {
     
     input$actionButtonID
     
-    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    ht <- isolate(as.numeric(as.character(rv$cachedTbl[,1])))
     DF = data.frame(height=ht)
     p <- ggplot(DF, aes(height)) + 
-      geom_histogram(binwidth=25,fill="white",colour='black') +
+      geom_histogram(binwidth=25,
+                     fill="white",colour='black') +
        scale_x_continuous(limits=c(1500,2100),breaks=seq(1500,2100,100)) +
        scale_y_continuous(breaks = seq(0,10),minor_breaks=NULL) +
        ylab("Frequency") +
@@ -86,14 +78,14 @@ shinyserver <- function(input, output) {
   output$boxplot <- renderPlot({
     input$actionButtonID
     
-    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    ht <- isolate(as.numeric(as.character(rv$cachedTbl[,1])))
     DF = data.frame(height=ht)
     # limits sets the width of the boxplot
     p <- ggplot(DF, aes(y=height)) + 
       geom_boxplot(width=0.2) +
       scale_x_continuous(breaks = NULL,minor_breaks=NULL,
-                         limits=c(-0.5,0.5)
-                         )  +
+                         limits=c(-0.5,0.5)) +
+      #scale_fill_manual(values=c("#ff0000")) +
       ylab("Height (mm)")
     p 
     
@@ -103,21 +95,22 @@ shinyserver <- function(input, output) {
   output$dotplot <- renderPlot({
     
     input$actionButtonID
-    
-    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    col = '#696969'
+    ht <- isolate(as.numeric(as.character(rv$cachedTbl[,1])))
     DF = data.frame(height=ht)
     hts <- DF$height
     if (length(hts[!is.na(hts)])==1) {
       # dotplot gives one huge dot if there is !1 datapoint
       p <- ggplot(DF, aes(height)) + 
         scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-        geom_dotplot(binwidth=5,dotsize=0.03) +
+        geom_dotplot(binwidth=5,dotsize=0.03,color=col
+                     ,fill=col) +
         ylab("Frequency") +
         xlab("Height (mm)")
     } else {
       p <- ggplot(DF, aes(height)) + 
         scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-        geom_dotplot() +
+        geom_dotplot(color=col,fill=col) +
         ylab("Frequency") +
         xlab("Height (mm)")
     } 

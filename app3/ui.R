@@ -14,6 +14,10 @@ shinyUI <- dashboardPage(
   dashboardHeader(title = "Several sample means",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
+                   tags$head(
+                     # link to the css stylesheet. It is in the www folder.
+                     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+                   ),
                    checkboxInput("showmean", "Show population mean (red)", FALSE),
                    checkboxInput("showyourgroupheight", "Show your group mean height (blue)", FALSE),
                    checkboxInput("showothergroups", "Show the mean of other groups (green)", FALSE),
@@ -27,7 +31,7 @@ shinyUI <- dashboardPage(
                   #           options = list(container = "body")
                   # ),
                    textInput("yourgroupheight", label = h4("Enter the mean height of your table group (mm)"), value = "1800"),
-                   textInput("othergroup1", label = h5("Enter the mean of 3 other groups (mm)"), value = "1790"),
+                   textInput("othergroup1", label = h4("Enter the mean of 3 other groups (mm)"), value = "1790"),
                    textInput("othergroup2", label = NULL, value = "1791"),
                    textInput("othergroup3", label = NULL, value = "1792")),
   dashboardBody(
@@ -45,14 +49,14 @@ shinyUI <- dashboardPage(
                  title="", 
                  width=NULL,
                  htmlOutput('summary'),
-                 height=200
+                 height=300
                )),
       column(width = 6,      
              box( 
                title="", 
                width=NULL,
                htmlOutput('summary2'),
-               height=200
+               height=300
              ))
     )
     

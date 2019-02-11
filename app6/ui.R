@@ -12,6 +12,9 @@ shinyUI <- dashboardPage(
   dashboardHeader(title = "Confidence intervals for the population mean",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
+                   # link to the css stylesheet. It is in the www folder.
+                   tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+                   
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"),
                    actionButton("sample10",label="Take 10 samples"),
@@ -21,9 +24,7 @@ shinyUI <- dashboardPage(
                    radioButtons("n", "Sample size:",
                                 c("10" = 10,
                                   "50" = 50,
-                                  "100"= 100)),
-                   checkboxInput("showtruemean", "Show true mean", TRUE),
-                   checkboxInput("showerrs", "Color errors", TRUE)
+                                  "100"= 100))
                    ),
   
   dashboardBody(
@@ -36,14 +37,13 @@ shinyUI <- dashboardPage(
                plotOutput("plot1",height=200), 
                height = 275),
              box( 
-               title="Confidence interval",
                width=NULL,
                plotOutput("thissamplemean",height=50),
-               height = 125),
-             box(title="Confidence intervals of all samples",  
+               height = 100),
+             box(
                  width=NULL,
-                 plotOutput("samplemean",height=500), 
-                 height = 575)
+                 plotOutput("samplemean",height=350), 
+                 height = 400)
       ), 
       column(width=6, 
              box(  
@@ -54,12 +54,12 @@ shinyUI <- dashboardPage(
              box( 
                title=htmlOutput('onesamplesummary',height=50), 
                width=NULL, 
-               height = 125),
+               height = 100),
              box( 
                width=NULL,
                title="Confidence intervals for all samples", 
-               htmlOutput('sampleMeanSummary',height=500), 
-               height = 575)
+               htmlOutput('sampleMeanSummary',height=350), 
+               height = 400)
       )
     )
   )

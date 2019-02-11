@@ -56,7 +56,7 @@ shinyServer <- function(input, output) {
     
     # store sample to show in plot
     samp <- s
-    # no idea what this does
+    
     samp(samp)
     
   })  
@@ -70,7 +70,8 @@ shinyServer <- function(input, output) {
       scale_x_continuous(limits=c(1300,2100)) +
       scale_y_continuous(limits=c(50,100)) +
       ylab('finger length (mm)') +
-      xlab('height (mm)') 
+      xlab('height (mm)') +
+      theme_gray(base_size=20)
     
     if (input$showall) {
       p <- p+ geom_point()

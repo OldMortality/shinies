@@ -152,7 +152,7 @@ shinyServer <- function(input, output) {
   
   observeEvent(input$sample, {
     counter$countervalue <- counter$countervalue + 1
-    if (counter$countervalue < 100) {
+    if (counter$countervalue < 30) {
       shinyjs::disable("shownormal")
     } else {
       shinyjs::enable("shownormal")
@@ -162,7 +162,7 @@ shinyServer <- function(input, output) {
   observeEvent(input$sample10, {
     
     counter$countervalue <- counter$countervalue + 10
-    if (counter$countervalue < 100) {
+    if (counter$countervalue < 30) {
       shinyjs::disable("shownormal")
     } else {
       shinyjs::enable("shownormal")
@@ -170,11 +170,7 @@ shinyServer <- function(input, output) {
   })
   observeEvent(input$sample100, {
     counter$countervalue <- counter$countervalue + 100
-    if (counter$countervalue < 100) {
-      shinyjs::disable("shownormal")
-    } else {
-      shinyjs::enable("shownormal")
-    }
+    shinyjs::enable("shownormal")
   })
   
    
@@ -330,16 +326,22 @@ shinyServer <- function(input, output) {
         
         # show histogram
         p <- ggplot(df, aes(x = x)) +
-          geom_histogram(binwidth = bin.width) +
+          geom_histogram(binwidth = bin.width,alpha=0.5,) +
           scale_x_continuous(limits=c(lo,up),
                              breaks = x.breaks,minor_breaks=NULL) +
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
           ylab("Frequency")
+        
+        #geom_histogram(binwidth = bin.width,alpha=0.5,
+        #               position="dodge2") +
+        #  scale_x_continuous(limits=c(lower,upper),
+        #                     breaks = x.breaks,minor_breaks=NULL) +
+        #  scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
+        #  theme(legend.position = "none") 
+        
         # show the red line
         if (input$shownormal ) {
           samplesize <-as.numeric(input$n) 
-          #s <- sd/sqrt(samplesize)
-             
           sd.hat <- sqrt((sd1^2 + sd2^2)/samplesize)
           
           p <- p + stat_function( 

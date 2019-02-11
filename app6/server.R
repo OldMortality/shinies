@@ -268,32 +268,28 @@ shinyServer <- function(input, output) {
         scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
                            limits=c(low,upp)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
-                           limits=c(0,100)) + 
+                           limits=c(0,125)) + 
         ylab("") + 
         xlab("Sample mean") 
       for (i in 1:length(all_low$all_l)) { 
         lo <- all_low$all_l[i]
         up <- all_upp$all_u[i]
         df <- data.frame(x=lo,y=up)
-         
+        
+        # make interval red if mu is not in it 
         intervalCol = 'blue'
-        if (input$showerrs) {
-          if ((lo <= mu) & (up>=mu)) {
-            # do nothing
-          } else {
-            intervalCol = 'red'
-            
-          }
+        if ((lo <= mu) & (up>=mu)) {
+          # do nothing
+        } else {
+          intervalCol = 'red'
         }
         p <- p +
           geom_segment(x=lo,y=i,xend=up,yend=i,
                        colour=intervalCol)   
       }
       
-      if (input$showtruemean) {
-        p <- p + geom_vline(xintercept = mu,col='red')
-      }
-      
+      # plot the true mean
+      p <- p + geom_vline(xintercept = mu,col='red')
       p
     
     }

@@ -18,14 +18,14 @@ shinyServer <- function(input, output) {
    
   
   getSummary <- function() {
-    str0 <- paste('Population mean height is',mu,'mm',sep=' ')
-    str1 <- paste('Population standard deviation is',sd,'mm',sep=' ') 
+    str0 <- paste('Population mean height =',mu,'mm',sep=' ')
+    str1 <- paste('Population standard deviation =',sd,'mm',sep=' ') 
     result <- paste(str0,str1,sep='<br>')
     return(result)
   }
   
   getSummary2 <- function() {
-    groupmeans <- c(input$othergroup1,input$othergroup2,input$othergroup3)
+    groupmeans <- c(input$yourgroupheight, input$othergroup1,input$othergroup2,input$othergroup3)
     groupmeans <- sort(as.numeric(groupmeans))
     str0 <- "Each sample mean provides an estimate of the population mean."
     str1 <- "Sample means:"
@@ -33,8 +33,9 @@ shinyServer <- function(input, output) {
     strl1 <- paste("<li>",groupmeans[1],sep='')
     strl2 <- paste("<li>",groupmeans[2],sep='')
     strl3 <- paste("<li>",groupmeans[3],sep='')
+    strl3b <- paste("<li>",groupmeans[4],sep='')
     strl4 <- "</ul>"
-    meansList <- paste(strl0,strl1,strl2,strl3,strl4,sep='')
+    meansList <- paste(strl0,strl1,strl2,strl3,strl3b,strl4,sep='')
     result <- paste(str0,"<br>",str1,"<br>",meansList)
     return(result) 
   }

@@ -32,6 +32,7 @@ shinyUI <- dashboardPage(
                            tags$img(src = "app14.png",
                                     height = "150px"),
                            onclick = "window.open('/app14/', '_blank')")
+                          
              ) 
              
       ))

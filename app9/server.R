@@ -71,11 +71,11 @@ shinyServer <- function(input, output) {
       if (input$plot.type == '2') {
       # scatter
         tagList(
-          checkboxInput("showall", "Show all data (black)", TRUE),
-          checkboxInput("showgroup", "Your data (blue)", FALSE)
+          checkboxInput("showall", "Show HUBS191 data (black)", TRUE),
+          checkboxInput("showgroup", "Show your group data (blue)", FALSE)
         )
       } else {
-        checkboxInput("showgroup", "Your data (blue)", FALSE)
+        checkboxInput("showgroup", "Show your group data (blue)", FALSE)
       }
     }
   })
@@ -114,25 +114,38 @@ shinyServer <- function(input, output) {
     
     input$actionButtonID
     
+    group.tbl <- isolate(rv$cachedTbl) 
+    
     if (!is.null(input$plot.type)) {
     
       if (input$plot.type==1) {
         # histogram
-        line0.a <- paste("<b>","All data","</b><p>",sep='')
-        line0.g <- paste("<p><b>","Your data","</b><p>",sep='')
-        
+        line0.a <- paste("<b>","HUBS191 data","</b>",sep='')
         line1.a <- paste("The mean ",cname.summary()," is:",
                          theColumnData.mean(),
                          sep=' ')
-        line2.a <- paste("The variance of ",cname.summary(),"is:",
-                         theColumnData.var(),
-                         sep=' ')
-        line3.a <- paste("The standard deviation of",cname.summary() ,"is:",
+        line2.a <- paste("The standard deviation of",cname.summary() ,"is:",
                          round(sqrt(theColumnData.var()),1),
                          sep=' ')
+        result.a <- paste(line0.a,line1.a,line2.a,sep="<br>")
         
-        result <- paste(line0.a,line1.a,line2.a,line3.a,sep="<br>")
-         
+        line0.g <- paste("<br><b>","Your group data","</b>",sep='')
+        line1.g <- paste("The mean ",cname.summary()," is:",
+                         theColumnData.group.mean(),
+                         sep=' ')
+        line2.g <- paste("The standard deviation of",cname.summary() ,"is:",
+                         round(sqrt(theColumnData.group.var()),1),
+                         sep=' ')
+        result.g <- paste(line0.g,line1.g,line2.g,sep="<br>")
+        
+        result <- ""
+        if (!is.null(input$showmean) && input$showmean) {
+          result <- result.a
+        }
+        if (!is.null(input$showgroup) && input$showgroup) {
+          result <- paste(result,result.g)
+        }
+        
         return(result)
       }
       if (input$plot.type==2) {
@@ -140,22 +153,17 @@ shinyServer <- function(input, output) {
         result.a <- ""
         if (!is.null(a0)) {
           line0.a <- paste("<b>","All data","</b><p>",sep='')
-          line1.a <- paste('intercept',round(a0(),1),sep=' ')
-          line2.a <- paste('slope',round(a1(),4),sep=' ')
+          
           line3.a <- paste(cname.y(),"=",round(a0(),1),
-                         "+",round(a1(),4),"*",cname.x(),sep=' ')
-          result.a <- paste(line0.a,line1.a,line2.a,sep="<p>")
+                         "+",round(a1(),4),"*",cname.x(),sep=' ') 
           result.a <- paste(line0.a,line3.a)
         }
         
-        result.b <- NULL
-        #if (!is.null(group.regression()) && group.regression() == T) { 
+        result.b <- NULL 
         if (!is.null(a1.g()) && !is.na(a1.g())) { 
           # enough data for regression line through group data
           line0.g <- paste("<p><b>","Your data","</b><p>",sep='')
-          #line1.g <- paste('intercept',round(a0.g(),1),sep=' ')
-          #line2.g <- paste('intercept',round(a1.g(),4),sep=' ')
-          #result.b <- paste(line0.g,line1.g,line2.g,sep="<p>")
+          
           line3.a <- paste(cname.y(),"=",round(a0.g(),1),
                            "+",round(a1.g(),4),"*",cname.x(),sep=' ')
           result.b <- paste(line0.g,line3.a)
@@ -184,12 +192,20 @@ shinyServer <- function(input, output) {
           d1.ref <- data$reflexpathlength
           d1.vol <- data$voluntarypathlength
 
-          l0 <- paste("<b>","All data","</b><br>")
+          l0 <- paste("<b>","HUBS191 data","</b><br>")
           l1 <- paste("The mean reflex path length is",
                       round(mean(d1.ref,na.rm=T),1),sep=' ')
           l2 <- paste("The mean voluntary path length is",
                       round(mean(d1.vol,na.rm=T),1),sep=' ')
-         
+          
+          l0.g <- paste("<b>","Your group data","</b><br>")
+          
+          #l1.g <- paste("The mean reflex path length is",
+          #            round(mean(
+          #              group.tbl$reflexpathlength,na.rm=T),1),sep=' ')
+          #l2.g <- paste("The standard deviation of reflex path length is",
+          #              round(sqrt(var(group.tbl$reflexpathlength,na.rm=T)),1),sep=' ')
+          #l.g <- paste(l0.g,l1.g,l2.g,sep="<br>")
           result <- paste(l0,l1,l2,sep="<br>")
           
         } else {
@@ -197,7 +213,7 @@ shinyServer <- function(input, output) {
           
           d1.ref <- data$meanreflexlatency
           d1.vol <- data$meanvoluntarylatency
-          l0 <- paste("<b>","All data","</br>")
+          l0 <- paste("<b>","All data","</b>")
           l1 <- paste("The mean reflex latency length is",
                       round(mean(d1.ref,na.rm=T),1),sep=' ')
           l2 <- paste("The mean voluntary latency length is",
@@ -206,6 +222,7 @@ shinyServer <- function(input, output) {
           result <- paste(l0,l1,l2,sep="<br>")
           
         }
+        
         return(result)
       }
       
@@ -223,6 +240,8 @@ shinyServer <- function(input, output) {
   cname.summary <- reactiveVal()
   theColumnData.mean <- reactiveVal()
   theColumnData.var <- reactiveVal()
+  theColumnData.group.mean <- reactiveVal()
+  theColumnData.group.var <- reactiveVal()
   
   
   
@@ -240,9 +259,7 @@ shinyServer <- function(input, output) {
   
   output$distPlot <- renderPlot({
     
-     
     input$actionButtonID
-     
     group.tbl <- isolate(rv$cachedTbl) 
      
     # histogram
@@ -263,22 +280,30 @@ shinyServer <- function(input, output) {
       theColumnData <- as.numeric(data[,colNumber])
       theColumnData.mean <- round(mean(theColumnData,na.rm=T),1)
       theColumnData.var <- round(var(theColumnData,na.rm=T),1)
+      # update reflective values
       theColumnData.mean(theColumnData.mean)
       theColumnData.var(theColumnData.var)
+      
+      theColumnData.group.mean <- 
+        mean(as.numeric(as.character(group.tbl[,colNumber])),na.rm=T)
+      theColumnData.group.var <- 
+        var(as.numeric(as.character(group.tbl[,colNumber])),na.rm=T)
+      
+      # update reflective values
+      theColumnData.group.var(theColumnData.group.var)
+      theColumnData.group.mean(theColumnData.group.mean)
       df <- data.frame(x = theColumnData)
       p <- ggplot(df,aes(x=x))
-      
-      
         p <-  p + geom_histogram(color="black", fill="white") +
-          xlab(colName)
+          xlab(colName) +
+          ylab('count')
         t <- paste('Histogram of',colName.pretty,
                    '(N=615)',sep=' ')
         p <- p +
           ggtitle(t) + 
-          theme(plot.title = element_text(size=22))
+          theme(plot.title = element_text(size=22)) +
+          theme_gray((base_size=22))
         
-      
-      
       
       mu <- mean(theColumnData,na.rm=T)
       sd <- sqrt(var(theColumnData,na.rm=T))
@@ -302,9 +327,7 @@ shinyServer <- function(input, output) {
       ## Add the group data  
       if (!is.null(input$showgroup) && input$showgroup) {
            
-          data2 <- group.tbl
-          
-           
+          data2 <- group.tbl 
           myColumn <- data2[,colNumber]
           dropm <- which(is.na(myColumn))
           if (length(dropm) > 0 ) {
@@ -382,18 +405,18 @@ shinyServer <- function(input, output) {
       sz = 1
       if (!is.null(input$showall) && !input$showall) {
         # invisible
-        sz=-1
+       sz=-1
       }  
         
       p <- ggplot(df,aes(x=x,y=y)) +
            ylab(colName.y) +
            xlab(colName.x) +
-           title(main="Scatter") + geom_point(size=sz)
-      
-      
+            geom_point(size=sz) 
       
       p <- p +
-        ggtitle(t)
+        ggtitle(t) + 
+        theme(plot.title = element_text(size=22)) +
+        theme_gray((base_size=22))
       x.breaks <- 
         c(mu.x-3*sd.x,mu.x-2*sd.x,mu.x-sd.x,mu.x,mu.x+sd.x,mu.x+2*sd.x,mu.x+3*sd.x)
       x.breaks <- round(x.breaks)
@@ -403,7 +426,7 @@ shinyServer <- function(input, output) {
       
       if (!is.null(input$showall) && input$showall) {
         p <- p +
-        geom_abline(intercept=a0(),slope=a1(),colour='orange')
+        geom_abline(intercept=a0(),slope=a1(),colour='black')
       }
       
       p <- p + 
@@ -439,7 +462,7 @@ shinyServer <- function(input, output) {
         }
         thePoints <-data.frame(x=myColumn.x,
                              y=myColumn.y)
-        print(thePoints)
+        #print(thePoints)
         p <- p + geom_point(data=thePoints,aes(x=x,y=y),
                           colour='blue',fill='blue',size=4,shape=24,fill='blue')
         
@@ -475,9 +498,14 @@ shinyServer <- function(input, output) {
       colName <- colnames(data)[colNumber]
       if (colNumber == 1) {
         # length
+        t <- 'Boxplot of reflex path length (N=615)'
         length.limits <- c(1000,4000)
         df1 <-data.frame(voluntary=data$voluntarypathlength)
-        p1 <- ggplot(df1,aes(y=voluntary)) + geom_boxplot()
+        p1 <- ggplot(df1,aes(y=voluntary)) + geom_boxplot() +
+          ggtitle(t) + 
+          theme(plot.title = element_text(size=22)) +
+          theme_gray((base_size=22))
+        
         p1 <- p1 +
           xlab('Voluntary') +
           ylab('Path length (mm)') +
@@ -492,11 +520,13 @@ shinyServer <- function(input, output) {
         
         df3 <- rbind(df1[,c(2,3)],df2[,c(2,3)])
         
-        t <- paste('Boxplot of reflex and voluntary path length (mm)',
+        t <- paste('Boxplot of Reflex and Voluntary path length (mm)',
                    '(N=615)',sep=' ')
         
         p <- ggplot(df3,aes(y=var,x=type)) + geom_boxplot(width=0.2) +
           ggtitle(t) +
+          theme(plot.title = element_text(size=22)) +
+          theme_gray((base_size=22)) +
           xlab('') +
           ylab('') +
           scale_y_continuous(limits=length.limits) +
@@ -525,6 +555,8 @@ shinyServer <- function(input, output) {
             xlab('') +
             ylab('') +
             ggtitle(t) +
+            theme(plot.title = element_text(size=22)) +
+            theme_gray((base_size=22)) +
             scale_y_continuous(limits=latency.limits) + 
             scale_x_discrete(
               labels=c("reflex"="Reflex latency",

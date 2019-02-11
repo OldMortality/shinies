@@ -126,6 +126,7 @@ shinyServer <- function(input, output) {
       
       
       # for plotting shaded area, lower bit
+     
       df.norm.x <- data.frame(x=seq(x.low,x.upp,0.1))
       df.norm.y <- data.frame(y=dnorm(df.norm.x$x,mean=input$mu.2,sd=sd.samp))
       df.norm <- cbind(df.norm.x,df.norm.y)
@@ -137,8 +138,7 @@ shinyServer <- function(input, output) {
       df.norm.upp.y <- data.frame(y=dnorm(df.norm.upp.x$x,mean=input$mu.2,sd=sd.samp))
       df.norm.upp <-   cbind(df.norm.upp.x,df.norm.upp.y)
       
-      p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)
-      ) + 
+      p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)) + 
         geom_point(aes(x=thisOne,y=0)) + 
         stat_function(fun = dnorm, show.legend=F,
                     colour='blue', 
@@ -151,7 +151,8 @@ shinyServer <- function(input, output) {
          geom_ribbon(data=df.norm,aes(x=df.norm$x,ymin=0,ymax=df.norm$y),
                   fill='red',alpha=0.1)  +
         geom_ribbon(data=df.norm.upp,aes(x=df.norm.upp$x,ymin=0,ymax=df.norm.upp$y),
-                    fill='blue',alpha=0.1)  
+                    fill='blue',alpha=0.1) 
+        
      p
       }
   })
@@ -188,20 +189,7 @@ shinyServer <- function(input, output) {
     result <- paste("<font size=4>",line1,"</font>",sep="<br>")
     return(result)
    
-      #sampleMean <- as.numeric(input$samplemean)
-      #sd.samp.dist <- sd/sqrt(as.numeric(input$n))
-      #prob <- pnorm(sampleMean,mean=input$mu.2,sd=sd.samp.dist)
-      #if (input$mu.2 < mu) {
-      #  prob <- 1-  prob
-      #}
-      #prob <- round(prob,3)
-      #str0 <- paste("Suppose the true value of the population mean is",
-      #              input$mu.2,sep=" ")
-      #str1 <- paste("The observed sample mean is",sampleMean,sep=' ')
-      #str2 <- paste("The probability of seeing the observed sample mean is",prob)
-      #result <- paste(str0,str1,str2,sep="<br>")
     
-     
     
     
   }

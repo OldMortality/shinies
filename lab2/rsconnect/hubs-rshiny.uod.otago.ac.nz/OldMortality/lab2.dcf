@@ -1,0 +1,12 @@
+name: lab2
+title: lab2
+username: OldMortality
+account: OldMortality
+server: hubs-rshiny.uod.otago.ac.nz
+hostUrl: http://hubs-rshiny.uod.otago.ac.nz:3838/__api__
+appId: 19
+bundleId: 24
+url: http://hubs-rshiny.uod.otago.ac.nz:3838/lab2/
+when: 1549318907.34872
+asMultiple: FALSE
+asStatic: FALSE

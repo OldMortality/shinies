@@ -13,6 +13,9 @@ shinyUI <- dashboardPage(
   dashboardHeader(title = "Comparing the sampling distribution for two means",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
+                   # link to the css stylesheet. It is in the www folder.
+                   tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+                   
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"),
                    actionButton("sample10",label="Take 10 samples"),
@@ -32,33 +35,33 @@ shinyUI <- dashboardPage(
                title=paste("Distribution of height for the population", 
                            "of HUBS191 students",sep=' '),
                width=NULL,
-               plotOutput("plot1",height=375), 
-               height = 450),
+               plotOutput("plot1",height=275), 
+               height = 350),
              box( 
                width=NULL,
-               plotOutput("thissamplemean",height=100),
-               height = 150),
+               plotOutput("thissamplemean",height=50),
+               height = 80),
               
              box(title="Means of all samples",  
                  width=NULL,
-                 plotOutput("samplemean",height=375), 
-                 height = 450)
+                 plotOutput("samplemean",height=275), 
+                 height = 350)
       ), 
       column(width=6, 
              box(  
                title="One sample", 
                width=NULL,
-               htmlOutput('topSummary',height=375), 
-               height = 450),
+               htmlOutput('topSummary',height=275), 
+               height = 350),
              box( 
-               title=htmlOutput('middleSummary',height=100), 
+               title=htmlOutput('middleSummary',height=50), 
                width=NULL,
-               height = 150),
+               height = 80),
              box( 
                width=NULL,
                title="All samples", 
-               htmlOutput('bottomSummary',height=375), 
-               height = 450)
+               htmlOutput('bottomSummary',height=275), 
+               height = 350)
       )
     )
   )

@@ -385,7 +385,7 @@ shinyServer <- function(input, output) {
   getMiddleSummary <- function() {
     line1 <- "Red dot indicates sample mean for exercisers."
     line2 <- "Blue dot indicates sample mean for non-exercisers."
-    result <- paste("<br>",line1,line2,sep="<br>")
+    result <- paste(line1,line2,sep="<br>")
     
     return(result)
   }

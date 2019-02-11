@@ -73,7 +73,8 @@ shinyServer <- function(input, output) {
       scale_x_continuous(limits=c(1500,2100),breaks=seq(1500,2100,100)) +
       scale_y_continuous(breaks = seq(0,20),minor_breaks=NULL) +
       ylab("Frequency") +
-      xlab("Height (mm)") 
+      xlab("Height (mm)") + 
+      theme_grey((basesize=20))
     p
      
     
@@ -91,7 +92,8 @@ shinyServer <- function(input, output) {
       scale_x_continuous(breaks = NULL,minor_breaks=NULL,
                          limits=c(-0.5,0.5)
       )  +
-      ylab("Height (mm)")
+      ylab("Height (mm)") + 
+      theme_grey((basesize=20))
     
     p
   }) # end boxplot
@@ -105,9 +107,10 @@ shinyServer <- function(input, output) {
     
     p <- ggplot(d, aes(height)) + 
         scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-        geom_dotplot() +
+        geom_dotplot(colour='#696969',fill='#696969') +
         ylab("Frequency") +
-        xlab("Height (mm)")  
+        xlab("Height (mm)") + 
+      theme_grey((basesize=20))  
     p  
   }) # end dotplot 
   

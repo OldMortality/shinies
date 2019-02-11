@@ -19,7 +19,7 @@ shinyServer <- function(input, output) {
       # make up historical data
       tbl <- data.frame(height = c(1750,rep('',9)),
                         digit.length=c(75,rep('',9)))
-      #colnames(tbl) <- c(height (mm)','digit length (mm)')
+      #colnames(tbl) <- c('height (mm)','digit length (mm)')
       
       rv$cachedTbl <- tbl
       return(tbl)
@@ -44,8 +44,9 @@ shinyServer <- function(input, output) {
     p <- ggplot(data=plot.data,aes(x=x,y=y)) + geom_point() +
       scale_x_continuous(limits=c(1300,2100)) +
       scale_y_continuous(limits=c(50,150)) +
-      ylab('digit length (mm)') +
-      xlab('height (mm)') 
+      ylab('Digit length (mm)') +
+      xlab('Height (mm)') +
+      theme_gray((base_size=20))
     
     m <- lm(digit.length~height,data=plot.data)
     coef$intercept <- coefficients(m)[[1]]
@@ -63,14 +64,14 @@ shinyServer <- function(input, output) {
   
   
   getSummary <-function() {
-    plus.or.minus <- "plus"
+    plus.or.minus <- " + "
     intercept <- round(as.numeric(coef$intercept),2)
     slope <- round(as.numeric(coef$slope),2)
     print(paste(intercept,slope),sep= ' ')
     line1 <- ""
     if (!is.na(slope)) {
       if (slope < 0) {
-        plus.or.minus <- "minus"
+        plus.or.minus <- " - "
       }
       line1 <- paste("digit length =",
                    as.character(intercept),
@@ -80,8 +81,10 @@ shinyServer <- function(input, output) {
                    sep=' '
                    )
     
-      }
-    return(line1)
+    }
+    line0 <- "digit length = a + b * height"
+    result <- paste(line0,line1,sep="<br>")
+    return(result)
   }
   
   output$summary <- renderText(

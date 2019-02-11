@@ -11,6 +11,9 @@ shinyUI <- dashboardPage(
   dashboardHeader(title = "Sampling variation in regression lines",
                   titleWidth = 450),
   dashboardSidebar(useShinyjs(),
+                   # link to the css stylesheet. It is in the www folder.
+                   tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+                   
                    actionButton("clear",label="Clear"),
                    actionButton("sample",label="Take 1 sample"), 
                    

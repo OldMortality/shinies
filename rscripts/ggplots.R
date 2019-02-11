@@ -60,24 +60,23 @@ p <- ggplot(df, aes(x = x,y=0)) +
 p
 
 
-
+{
 result <- data.frame(height=c(round(rnorm(90,1710,90))))
-# 2 people who put in cm instead of mm
 result
+
 dim(result)
 result$sex <- 'male'
 result[51:90,"sex"] <- 'female'
 result[51:90,"sex"] <-  rnorm(40,1910,90)
 library(ggplot2)
 d <- data.frame(result)
+
 head(d)
-ggplot(mtcars, aes(y = factor(cyl), x = mpg)) 
-  
-ggplot(data=d, aes(height,
-                   x = factor(sex), y = height)) +
-  geom_dotplot(aes(group=sex),dotsize=0.3,stackdir="up"
-               )+
-  
+
+ggplot(data=d, aes(x = factor(sex), y = height)) +
+  geom_dotplot(
+               )
+}  
   
 
 hist(d$height)
@@ -874,4 +873,9 @@ post <- rbind(g.post,b.post)
       breaks=seq(0,9)
                        )
   
-  
+palette()  
+col = '#303030'
+col = '#000000'
+
+d <- data.frame(x=rnorm(100))
+ggplot(data=d) + geom_dotplot(aes(x=x), color=col,fill=col)

@@ -85,10 +85,8 @@ shinyServer <- function(input, output) {
   
   
   observeEvent(input$clear,{
-    thisSampleMean <- 0
-    #allm <- vector()
-    samp <- round(rnorm(0,mean=mu,sd=sd),1)
-    #samp(samp)
+    thisSampleMean <- 0 
+    samp <- round(rnorm(0,mean=mu,sd=sd),1) 
     meansamp <- reactiveVal()
     allmeansamp$allm = vector()
     values$total = 0
@@ -128,8 +126,7 @@ shinyServer <- function(input, output) {
       meansamp(meansamp) 
       values$total <- c(values$total,meansamp) 
     }
-    #samp <- NULL
-    #samp(samp)
+    
   })
   
   # 100 samples
@@ -239,20 +236,18 @@ shinyServer <- function(input, output) {
         scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
-        ylab("Frequency") + 
+        ylab("") + 
         xlab("Height (mm)")
       if (showMean) { 
         p = p +
-          geom_point(size=2,colour='darkblue') 
+          geom_point(size=2,colour='blue') 
       }
       p
     }
      
   })
   
-  #scale_x_continuous(limits=c(low,upp)) + 
   
-  #
   # This is the tricky plot, with the histogram
   #   of all sample means.
   #
@@ -269,7 +264,7 @@ shinyServer <- function(input, output) {
                              breaks = x.breaks,minor_breaks=NULL) + 
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
           xlab("Height (mm)") +
-          ylab("")
+          ylab("Frequency")
       }
       
       if (length(sampleMeans > 1)) {
@@ -356,12 +351,6 @@ shinyServer <- function(input, output) {
   #  }
   #} ) # end CLTplot3
   
-  #output$sampleTable <- renderDataTable(data.frame(samp()),
-  #                                      options = list(
-  #                                        pageLength = 5,
-  #                                        initComplete = I("function(settings, json) {;}")
-  #                                      )
-  #)
   
   getSampleSummary <- function() {
     points <- data.frame(x = samp() )
@@ -372,7 +361,7 @@ shinyServer <- function(input, output) {
     count <- counter$countervalue
     xbar <- round(1000* sum / as.numeric(input$n))/1000
     str0 <- "The black dots represent the sample."
-    str1 <- paste("The mean for sample",count,"is",xbar,sep=' ')
+    str1 <- paste("The mean for sample",count,"=",xbar,sep=' ')
     result <- paste(str0,'<br>',str1,'<br>')
     if (!showSample) {
       result <- ""
@@ -387,11 +376,10 @@ shinyServer <- function(input, output) {
     m.hat <- round(100* mean(sampleMeans))/100
     ss <- round(100* sqrt(var(sampleMeans)))/100
     count <- counter$countervalue
-    str0 <- paste('We now have this many samples: ',count,sep=' ')
-    str1 <- paste('The mean of all sample means is ',m.hat,sep=': ')
-    str2 <- paste('The standard deviation of all sample means is ',ss,sep=': ')
+    str0 <- paste('We now have this many samples: ',count,sep='')
+    str1 <- paste('The mean of all sample means = ',m.hat,sep='')
+    str2 <- paste('The standard deviation of all sample means = ',ss,sep='')
     result <- paste(str0,'<br>',str1,'<br>',str2)
-    
     return(result)
   }
   

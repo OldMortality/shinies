@@ -9,20 +9,21 @@ shinyServer <- function(input, output) {
   x.breaks <- round(seq(xbar-3*sd,xbar+3*sd,sd))
   
   getSummary <- function() {
-    print('hello')
     ht <- as.numeric(input$yourheight) 
     diff <- xbar - ht
     absdiff <- abs(diff)
     d <- (absdiff)/sd
     d <- round(100*d)/100 
-    str0 <- paste('Population mean height is',xbar,'mm',sep=' ')
-    str1 <- paste('Population standard deviation is',sd,'mm',sep=' ') 
-    str2 <- paste('Your height is',input$yourheight,'mm',sep=' ')
-    str3 <- paste('Distance from the mean is',absdiff,'mm', sep=' ')
-    str4 <- paste('Distance from the mean in standard deviations is',
+    str0 <- paste('Population mean height =',xbar,'mm',sep=' ')
+    str1 <- paste('Population standard deviation =',sd,'mm',sep=' ') 
+    str2 <- paste('Your height =',input$yourheight,'mm',sep=' ')
+    str3 <- paste('Distance from the mean =',absdiff,'mm', sep=' ')
+    str4 <- paste('Distance from the mean in standard deviations =',
+                  '(distance from the mean)/(standard deviation) =' ,
                   paste(absdiff,'/',sd,'=',sep=''),
                   d,sep=' ')
-    result <- paste(str0,'<br>',str1,'<br>',str2,'<br>',str3,'<br>',str4)
+    result <- paste(str0,str1,str2,str3,str4,
+                    sep="<br>")
     return(result)
   } 
   
@@ -39,15 +40,25 @@ shinyServer <- function(input, output) {
       scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                          limits=c(0,0.005)) +
       xlab("Height (mm)") + 
-      geom_segment(x=xbar+2*sd,xend=xbar+3*sd,
+      theme_grey((basesize=20))
+    
+    if (input$showsd) {
+      
+      p <- p +
+        geom_segment(x=xbar+2*sd,xend=xbar+3*sd,
                    y=0.004,yend=0.004,
                    colour='black',
                    arrow = arrow(length=unit(0.30,"cm"), ends="both", type = "closed")
       ) +
-      annotate("text", label = "1 standard deviation", 
-               x = xbar+ 2.1*sd, 
-               y= 0.0042, hjust=0,
-               size = 5, colour = "black")
+        annotate("text", label = "1 standard deviation", 
+                 x = xbar+ 2.1*sd, 
+                 y= 0.0042, hjust=0,
+                 size = 5, colour = "black") +
+        annotate("text", label = '   This distance is', 
+                 x = xbar+ 2.1*sd, 
+                 y= 0.0045, hjust=0,
+                 size = 5, colour = "black") 
+    }
     
     ht <- as.numeric(input$yourheight)
     
@@ -90,6 +101,7 @@ shinyServer <- function(input, output) {
           annotate("text", label = str, x = pointdata$x, 
                    y= 0.0005, hjust=0,
                    size = 5, colour = "blue") 
+         
       }
     }
     p  
@@ -103,6 +115,6 @@ shinyServer <- function(input, output) {
   ) 
   
   output$text1 <- renderText({ 
-    paste("hello input is","<font color=\"#FF0000\"><b>", input$n, "</b></font>") })
+    paste("input is","<font color=\"#FF0000\"><b>", input$n, "</b></font>") })
   
 }

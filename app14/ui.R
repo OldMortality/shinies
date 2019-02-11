@@ -24,7 +24,6 @@ shinyUI <- dashboardPage(
                  actionButton("actionButtonID","Save")
              ),
              box(  
-               title="Summary", 
                width=NULL,
                htmlOutput('summary',height = 300),
                height=300

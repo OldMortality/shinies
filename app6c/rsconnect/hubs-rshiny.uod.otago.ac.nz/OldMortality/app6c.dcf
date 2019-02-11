@@ -1,0 +1,13 @@
+name: app6c
+title: app6c
+username: OldMortality
+account: OldMortality
+server: hubs-rshiny.uod.otago.ac.nz
+hostUrl: http://hubs-rshiny.uod.otago.ac.nz:3838/__api__
+appId: 10
+bundleId: 37
+url: http://hubs-rshiny.uod.otago.ac.nz:3838/app6c/
+when: 1549585850.22575
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: www/.DS_Store
