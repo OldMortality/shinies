@@ -16,17 +16,17 @@ library(shinyTable)
 shinyServer <- function(input, output) {
   
 
-  observe({
-    if (!is.null(input$variable.x) && 
-        (input$variable.x == 5||input$variable.x == 6 ))  {
-      shinyjs::hide("variable.y")
-    } else {
-        if (!is.null(input$variable.y) && 
-          (input$variable.x == 5 || input$variable.x == 6 ))  {
-        shinyjs::hide("variable.x")
-      }
-    }
-  })
+  #observe({
+  #  if (!is.null(input$variable.x) && 
+  #      (input$variable.x == 5||input$variable.x == 6 ))  {
+  #    shinyjs::hide("variable.y")
+  #  } else {
+  #      if (!is.null(input$variable.y) && 
+  #        (input$variable.x == 5 || input$variable.x == 6 ))  {
+  #      #shinyjs::hide("variable.x")
+  #    }
+  #  }
+  #})
   
   
     data <- read.csv('Lab3data.csv',header=T)
@@ -81,8 +81,8 @@ shinyServer <- function(input, output) {
                    "Reflex latency"=v2,
                    "Voluntary path length"=v3,
                    "Voluntary latency"=v4,
-                   "Path length"=v5,
-                   "Latency"=v6)
+                   "All path lengths"=v5,
+                   "All latencies"=v6)
     
     return( result)
   })
@@ -400,20 +400,20 @@ shinyServer <- function(input, output) {
       colName.x <- colnames(data)[colNumber.x]
       colName.y <- colnames(data)[colNumber.y]
       
-      if (colNumber.x==5) {
-        colNumber.y <- 6
-      } else {
-        if (colNumber.x == 6) {
-          colNumber.y = 5
-        }
-      }
-      if (colNumber.y==5) {
-        colNumber.x <- 6
-      } else {
-        if (colNumber.y == 6) {
-          colNumber.x = 5
-        }
-      }
+      #if (colNumber.x==5) {
+      #  colNumber.y <- 6
+      #} else {
+      #  if (colNumber.x == 6) {
+      #    colNumber.y = 5
+      #  }
+      #}
+      #if (colNumber.y==5) {
+      #  colNumber.x <- 6
+      #} else {
+      #  if (colNumber.y == 6) {
+      #    colNumber.x = 5
+      #  }
+      #}
       
       
      
