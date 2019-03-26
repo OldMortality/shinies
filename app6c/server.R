@@ -117,6 +117,7 @@ shinyServer <- function(input, output) {
       
       low <- mu-3*sd
       upp <- mu+3*sd
+      # 
       x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
       thisOne <- as.numeric(input$samplemean)
       # for plotting shady bit

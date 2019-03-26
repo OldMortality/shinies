@@ -17,6 +17,7 @@ shinyUI <- dashboardPage(
     # link to the css stylesheet. It is in the www folder.
     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
     
+    checkboxInput("showdata", "Show your data", FALSE),
     checkboxInput("showline", "Show your fitted line", FALSE)
     ),
                    

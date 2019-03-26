@@ -13,8 +13,7 @@ shinyServer <- function(input, output) {
   mu2 = 1671
   sd1 = 92
   sd2 = 92
-  #lower <- mu1-3*sd1
-  #upper <- mu1+3*sd1
+  
   
   thisSampleMean <- 0
   shinyjs::disable("shownormal")
@@ -32,8 +31,13 @@ shinyServer <- function(input, output) {
   autorun <- reactiveValues(auto = 0)
   showDiff <- reactiveValues(summary = 0)
   
+  
+  animate.counter <- 0
+  max.animate <- 25
+  
   output$start <- renderUI({
-    actionButton("click", label = label(),
+    actionButton("click", 
+                 label = label(),
                  style=style()
                  #icon=icon("running",lib = "font-awesome")
     )
@@ -176,11 +180,20 @@ shinyServer <- function(input, output) {
    
   
   
-  # click sample every 10 ms
+  # animate: click sample repeatedly
   observe({
     if (autorun$auto == 1) {
+      
+      # run this function again in 2000ms
+      invalidateLater(2000)
       click("sample")
-      invalidateLater(1)
+      animate.counter <<- animate.counter + 1
+      if (animate.counter > max.animate) {
+        # stop animation.
+        autorun$auto <- 0
+        animate.counter <<- 0
+      } 
+      
     }
   })
    
@@ -368,8 +381,8 @@ shinyServer <- function(input, output) {
     x2 <- samp2()
     points <- data.frame(x1 = x1,x2=x2 )
     
-    line1 <-"Red dots indicate sample of exercisers"
-    line2 <-"Blue dots indicate sample of non-exercisers"
+    line1 <-"Red dots indicate sample of frequent exercisers"
+    line2 <-"Blue dots indicate sample of not frequent exercisers"
     
     line3 <- ""
     line4 <- ""
@@ -381,11 +394,11 @@ shinyServer <- function(input, output) {
       xbar2 <- round(mean(points$x2),2)
       sd1 <- round(sqrt(var(points$x1)),2)
       sd2 <- round(sqrt(var(points$x2)),2)
-      line3 <- paste("Mean height of exercisers:",xbar1,"(mm)",sep=' ')
-      line4 <- paste("Mean height of non-exercisers:",xbar2,"(mm)",sep=' ')
-      line5 <- paste("Standard deviation of exercisers is:",
+      line3 <- paste("Mean height of frequent exercisers:",xbar1,"(mm)",sep=' ')
+      line4 <- paste("Mean height of not frequent exercisers:",xbar2,"(mm)",sep=' ')
+      line5 <- paste("Standard deviation of frequent exercisers is:",
                      sd1,"(mm)",sep=' ')
-      line6 <- paste("Standard deviation of non-exercisers is:",
+      line6 <- paste("Standard deviation of not frequent exercisers is:",
                      sd2,"(mm)",sep=' ')
     } 
     
@@ -398,8 +411,8 @@ shinyServer <- function(input, output) {
   }
   
   getSummary2 <- function() {
-    line1 <- "Red dot indicates sample mean for exercisers."
-    line2 <- "Blue dot indicates sample mean for non-exercisers."
+    line1 <- "Red dot indicates sample mean for frequent exercisers."
+    line2 <- "Blue dot indicates sample mean for not frequent exercisers."
     result <- paste(line1,line2,sep="<br>")
     return(result)
   }
@@ -414,19 +427,18 @@ shinyServer <- function(input, output) {
   
   getSummary4 <- function() {
     # the vector of sample means
-    #df <- data.frame(x = values$total[-1])
-    sampleMeans <- values$diff[-1]
+   sampleMeans <- values$diff[-1]
     if (length(sampleMeans > 0)) {
     
-      m.hat <- round(100* mean(sampleMeans))/100
-      ss <- round(100* sqrt(var(sampleMeans)))/100
+      m.hat <- round(mean(sampleMeans),2)
+      ss <- round(sqrt(var(sampleMeans)),2)
       count <- counter$countervalue
       str0 <- paste('Total number of samples: ',count,sep=' ')
-      str1 <- paste('Mean of all differences in sample means:',m.hat,sep=' ')
+      str1 <- paste('Mean of all differences in sample means:',m.hat,"(mm)",sep=' ')
       if (length(sampleMeans) <= 1) {
         str2 <- ''  
       } else {
-        str2 <- paste('Standard deviation of all differences in sample means:',ss,sep=' ')
+        str2 <- paste('Standard deviation of all differences in sample means:',ss,"(mm)",sep=' ')
       }
       result <- paste(str0,'<br>',str1,'<br>',str2)
     } else {

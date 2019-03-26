@@ -879,3 +879,23 @@ col = '#000000'
 
 d <- data.frame(x=rnorm(100))
 ggplot(data=d) + geom_dotplot(aes(x=x), color=col,fill=col)
+
+
+df <- data.frame(x=10,y=0)
+p <- ggplot(df, aes(x,y )) +
+  scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
+                     limits=c(-10,10)) +
+  scale_y_continuous(breaks = x.breaks,minor_breaks=NULL,
+                     limits=c(-10,10)) +
+  geom_point(colour='red') 
+p
+
+lo <- rnorm(10)
+up <- rnorm(10)
+for (i in 1:10) {
+  p <- p + geom_segment(x=lo,y=seq(1,10),xend=up,yend=seq(1,10))
+}
+p
+
+
+

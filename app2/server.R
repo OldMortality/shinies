@@ -67,7 +67,7 @@ shinyserver <- function(input, output) {
     p <- ggplot(DF, aes(height)) + 
       geom_histogram(binwidth=25,
                      fill="white",colour='black') +
-       scale_x_continuous(limits=c(1500,2100),breaks=seq(1500,2100,100)) +
+       scale_x_continuous(limits=c(1250,2250),breaks=seq(1250,2250,100)) +
        scale_y_continuous(breaks = seq(0,10),minor_breaks=NULL) +
        ylab("Frequency") +
        xlab("Height (mm)")

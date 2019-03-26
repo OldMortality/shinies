@@ -5,8 +5,8 @@ account: OldMortality
 server: hubs-rshiny.uod.otago.ac.nz
 hostUrl: http://hubs-rshiny.uod.otago.ac.nz:3838/__api__
 appId: 8
-bundleId: 34
+bundleId: 59
 url: http://hubs-rshiny.uod.otago.ac.nz:3838/app12a/
-when: 1549584725.56028
+when: 1550781399.91363
 asMultiple: FALSE
 asStatic: FALSE

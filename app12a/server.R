@@ -40,7 +40,7 @@ shinyServer <- function(input, output) {
     digit.length <- isolate(as.numeric(as.character(rv$cachedTbl$digit.length)))
     plot.data <- data.frame(x = height, y=digit.length)
     
-    print(plot.data)
+    #print(plot.data)
     p <- ggplot(data=plot.data,aes(x=x,y=y)) + geom_point() +
       scale_x_continuous(limits=c(1300,2100)) +
       scale_y_continuous(limits=c(50,150)) +
@@ -52,13 +52,16 @@ shinyServer <- function(input, output) {
     coef$intercept <- coefficients(m)[[1]]
     coef$slope <- coefficients(m)[[2]]
     
-    if (input$showline) {
-      p <- p + 
-        geom_abline(intercept=coefficients(m)[[1]],
-                    slope=coefficients(m)[[2]],colour='red')  
-    } 
+    if (input$showdata) {
+      if (input$showline) {
+        p <- p + 
+          geom_abline(intercept=coefficients(m)[[1]],
+                      slope=coefficients(m)[[2]],colour='red')  
+      }
+      p 
+    }
     
-    p
+    
     
   }) # end thePlot
   
@@ -67,7 +70,7 @@ shinyServer <- function(input, output) {
     plus.or.minus <- " + "
     intercept <- round(as.numeric(coef$intercept),2)
     slope <- round(as.numeric(coef$slope),2)
-    print(paste(intercept,slope),sep= ' ')
+    #print(paste(intercept,slope),sep= ' ')
     line1 <- ""
     if (!is.na(slope)) {
       if (slope < 0) {

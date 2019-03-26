@@ -1,4 +1,4 @@
 library(profvis)
-profvis({ runApp('~/Documents/shiny/app5') }  
+profvis({ shiny::runApp('~/Documents/shiny/app6') }  
         , prof_output = '~/Documents/profvis')
-profvis(prof_input = '~/Documents/profvis/file3f72364a4ed8.Rprof')
+profvis(prof_input = '~/Documents/profvis/filea097be80525.Rprof')

@@ -291,10 +291,7 @@ shinyServer <- function(input, output) {
           if (input$shownormal ) {
             sample.size <- as.numeric(input$n)
             s <- sd/sqrt(sample.size)
-            #p <- p + stat_function(fun=dnorm,
-            #                  color="red",
-            #                  args=list(mean=mean(mu), 
-            #                            sd=s)) 
+           
             p <- p + stat_function( 
               color="red",
               fun = function(x, mean, sd, n, bw){ 
@@ -312,44 +309,7 @@ shinyServer <- function(input, output) {
     
   })
   
-  #output$CLTplot3 <- renderPlot({
-    
-    # work out the sample mean for the vertical line only
-   # points <- data.frame(x = samp() )
-  #  sum <- 0
-  #  if (dim( points )[1] > 0 ) {
-  #    sum <- sum(points$x)
-  #  }
-  #  xbar <- round(1000* sum / as.numeric(input$n))/1000
-    # xbar is the sample mean
-    
-   # df <- data.frame(x = values$total[-1])
-  #  sampleMeans <- values$total[-1]
-  ##  m.hat <- round(100* mean(sampleMeans))/100
-  #  ss <- round(100* var(sampleMeans))/100
-  #  label1 <- paste('mean: ',m.hat,sep=" " )
-  ##  label2 <- paste('variance: ',ss,sep=" " )
-  #  if (length(values$total) > 1) {
-      
-  #    p <- ggplot(df,aes(x=x)) + geom_blank() + 
-  #      geom_histogram(aes(x,stat(density)),
-   #                    color="black",
-  #                     binwidth=0.1) +
-  #      scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
-  #                         limits=c(low,upp)) 
-        
-        
-  #    if (input$shownormal) {
-  #      p <- p +
-  #        stat_function(fun=dnorm,
-  #                      color="red",
-  #                      args=list(mean=mean(m.hat), 
-  #                                sd=sqrt(ss))) 
-  #    }
-      # show the plot
-  #    p
-  #  }
-  #} ) # end CLTplot3
+  
   
   
   getSampleSummary <- function() {
@@ -361,7 +321,7 @@ shinyServer <- function(input, output) {
     count <- counter$countervalue
     xbar <- round(1000* sum / as.numeric(input$n))/1000
     str0 <- "The black dots represent the sample."
-    str1 <- paste("The mean for sample",count,"=",xbar,sep=' ')
+    str1 <- paste("The mean for sample",count,"=",xbar,"(mm)",sep=' ')
     result <- paste(str0,'<br>',str1,'<br>')
     if (!showSample) {
       result <- ""
@@ -377,8 +337,8 @@ shinyServer <- function(input, output) {
     ss <- round(100* sqrt(var(sampleMeans)))/100
     count <- counter$countervalue
     str0 <- paste('We now have this many samples: ',count,sep='')
-    str1 <- paste('The mean of all sample means = ',m.hat,sep='')
-    str2 <- paste('The standard deviation of all sample means = ',ss,sep='')
+    str1 <- paste('The mean of all sample means = ',m.hat,"(mm)",sep='')
+    str2 <- paste('The standard deviation of all sample means = ',ss,"(mm)",sep='')
     result <- paste(str0,'<br>',str1,'<br>',str2)
     return(result)
   }

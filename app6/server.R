@@ -72,11 +72,17 @@ shinyServer <- function(input, output) {
     counter$countervalue = 0
     countReds$counter = 0
     autorun$auto = 0
-    # ??
+    # 
     all_low$all_l=vector()
     all_upp$all_u=vector()
-    # ??
+    # 
     samp(samp)
+    #
+    # enable sample buttons
+    shinyjs::enable("sample") 
+    shinyjs::enable("sample10")
+    shinyjs::enable("sample100") 
+    shinyjs::enable("start") 
   })
   
   
@@ -180,6 +186,19 @@ shinyServer <- function(input, output) {
       } 
       
     }
+  })
+  
+  # limit number of samples to limit load on server.
+  max.samples <- 125
+  observe({
+    if (counter$countervalue > max.samples) {
+      # disable sample buttons
+      shinyjs::disable("sample") 
+      shinyjs::disable("sample10")
+      shinyjs::disable("sample100") 
+      shinyjs::disable("start") 
+      
+    } 
   })
   
   

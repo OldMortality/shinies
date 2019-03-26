@@ -49,8 +49,8 @@ shinyServer <- function(input, output) {
     mn <- round(mean(height,na.rm=T),1)
     sd <- round(sqrt(var(height,na.rm=T)),1)
     line0 <- paste("Sample size n =",n,sep=" ")
-    line1 <- paste("Sample mean =",mn,sep=" ")
-    line2 <- paste("Sample standard deviation =",sd,sep=" ")      
+    line1 <- paste("Sample mean =",mn,"(mm)",sep=" ")
+    line2 <- paste("Sample standard deviation =",sd,"(mm)",sep=" ")      
     result <- paste(line0,line1,line2,sep='<br>')
     return(result)
   }
@@ -65,12 +65,14 @@ shinyServer <- function(input, output) {
     
     input$actionButtonID
     
-    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    #ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    ht <- isolate(as.numeric(as.character(rv$cachedTbl$height)))
+    
     data = data.frame(height=ht)
    
     p <- ggplot(data, aes(x=height)) + 
       geom_histogram(binwidth=25,fill="white",colour='black') +
-      scale_x_continuous(limits=c(1500,2100),breaks=seq(1500,2100,100)) +
+      #scale_x_continuous(breaks=seq(1500,2100,100)) +
       scale_y_continuous(breaks = seq(0,20),minor_breaks=NULL) +
       ylab("Frequency") +
       xlab("Height (mm)") + 
@@ -84,7 +86,10 @@ shinyServer <- function(input, output) {
     
     input$actionButtonID
     
-    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    #ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    ht <- isolate(as.numeric(as.character(rv$cachedTbl$height)))
+    
+    
     data = data.frame(height=ht)
     
     p <- ggplot(data, aes(y=height)) + 
@@ -102,7 +107,9 @@ shinyServer <- function(input, output) {
     
     input$actionButtonID
     
-    ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    #ht <- isolate(as.numeric(rv$cachedTbl[,1]))
+    ht <- isolate(as.numeric(as.character(rv$cachedTbl$height)))
+    
     d = data.frame(height=ht)
     
     p <- ggplot(d, aes(height)) + 

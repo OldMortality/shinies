@@ -5,8 +5,8 @@ account: oldmortality
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 399009
-bundleId: 1719724
+bundleId: 1896580
 url: https://oldmortality.shinyapps.io/app6/
-when: 1543188787.39552
+when: 1551041097.34758
 asMultiple: FALSE
 asStatic: FALSE

@@ -220,10 +220,10 @@ shinyServer <- function(input, output) {
       xlab("Height") +  
       geom_segment(x=1420,xend=1470,y=0.0048,yend=0.0048,colour='blue') +
       annotate("text", x = 1600, y = 0.0048, size=5,
-               label = "Does not excercise frequently") +
+               label = "Does not exercise frequently") +
       geom_segment(x=1780,xend=1830,y=0.0048,yend=0.0048,colour='red') +
       annotate("text", x = 1929, y = 0.0048, size=5,
-               label = "Excercises frequently")  
+               label = "Exercises frequently")  
     
     if (showSample() & length(samp1())>0 ) {
       # points for the sample
@@ -347,18 +347,18 @@ shinyServer <- function(input, output) {
   getTopSummary <- function() {
     
     topSum1 <- "<b>HUBS191 data</b>"
-    topSum2 <- "The mean height of non-exercisers is 1671 mm"
-    topSum3 <- "The standard deviation of the height of non-exercisers is 92 mm"
-    topSum4 <- "The mean height of exercisers is 1712 mm"
-    topSum5 <- "The standard deviation of the height of exercisers is 92 mm"
+    topSum2 <- "The mean height of not-frequent exercisers is 1671 mm"
+    topSum3 <- "The standard deviation of the height of not frequent exercisers is 92 mm"
+    topSum4 <- "The mean height of frequent exercisers is 1712 mm"
+    topSum5 <- "The standard deviation of the height of frequent exercisers is 92 mm"
     topSum <- paste(topSum1,topSum2,topSum3,topSum4,topSum5,sep="<br>")
      
     x1 <- samp1()
     x2 <- samp2()
     points <- data.frame(x1 = x1,x2=x2 )
     line0 <- "<b>One sample</b>"
-    line1 <-"Red dots indicate sample of exercisers"
-    line2 <-"Blue dots indicate sample of non-exercisers" 
+    line1 <-"Red dots indicate sample of frequent exercisers"
+    line2 <-"Blue dots indicate sample of not frequent exercisers" 
     line3 <- ""
     line4 <- ""
     line5 <- ""
@@ -369,10 +369,10 @@ shinyServer <- function(input, output) {
       sd1 <- round(sqrt(var(points$x1)),2)
       sd2 <- round(sqrt(var(points$x2)),2)
       line3 <- paste("Mean height of exercisers:",xbar1,"mm",sep=' ')
-      line4 <- paste("Mean height of non-exercisers:",xbar2,"mm",sep=' ')
-      line5 <- paste("Standard deviation of exercisers is:",
+      line4 <- paste("Mean height of not frequent exercisers:",xbar2,"mm",sep=' ')
+      line5 <- paste("Standard deviation of frequent exercisers is:",
                    sd1,"mm",sep=' ')
-      line6 <- paste("Standard deviation of non-exercisers is:",
+      line6 <- paste("Standard deviation of not frequent exercisers is:",
                    sd2,"mm",sep=' ')
     } 
        
@@ -389,8 +389,8 @@ shinyServer <- function(input, output) {
   
   # middle box
   getMiddleSummary <- function() {
-    line1 <- "Red dot indicates sample mean for exercisers."
-    line2 <- "Blue dot indicates sample mean for non-exercisers."
+    line1 <- "Red dot indicates sample mean for frequent exercisers."
+    line2 <- "Blue dot indicates sample mean for not frequent exercisers."
     result <- paste(line1,line2,sep="<br>")
     
     return(result)
@@ -409,8 +409,8 @@ shinyServer <- function(input, output) {
       
       count <- counter$countervalue
       str0 <- paste('Total number of samples:',count,sep=' ')
-      str1 <- paste('Mean of red sample means:',m.hat1,sep=' ')
-      str2 <- paste('Mean of blue sample means is:',m.hat2,sep=' ')
+      str1 <- paste('Mean of red sample means:',m.hat1,"(mm)",sep=' ')
+      str2 <- paste('Mean of blue sample means is:',m.hat2,"(mm)",sep=' ')
       
       result <- paste(str0,'<br>',str1,'<br>',str2)
     } else {

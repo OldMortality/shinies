@@ -5,9 +5,8 @@ account: oldmortality
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 406120
-bundleId: 1767597
+bundleId: 1888649
 url: https://oldmortality.shinyapps.io/app9/
-when: 1545016374.06822
+when: 1550731167.20447
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: server copy.R|server.debug.R|ui.debug.R

@@ -5,8 +5,9 @@ account: oldmortality
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 551339
-bundleId: 1767516
+bundleId: 1888590
 url: https://oldmortality.shinyapps.io/app6c/
-when: 1545013174.92112
+when: 1550728709.31438
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: www/.DS_Store
