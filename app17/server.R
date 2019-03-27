@@ -1,10 +1,12 @@
-# app 6.
-# intervals
+# app 17.
+#   like app6, but with better performance. Rather than drawing
+#   all segments each time, we remember the plot, and just add 
+#   a segment for each click of the sample button.
+# 
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
-
 
 
 shinyServer <- function(input, output) {
@@ -16,7 +18,6 @@ shinyServer <- function(input, output) {
   thisSampleMean <- 0
   
   
-  #allm <- vector()
   samp <- reactiveVal()
   meansamp <- reactiveVal()
   allmeansamp <- reactiveValues(allm=vector())
@@ -31,7 +32,6 @@ shinyServer <- function(input, output) {
   
   animate.counter <- 0
   max.animate <- 25
-  
   
   output$start <- renderUI({
     actionButton("click", 
@@ -65,8 +65,6 @@ shinyServer <- function(input, output) {
     highest.index.plotted <<- 1
     all_low$all_l=vector()
     all_upp$all_u=vector()
-    print(all_low$all_l)
-    # 
     thisSampleMean <- 0
     allm <- vector()
     samp <- round(rnorm(0,mean=mu,sd=sd),1)
@@ -255,6 +253,7 @@ shinyServer <- function(input, output) {
   #   one for each sample
   #
   init.plot <- function() {
+    
     df <- data.frame(x=mu,y=0)
     if (length(all_low$all_l)==1) {
       p <<- ggplot(df, aes(x = x,y=0 ),colour='green') +
@@ -268,8 +267,8 @@ shinyServer <- function(input, output) {
     }  
   }
   
-  
-  p <- ggplot(data.frame(x=mu,y=0), aes(x = x,y=0 ),colour='green') +
+  # global variable
+  p <- ggplot(data.frame(x=mu,y=0), aes(x = x,y=0 )) +
     theme(legend.position = "none") +
     scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
                        limits=c(low,upp)) +
@@ -278,31 +277,21 @@ shinyServer <- function(input, output) {
     ylab("") + 
     xlab("Sample mean") 
   
+  
   highest.index.plotted <- 1
   
-  
-  
+  # render the tricky plot with the segments
   output$samplemean <- renderPlot({ 
-     
+    
     df <- data.frame(x=mu,y=0)
     if (length(all_low$all_l)==1) {
       p <<- init.plot()
-      # p <<- ggplot(df, aes(x = x,y=0 ),colour='green') +
-      # theme(legend.position = "none") +
-      #   scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
-      #                      limits=c(low,upp)) +
-      #   scale_y_continuous(breaks = NULL,minor_breaks=NULL,
-      #                      limits=c(0,125)) + 
-      #   ylab("") + 
-      #   xlab("Sample mean") 
     }  
-    
     if (length(all_low$all_l) > 0) {
       for (i in highest.index.plotted:length(all_low$all_l)) { 
         lo <- all_low$all_l[i]
         up <- all_upp$all_u[i]
         df <- data.frame(x=lo,y=up)
-        print(c(lo,up,i,length(all_low$all_l)))
         # make interval red if mu is not in it 
         intervalCol = 'blue'
         if ((lo <= mu) & (up>=mu)) {
@@ -316,12 +305,10 @@ shinyServer <- function(input, output) {
             geom_segment(x=tail(lo,n-1),y=i,xend=tail(up,n=1),yend=i,
                        colour=intervalCol)   
       }
-      }
-      # plot the true mean
-      p <- p + geom_vline(xintercept = mu,col='red')
-      p
-    
-    
+    }
+    # plot the true mean
+    p <<- p + geom_vline(xintercept = mu,col='red')
+    p
   })
   
   
@@ -341,20 +328,11 @@ shinyServer <- function(input, output) {
   }
   
   getSampleMeansSummary <- function() {
-    # the vector of sample means
-    #df <- data.frame(x = values$total[-1])
-    #print(paste('.....',values$total))
+    
     sampleMeans <- values$total[-1]
     
-    #m.hat <- round(100* mean(sampleMeans))/100
-    #ss <- round(100* sqrt(var(sampleMeans)))/100
     count <- counter$countervalue
-    #str0 <- paste('We now have this many samples: ',count,sep=' ')
-    #str1 <- paste('The mean of all sample means is ',m.hat,sep=': ')
-    #str2 <- paste('The standard deviation of all sample means is ',ss,sep=': ')
-    #result <- paste(str0,'<br>',str1,'<br>',str2)
     width.bar <- round(mean(all_upp$all_u - all_low$all_l))
-    
     line1 <- "The blue intervals contain the population mean (1711 mm)"
     line2 <- paste("The red intervals","<u>","do not","</u>",
                    "contain the population mean.",sep=" ")
