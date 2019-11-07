@@ -287,7 +287,7 @@ shinyServer <- function(input, output) {
   #
   init.plot <- function() {
     
-    df <- data.frame(x=mu,y=0)
+    df <- data.frame(x = mu,y = 0)
     if (length(all_low$all_l)==1) {
       p <<- ggplot(df, aes(x = x,y=0 ),colour='green') +
         theme(legend.position = "none") +
@@ -296,19 +296,22 @@ shinyServer <- function(input, output) {
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(0,125)) + 
         ylab("") + 
-        xlab("Sample mean") 
+        xlab("Sample mean") +
+        geom_vline(xintercept = mu,col='red')
     }  
   }
   
   # global variable
-  p <- ggplot(data.frame(x=mu,y=0), aes(x = x,y=0 )) +
+  p <- ggplot() +
     theme(legend.position = "none") +
-    scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
-                       limits=c(low,upp)) +
-    scale_y_continuous(breaks = NULL,minor_breaks=NULL,
-                       limits=c(0,125)) + 
-    ylab("") + 
-    xlab("Sample mean") 
+    scale_x_continuous(breaks = x.breaks,minor_breaks = NULL,
+                       limits = c(low,upp)) +
+    scale_y_continuous(breaks = NULL,minor_breaks = NULL,
+                       limits = c(0,125)) +
+    ylab("") +
+    xlab("Sample mean") +
+    geom_vline(xintercept = mu,col = 'red')
+   
   
   
   highest.index.plotted <- 1
@@ -340,7 +343,7 @@ shinyServer <- function(input, output) {
       }
     }
     # plot the true mean
-    p <<- p + geom_vline(xintercept = mu,col='red')
+    #p <<- p + geom_vline(xintercept = mu,col='red')
     p
   })
   
