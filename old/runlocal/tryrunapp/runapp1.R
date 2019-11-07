@@ -1,0 +1,1 @@
+shiny::runApp('~/Documents/shiny/app1', launch.browser = TRUE, port = 875)

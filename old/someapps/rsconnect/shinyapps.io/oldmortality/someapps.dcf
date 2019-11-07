@@ -1,0 +1,12 @@
+name: someapps
+title: someapps
+username:
+account: oldmortality
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1023992
+bundleId: 2220669
+url: https://oldmortality.shinyapps.io/someapps/
+when: 1562819397.44427
+asMultiple: FALSE
+asStatic: FALSE

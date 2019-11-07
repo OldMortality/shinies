@@ -1,0 +1,12 @@
+name: faith
+title: faith
+username: OldMortality
+account: OldMortality
+server: hubs-rshiny.uod.otago.ac.nz
+hostUrl: http://hubs-rshiny.uod.otago.ac.nz:3838/__api__
+appId: 34
+bundleId: 75
+url: http://hubs-rshiny.uod.otago.ac.nz:3838/content/34/
+when: 1556841520.2823
+asMultiple: FALSE
+asStatic: FALSE

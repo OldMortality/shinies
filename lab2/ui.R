@@ -12,8 +12,8 @@
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
-library(ggplot2)
-library(shinyBS)
+#library('ggplot2)
+#library('shinyBS)
 
 
 shinyUI <- dashboardPage(
