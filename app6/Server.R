@@ -293,22 +293,22 @@ shinyServer <- function(input, output) {
   # This is the tricky plot, with all the intervals
   #   one for each sample
   #
-  # init.plot <- function() {
-  #   
-  #   df <- data.frame(x = mu,y = 0)
-  #   if (length(all_low$all_l)==1) {
-  #     p <<- ggplot(df, aes(x = x,y=0 ),colour='green') +
-  #       theme(legend.position = "none") +
-  #       scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
-  #                          limits=c(low,upp)) +
-  #       scale_y_continuous(breaks = NULL,minor_breaks=NULL,
-  #                          limits=c(0,125)) + 
-  #       ylab("") + 
-  #       xlab("Sample mean") +
-  #       geom_vline(xintercept = mu,col='red')
-  #   } 
-  #   return(p)
-  # }
+  init.plot <- function() {
+
+    df <- data.frame(x = mu,y = 0)
+    if (length(all_low$all_l)==1) {
+      p <<- ggplot(df, aes(x = x,y=0 ),colour='green') +
+        theme(legend.position = "none") +
+        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
+                           limits=c(low,upp)) +
+        scale_y_continuous(breaks = NULL,minor_breaks=NULL,
+                           limits=c(0,125)) +
+        ylab("") +
+        xlab("Sample mean") +
+        geom_vline(xintercept = mu,col='red')
+    }
+    return(p)
+  }
   
   # global variable
   theTrickyPlot <- ggplot() +
@@ -337,6 +337,7 @@ shinyServer <- function(input, output) {
       p <<- theTrickyPlot
     }  
     if (length(all_low$all_l) > 0) {
+      
       # for (i in highest.index.plotted:length(all_low$all_l)) { 
       #   lo <- all_low$all_l[i]
       #   up <- all_upp$all_u[i]
@@ -355,16 +356,20 @@ shinyServer <- function(input, output) {
       #                  colour=intervalCol)   
       # }
       
-      intervalCol = 'black'
+      intervalCol = 
       ys <- seq(highest.index.plotted,length(all_low$all_l))
-      print(length(ys))
-      print(tail(lo,n=length(ys)))
-      print(ys)
-      print(tail(up,n=length(ys)))
-      p <- p + geom_segment(aes(x=tail(lo,n=length(ys)),
-                            y=ys,
-                            xend=tail(up,n=length(ys)),
-                            yend=ys))   
+      lo <- tail(all_low$all_l,n=length(ys))
+      up <- tail(all_upp$all_u,n=length(ys))
+      intervalCol = rep('blue',length(ys))
+      intervalCol[which(lo > mu | up < mu)] <- 'red'
+      print(intervalCol)  
+      # add the latest segments to the plot
+      df.add <- data.frame(x=lo,
+                           y = ys,
+                           xend=up,
+                           yend=ys,
+                           colour=intervalCol)
+      p <- p + geom_segment(data=df.add,aes(x=x,y=ys,xend=xend,yend=ys),colour=intervalCol)
                      
       
     }
