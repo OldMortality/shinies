@@ -328,33 +328,12 @@ shinyServer <- function(input, output) {
   #
   #
   output$samplemean <- renderPlot({ 
-    print('length(all_low#all_l')
-    print(length(all_low$all_l))
-    print('...')
+    
     df <- data.frame(x=mu,y=0)
     if (length(all_low$all_l)==0) {
-      print('initplot')
       p <<- theTrickyPlot
     }  
     if (length(all_low$all_l) > 0) {
-      
-      # for (i in highest.index.plotted:length(all_low$all_l)) { 
-      #   lo <- all_low$all_l[i]
-      #   up <- all_upp$all_u[i]
-      #   df <- data.frame(x=lo,y=up)
-      #   # make interval red if mu is not in it 
-      #   intervalCol = 'blue'
-      #   if ((lo <= mu) & (up>=mu)) {
-      #     # do nothing
-      #   } else {
-      #     intervalCol = 'red'
-      #   }
-      #   highest.index.plotted <<- highest.index.plotted + 1
-      #   # add segment to plot
-      #   p <<- p +
-      #     geom_segment(x=tail(lo,n=1),y=i,xend=tail(up,n=1),yend=i,
-      #                  colour=intervalCol)   
-      # }
       
       intervalCol = 
       ys <- seq(highest.index.plotted,length(all_low$all_l))
@@ -362,7 +341,6 @@ shinyServer <- function(input, output) {
       up <- tail(all_upp$all_u,n=length(ys))
       intervalCol = rep('blue',length(ys))
       intervalCol[which(lo > mu | up < mu)] <- 'red'
-      print(intervalCol)  
       # add the latest segments to the plot
       df.add <- data.frame(x=lo,
                            y = ys,
