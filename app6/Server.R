@@ -1,7 +1,16 @@
-#   app6, but with better performance. Rather than drawing
-#   all segments each time, we remember the plot, and just add 
-#   a segment for each click of the sample button.
-# 
+#   app6, 
+#
+#  Change log
+#  07/11/2019 - Rather than drawing  all segments each time, we remember 
+#             the plot, and just add a segment for each click of the sample 
+#             button. I took updates to the reactives out of the 10,100 samples
+#             loops.
+#  14/11/2019 - removed assignments to thisSampleMean, which wasn't used. 
+#             - removed declarations of lower, upper and a duplicate for sd
+#                  as we already had low, upp.
+#             - removed change with highest.index.plotted, because vectorising
+#                  the adding of segments is better.
+#
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -11,10 +20,13 @@ library(ggplot2)
 shinyServer <- function(input, output) {
   
   mu <- 1711
-  sd <- 92 
-  lower <- mu-3*sd
-  upper <- mu+3*sd
-  thisSampleMean <- 0
+  sd <- 93
+  upp <- mu + 3 * sd
+  low <- mu - 3 * sd
+  #sd <- 92 
+  #lower <- mu-3*sd
+  #upper <- mu+3*sd
+  ###thisSampleMean <- 0
   
   
   samp <- reactiveVal()
@@ -60,11 +72,10 @@ shinyServer <- function(input, output) {
   
   
   observeEvent(input$clear,{
-    # 
-    highest.index.plotted <<- 1
+    
     all_low$all_l=vector()
     all_upp$all_u=vector()
-    thisSampleMean <- 0
+    ###thisSampleMean <- 0
     allm <- vector()
     samp <- round(rnorm(0,mean=mu,sd=sd),1)
     meansamp <- reactiveVal()
@@ -72,11 +83,7 @@ shinyServer <- function(input, output) {
     values$total = 0
     counter$countervalue = 0
     countReds$counter = 0
-    autorun$auto = 0
-    highest.index.plotted <- 1
-    
-    # the tricky plot
-    p <<- init.plot()
+    autorun$auto = 0 
     samp(samp)
     #
     # enable sample buttons
@@ -91,7 +98,7 @@ shinyServer <- function(input, output) {
     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
     samp(samp)
     meansamp <- round(mean(samp),2)
-    thisSampleMean <- meansamp
+    ###thisSampleMean <- meansamp
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
     
@@ -116,9 +123,9 @@ shinyServer <- function(input, output) {
     up <- vector()
     for (i in 1:10) {
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-      samp(samp)
+      
       meansamp <- round(mean(samp),2)
-      thisSampleMean <- meansamp
+      ###thisSampleMean <- meansamp
       values$total <- c(values$total,meansamp) 
       s <- sqrt(var(samp))
       lo[i] <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
@@ -128,6 +135,8 @@ shinyServer <- function(input, output) {
       }
       
     }
+    # update reactives
+    samp(samp)
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
     all_low$all_l <- c(all_low$all_l,lo)
@@ -140,9 +149,9 @@ shinyServer <- function(input, output) {
     up <- vector()
     for (i in 1:100) {
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-      samp(samp)
+      
       meansamp <- round(mean(samp),2)
-      thisSampleMean <- meansamp
+      ###thisSampleMean <- meansamp
       values$total <- c(values$total,meansamp) 
       s <- sqrt(var(samp))
       lo[i] <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
@@ -152,6 +161,8 @@ shinyServer <- function(input, output) {
       }
       
     }
+    # update reactives
+    samp(samp)
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
     all_low$all_l <- c(all_low$all_l,lo)
@@ -224,9 +235,7 @@ shinyServer <- function(input, output) {
   })
   
   
-  sd <- 93
-  upp <- mu + 3 * sd
-  low <- mu - 3 * sd
+  
   x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
   
   
@@ -255,9 +264,10 @@ shinyServer <- function(input, output) {
   }) # end plot1
   
   #
+  #
   # This is the strip, with 1 dot and interval for this sample mean
   # 
-  
+  #
   stripPlot <- ggplot() +
     theme(legend.position = "none") +
     scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
@@ -267,6 +277,10 @@ shinyServer <- function(input, output) {
     xlab("Confidence interval") 
   
   
+  #
+  # Render the stripplot.
+  #    reacts to: samp, input$n (shouldn't really)
+  #  
   output$thissamplemean <- renderPlot({
     
     theMiddlePlot <- stripPlot  
@@ -289,26 +303,7 @@ shinyServer <- function(input, output) {
   })
   
   
-  #
-  # This is the tricky plot, with all the intervals
-  #   one for each sample
-  #
-  init.plot <- function() {
-
-    df <- data.frame(x = mu,y = 0)
-    if (length(all_low$all_l)==1) {
-      p <<- ggplot(df, aes(x = x,y=0 ),colour='green') +
-        theme(legend.position = "none") +
-        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,
-                           limits=c(low,upp)) +
-        scale_y_continuous(breaks = NULL,minor_breaks=NULL,
-                           limits=c(0,125)) +
-        ylab("") +
-        xlab("Sample mean") +
-        geom_vline(xintercept = mu,col='red')
-    }
-    return(p)
-  }
+  
   
   # global variable
   theTrickyPlot <- ggplot() +
@@ -321,39 +316,38 @@ shinyServer <- function(input, output) {
     xlab("Sample mean") +
     geom_vline(xintercept = mu,col = 'red') 
   
-  highest.index.plotted <- 1
+   
   
   #
+  #
   # render the tricky plot with the segments
+  #    reacts to: all_low#all_l, all_upp$all_u
   #
   #
   output$samplemean <- renderPlot({ 
     
     df <- data.frame(x=mu,y=0)
     if (length(all_low$all_l)==0) {
-      p <<- theTrickyPlot
+      p <- theTrickyPlot
     }  
     if (length(all_low$all_l) > 0) {
       
-      intervalCol = 
-      ys <- seq(highest.index.plotted,length(all_low$all_l))
+      ys <- seq(1,length(all_low$all_l))
       lo <- tail(all_low$all_l,n=length(ys))
       up <- tail(all_upp$all_u,n=length(ys))
       intervalCol = rep('blue',length(ys))
       intervalCol[which(lo > mu | up < mu)] <- 'red'
-      # add the latest segments to the plot
+      # add the segments to the plot
       df.add <- data.frame(x=lo,
                            y = ys,
                            xend=up,
                            yend=ys,
                            colour=intervalCol)
       p <- p + geom_segment(data=df.add,aes(x=x,y=ys,xend=xend,yend=ys),colour=intervalCol)
-                     
       
     }
     p
-    # plot the true mean
-    #p <<- p + geom_vline(xintercept = mu,col='red')
+    
     return(p)
   })
   

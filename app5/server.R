@@ -1,5 +1,15 @@
 # app 5.
 # 
+# Change log
+# 24/11/2019 - Moved definition of top plot to global variable
+#
+#
+#
+#
+#
+#
+#
+#
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -10,10 +20,10 @@ library(DT)
 shinyServer <- function(input, output) {
   
   mu <- 1711
-  sd <- 92 
-  lower <- mu-3*sd
-  upper <- mu+3*sd
-  thisSampleMean <- 0
+  sd <- 93
+  upper <- mu + 3 * sd
+  lower <- mu - 3 * sd 
+  #thisSampleMean <- 0
   shinyjs::disable("shownormal")
   
   # how many sample means do we show on the stripchart?
@@ -85,7 +95,7 @@ shinyServer <- function(input, output) {
   
   
   observeEvent(input$clear,{
-    thisSampleMean <- 0 
+    #thisSampleMean <- 0 
     samp <- round(rnorm(0,mean=mu,sd=sd),1) 
     meansamp <- reactiveVal()
     allmeansamp$allm = vector()
@@ -109,7 +119,7 @@ shinyServer <- function(input, output) {
     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
     samp(samp)
     meansamp <- round(mean(samp),2)
-    thisSampleMean <- meansamp
+    #thisSampleMean <- meansamp
     meansamp(meansamp) 
     values$total <- c(values$total,meansamp) 
   })
@@ -118,29 +128,36 @@ shinyServer <- function(input, output) {
   observeEvent(input$sample10,{
     showMean <- 10
     showSample <- FALSE
+    newSamples <- rep(NA,10)
     for (i in 1:10) {
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-      samp(samp)
       meansamp <- round(mean(samp),2)
-      thisSampleMean <- meansamp
-      meansamp(meansamp) 
-      values$total <- c(values$total,meansamp) 
+      newSamples[i] <- meansamp
+      #thisSampleMean <- meansamp
     }
-    
+    # 14/11/2019 moved updates to reactives out of the loop
+    samp(samp)
+    meansamp(meansamp) 
+    values$total <- c(values$total,newSamples) 
   })
   
   # 100 samples
   observeEvent(input$sample100,{
+    newSamples <- rep(NA,100)
     for (i in 1:100) {
       showMean <- 100
       showSample <- FALSE
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-      samp(samp)
       meansamp <- round(mean(samp),2)
-      thisSampleMean <- meansamp
-      meansamp(meansamp) 
-      values$total <- c(values$total,meansamp) 
+      newSamples[i] <- meansamp
+      #thisSampleMean <- meansamp
+      
     }
+    # update reactives
+    samp(samp)
+    meansamp(meansamp) 
+    values$total <- c(values$total,newSamples) 
+    
   })
   
   
@@ -189,28 +206,25 @@ shinyServer <- function(input, output) {
   })
   
    
-  sd <- 93
-  upp <- mu + 3 * sd
-  low <- mu - 3 * sd
   x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
   #y   <- dnorm(x,mean=mu, sd=sd)
   #jitter_y <- max(y)/50
   
+  popPlot <-  ggplot(data = data.frame(x = c(low, upp)), aes(x)) +
+    stat_function(fun = dnorm, show.legend=F,
+                  colour='red', 
+                  args = list(mean = mu, sd = sd)) + 
+    ylab("") +
+    scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
+    scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
+    theme(legend.position = "none") +
+    xlab("Height (mm)")
+  
+  
+  
   output$populationPlot <- renderPlot({
     
-    
-    p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)
-    ) +
-      stat_function(fun = dnorm, show.legend=F,
-                    colour='red', 
-                    args = list(mean = mu, sd = sd)) + 
-      ylab("") +
-      scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
-      scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-      theme(legend.position = "none") +
-      xlab("Height (mm)")
-     
-    
+    p <- popPlot
     if (showSample & length(samp())>0 ) {
       # points for the sample
       pts <- data.frame(x = samp(),y=rep(0,length(samp)))
