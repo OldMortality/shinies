@@ -10,6 +10,8 @@
 #                  as we already had low, upp.
 #             - removed change with highest.index.plotted, because vectorising
 #                  the adding of segments is better.
+#  15/11/2019 - created doSamples() function so as not to repeat code
+#             - removed reactive values$total, because it was not used.
 #
 library(shiny)
 library(shinydashboard)
@@ -80,7 +82,7 @@ shinyServer <- function(input, output) {
     samp <- round(rnorm(0,mean=mu,sd=sd),1)
     meansamp <- reactiveVal()
     allmeansamp$allm = vector()
-    values$total = 0
+    #values$total = 0
     counter$countervalue = 0
     countReds$counter = 0
     autorun$auto = 0 
@@ -94,83 +96,151 @@ shinyServer <- function(input, output) {
   })
   
   
-  doSample <- function() {
-    samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-    samp(samp)
-    meansamp <- round(mean(samp),2)
-    ###thisSampleMean <- meansamp
-    meansamp(meansamp) 
-    values$total <- c(values$total,meansamp) 
-    
-    s <- sqrt(var(samp))
-    lo <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-    up <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-    if (! ((mu>lo) & (mu<up)) ) {
-      countReds$counter <- countReds$counter + 1
+  # doSample <- function() {
+  #   samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
+  #   samp(samp)
+  #   meansamp <- round(mean(samp),2)
+  #   ###thisSampleMean <- meansamp
+  #   meansamp(meansamp) 
+  #   #values$total <- c(values$total,meansamp) 
+  #   
+  #   s <- sqrt(var(samp))
+  #   lo <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
+  #   up <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
+  #   if (! ((mu>lo) & (mu<up)) ) {
+  #     countReds$counter <- countReds$counter + 1
+  #   }
+  #   all_low$all_l <- c(all_low$all_l,lo)
+  #   all_upp$all_u <- c(all_upp$all_u,up)
+  # }
+  
+  # observeEvent(input$sample,{
+  #   doSample()
+  #   
+  # })
+  
+  doSamples <- function(n.samples,input.n) {
+    lo <- vector()
+    up <- vector()
+    reds <- 0
+    for (i in 1:n.samples) {
+      the.sample <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
+      s <- sqrt(var(the.sample))
+      lo[i] <- mean(the.sample) + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
+      up[i] <- mean(the.sample) + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
+      if (! ((mu>lo[i]) & (mu<up[i])) ) {
+        reds <- reds + 1
+      }
+      
     }
-    all_low$all_l <- c(all_low$all_l,lo)
-    all_upp$all_u <- c(all_upp$all_u,up)
+    result <- list(res.samp = the.sample,
+                   res.meansamp = mean(the.sample),
+                   res.lo = lo,
+                   res.up = up,
+                   res.reds = reds)
+   
+    return(result)
   }
   
+  # updateReactivesAfterSamples <- function(r.samp,
+  #                                         r.meansamp,
+  #                                         r.) {
+  #   samp(x)
+  # }
+  
   observeEvent(input$sample,{
-    doSample()
     
+    res <- doSamples(n.samples = 1, input.n = input$n)
+    # update reactives
+    samp(res$res.samp)
+    #updateR(res$res.samp)
+    meansamp(res$res.meansamp) 
+    #values$total <- c(values$total,res$res.meansamp) 
+    all_low$all_l <- c(all_low$all_l,res$res.lo)
+    all_upp$all_u <- c(all_upp$all_u,res$res.up)
+    countReds$counter <- countReds$counter + res$res.reds
   })
   
   
   observeEvent(input$sample10,{
-    lo <- vector()
-    up <- vector()
-    for (i in 1:10) {
-      samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-      
-      meansamp <- round(mean(samp),2)
-      ###thisSampleMean <- meansamp
-      values$total <- c(values$total,meansamp) 
-      s <- sqrt(var(samp))
-      lo[i] <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-      up[i] <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-      if (! ((mu>lo[i]) & (mu<up[i])) ) {
-        countReds$counter <- countReds$counter + 1
-      }
-      
-    }
-    # update reactives
-    samp(samp)
-    meansamp(meansamp) 
-    values$total <- c(values$total,meansamp) 
-    all_low$all_l <- c(all_low$all_l,lo)
-    all_upp$all_u <- c(all_upp$all_u,up)
     
+    res <- doSamples(n.samples = 10, input.n = input$n)
+    # update reactives
+    samp(res$res.samp)
+    meansamp(res$res.meansamp) 
+    #values$total <- c(values$total,res$res.meansamp) 
+    all_low$all_l <- c(all_low$all_l,res$res.lo)
+    all_upp$all_u <- c(all_upp$all_u,res$res.up)
+    countReds$counter <- countReds$counter + res$res.reds
   })
+  
   
   observeEvent(input$sample100,{
-    lo <- vector()
-    up <- vector()
-    for (i in 1:100) {
-      samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-      
-      meansamp <- round(mean(samp),2)
-      ###thisSampleMean <- meansamp
-      values$total <- c(values$total,meansamp) 
-      s <- sqrt(var(samp))
-      lo[i] <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-      up[i] <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-      if (! ((mu>lo[i]) & (mu<up[i])) ) {
-        countReds$counter <- countReds$counter + 1
-      }
-      
-    }
-    # update reactives
-    samp(samp)
-    meansamp(meansamp) 
-    values$total <- c(values$total,meansamp) 
-    all_low$all_l <- c(all_low$all_l,lo)
-    all_upp$all_u <- c(all_upp$all_u,up)
     
+    res <- doSamples(n.samples = 10, input.n = input$n)
+    # update reactives
+    samp(res$res.samp)
+    meansamp(res$res.meansamp) 
+    #values$total <- c(values$total,res$res.meansamp) 
+    all_low$all_l <- c(all_low$all_l,res$res.lo)
+    all_upp$all_u <- c(all_upp$all_u,res$res.up)
+    countReds$counter <- countReds$counter + res$res.reds
   })
   
-  
+  # old version
+  # observeEvent(input$sample10,{
+  #   lo <- vector()
+  #   up <- vector()
+  #   for (i in 1:10) {
+  #     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
+  #     
+  #     meansamp <- round(mean(samp),2)
+  #     ###thisSampleMean <- meansamp
+  #     #values$total <- c(values$total,meansamp) 
+  #     s <- sqrt(var(samp))
+  #     lo[i] <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
+  #     up[i] <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
+  #     if (! ((mu>lo[i]) & (mu<up[i])) ) {
+  #       countReds$counter <- countReds$counter + 1
+  #     }
+  #     
+  #   }
+  #   # update reactives
+  #   samp(samp)
+  #   meansamp(meansamp) 
+  #   values$total <- c(values$total,meansamp) 
+  #   all_low$all_l <- c(all_low$all_l,lo)
+  #   all_upp$all_u <- c(all_upp$all_u,up)
+  #   
+  # })
+  # 
+  # observeEvent(input$sample100,{
+  #   lo <- vector()
+  #   up <- vector()
+  #   for (i in 1:100) {
+  #     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
+  #     
+  #     meansamp <- round(mean(samp),2)
+  #     ###thisSampleMean <- meansamp
+  #     values$total <- c(values$total,meansamp) 
+  #     s <- sqrt(var(samp))
+  #     lo[i] <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
+  #     up[i] <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
+  #     if (! ((mu>lo[i]) & (mu<up[i])) ) {
+  #       countReds$counter <- countReds$counter + 1
+  #     }
+  #     
+  #   }
+  #   # update reactives
+  #   samp(samp)
+  #   meansamp(meansamp) 
+  #   values$total <- c(values$total,meansamp) 
+  #   all_low$all_l <- c(all_low$all_l,lo)
+  #   all_upp$all_u <- c(all_upp$all_u,up)
+  #   
+  # })
+  # 
+  # 
   observeEvent(input$sample, {
     counter$countervalue <- counter$countervalue + 1
   })
@@ -256,6 +326,7 @@ shinyServer <- function(input, output) {
     
     if (length(samp())>0) {
       # points for the sample
+      
       pts <- data.frame(x = samp(),y=rep(0,length(samp))) 
       topPlot <- topPlot + geom_point(data=pts,aes(y=y),
                           colour='black')
@@ -284,7 +355,7 @@ shinyServer <- function(input, output) {
   output$thissamplemean <- renderPlot({
     
     theMiddlePlot <- stripPlot  
-  
+    #browser()
     thisOne <- mean(samp()) 
     df <- data.frame(x=thisOne)
     
@@ -362,14 +433,17 @@ shinyServer <- function(input, output) {
     count <- counter$countervalue
     xbar <- round(1000* sum / as.numeric(input$n))/1000
     str0 <- "The black dots represent the sample."
-    str1 <- paste("The mean for sample",count,"is",xbar,sep=' ')
+    str1 <- ""
+    if (count > 0 ) {
+      str1 <- paste("The mean for sample",count,"is",xbar,sep=' ')
+    }
     result <- paste(str0,'<br>',str1,'<br>') 
     return(result)
   }
   
   getSampleMeansSummary <- function() {
     
-    sampleMeans <- values$total[-1]
+    #sampleMeans <- values$total[-1]
     
     count <- counter$countervalue
     width.bar <- round(mean(all_upp$all_u - all_low$all_l))
