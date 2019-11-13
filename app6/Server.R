@@ -178,7 +178,7 @@ shinyServer <- function(input, output) {
   
   observeEvent(input$sample100,{
     
-    res <- doSamples(n.samples = 10, input.n = input$n)
+    res <- doSamples(n.samples = 100, input.n = input$n)
     # update reactives
     samp(res$res.samp)
     meansamp(res$res.meansamp) 
@@ -355,13 +355,11 @@ shinyServer <- function(input, output) {
   #  
   output$thissamplemean <- renderPlot({
     
-    theMiddlePlot <- stripPlot  
-    #browser()
-    thisOne <- mean(samp()) 
-    df <- data.frame(x=thisOne)
-    
-    if (length(samp())>0) {
-      
+    theMiddlePlot <- stripPlot
+    theSample <- samp()
+    if (length(theSample > 0)) { 
+      thisOne <- mean(samp()) 
+      df <- data.frame(x=thisOne)
       s <- sqrt(var(samp()))
       lo <- thisOne + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
       up <- thisOne + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
@@ -369,7 +367,6 @@ shinyServer <- function(input, output) {
       theMiddlePlot <- theMiddlePlot + 
         geom_segment(aes(x=lo,y=0,xend=up,yend=0),colour="blue") +
         geom_point(data=df,aes(x=x,y=0),colour="blue")  
-      
     }
     return(theMiddlePlot)
   })
