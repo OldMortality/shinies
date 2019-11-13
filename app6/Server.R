@@ -12,6 +12,7 @@
 #                  the adding of segments is better.
 #  15/11/2019 - created doSamples() function so as not to repeat code
 #             - removed reactive values$total, because it was not used.
+#             - removed output$sampleCounter, because it was not used.
 #
 library(shiny)
 library(shinydashboard)
@@ -297,12 +298,12 @@ shinyServer <- function(input, output) {
   
   
   
-  output$sampleCounter <- renderInfoBox({
-    infoBox(
-      "Samples: ", paste0(counter$counterValues), icon = icon("list"),
-      color = "purple"
-    )
-  })
+  # output$sampleCounter <- renderInfoBox({
+  #   infoBox(
+  #     "Samples: ", paste0(counter$counterValues), icon = icon("list"),
+  #     color = "purple"
+  #   )
+  # })
   
   
   
