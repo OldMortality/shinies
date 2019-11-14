@@ -26,10 +26,6 @@ shinyServer <- function(input, output) {
   sd <- 93
   upp <- mu + 3 * sd
   low <- mu - 3 * sd
-  #sd <- 92 
-  #lower <- mu-3*sd
-  #upper <- mu+3*sd
-  ###thisSampleMean <- 0
   
   
   samp <- reactiveVal()
@@ -37,7 +33,7 @@ shinyServer <- function(input, output) {
   allmeansamp <- reactiveValues(allm=vector())
   all_low <- reactiveValues(all_l=vector())
   all_upp <- reactiveValues(all_u=vector())
-  values <- reactiveValues(total = 0)
+  #values <- reactiveValues(total = 0)
   counter <- reactiveValues(countervalue = 0)
   autorun <- reactiveValues(auto = 0)
   
@@ -132,60 +128,35 @@ shinyServer <- function(input, output) {
       if (! ((mu>lo[i]) & (mu<up[i])) ) {
         reds <- reds + 1
       }
-      
     }
     result <- list(res.samp = the.sample,
                    res.meansamp = mean(the.sample),
                    res.lo = lo,
                    res.up = up,
-                   res.reds = reds)
-   
+                   res.reds = reds) 
     return(result)
   }
   
-  # updateReactivesAfterSamples <- function(r.samp,
-  #                                         r.meansamp,
-  #                                         r.) {
-  #   samp(x)
-  # }
-  
-  observeEvent(input$sample,{
-    
-    res <- doSamples(n.samples = 1, input.n = input$n)
-    # update reactives
+  updateReactives <- function(res) {
     samp(res$res.samp)
-    #updateR(res$res.samp)
-    meansamp(res$res.meansamp) 
-    #values$total <- c(values$total,res$res.meansamp) 
+    meansamp(res$res.meansamp)
     all_low$all_l <- c(all_low$all_l,res$res.lo)
     all_upp$all_u <- c(all_upp$all_u,res$res.up)
     countReds$counter <- countReds$counter + res$res.reds
+  }
+
+  observeEvent(input$sample,{
+    doSamples(n.samples = 1, input.n = input$n) %>% updateReactives()
   })
   
   
   observeEvent(input$sample10,{
-    
-    res <- doSamples(n.samples = 10, input.n = input$n)
-    # update reactives
-    samp(res$res.samp)
-    meansamp(res$res.meansamp) 
-    #values$total <- c(values$total,res$res.meansamp) 
-    all_low$all_l <- c(all_low$all_l,res$res.lo)
-    all_upp$all_u <- c(all_upp$all_u,res$res.up)
-    countReds$counter <- countReds$counter + res$res.reds
+    doSamples(n.samples = 10, input.n = input$n) %>% updateReactives()
   })
   
   
   observeEvent(input$sample100,{
-    
-    res <- doSamples(n.samples = 100, input.n = input$n)
-    # update reactives
-    samp(res$res.samp)
-    meansamp(res$res.meansamp) 
-    #values$total <- c(values$total,res$res.meansamp) 
-    all_low$all_l <- c(all_low$all_l,res$res.lo)
-    all_upp$all_u <- c(all_upp$all_u,res$res.up)
-    countReds$counter <- countReds$counter + res$res.reds
+    doSamples(n.samples = 100, input.n = input$n) %>% updateReactives()
   })
   
   # old version
