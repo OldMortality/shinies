@@ -18,6 +18,7 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
+library(dplyr)
 
 
 shinyServer <- function(input, output) {
@@ -28,15 +29,14 @@ shinyServer <- function(input, output) {
   low <- mu - 3 * sd
   
   
+  # the current sample, for top plot
   samp <- reactiveVal()
-  meansamp <- reactiveVal()
-  allmeansamp <- reactiveValues(allm=vector())
-  all_low <- reactiveValues(all_l=vector())
-  all_upp <- reactiveValues(all_u=vector())
-  #values <- reactiveValues(total = 0)
+  
+  
+  # all segments
+  segments <- reactiveValues(all_l=vector(),all_u=vector())
   counter <- reactiveValues(countervalue = 0)
   autorun <- reactiveValues(auto = 0)
-  
   # number of red intervals
   countReds <- reactiveValues(counter=0)
   
@@ -72,13 +72,13 @@ shinyServer <- function(input, output) {
   
   observeEvent(input$clear,{
     
-    all_low$all_l=vector()
-    all_upp$all_u=vector()
+    segments$all_l=vector()
+    segments$all_u=vector()
     ###thisSampleMean <- 0
     allm <- vector()
     samp <- round(rnorm(0,mean=mu,sd=sd),1)
-    meansamp <- reactiveVal()
-    allmeansamp$allm = vector()
+    #meansamp <- reactiveVal()
+    #allmeansamp$allm = vector()
     #values$total = 0
     counter$countervalue = 0
     countReds$counter = 0
@@ -92,29 +92,7 @@ shinyServer <- function(input, output) {
     shinyjs::enable("start") 
   })
   
-  
-  # doSample <- function() {
-  #   samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-  #   samp(samp)
-  #   meansamp <- round(mean(samp),2)
-  #   ###thisSampleMean <- meansamp
-  #   meansamp(meansamp) 
-  #   #values$total <- c(values$total,meansamp) 
-  #   
-  #   s <- sqrt(var(samp))
-  #   lo <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-  #   up <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-  #   if (! ((mu>lo) & (mu<up)) ) {
-  #     countReds$counter <- countReds$counter + 1
-  #   }
-  #   all_low$all_l <- c(all_low$all_l,lo)
-  #   all_upp$all_u <- c(all_upp$all_u,up)
-  # }
-  
-  # observeEvent(input$sample,{
-  #   doSample()
-  #   
-  # })
+   
   
   doSamples <- function(n.samples,input.n) {
     lo <- vector()
@@ -129,8 +107,7 @@ shinyServer <- function(input, output) {
         reds <- reds + 1
       }
     }
-    result <- list(res.samp = the.sample,
-                   res.meansamp = mean(the.sample),
+    result <- list(res.samp = the.sample, 
                    res.lo = lo,
                    res.up = up,
                    res.reds = reds) 
@@ -139,9 +116,8 @@ shinyServer <- function(input, output) {
   
   updateReactives <- function(res) {
     samp(res$res.samp)
-    meansamp(res$res.meansamp)
-    all_low$all_l <- c(all_low$all_l,res$res.lo)
-    all_upp$all_u <- c(all_upp$all_u,res$res.up)
+    segments$all_l <- c(segments$all_l,res$res.lo)
+    segments$all_u <- c(segments$all_u,res$res.up)
     countReds$counter <- countReds$counter + res$res.reds
   }
 
@@ -159,59 +135,6 @@ shinyServer <- function(input, output) {
     doSamples(n.samples = 100, input.n = input$n) %>% updateReactives()
   })
   
-  # old version
-  # observeEvent(input$sample10,{
-  #   lo <- vector()
-  #   up <- vector()
-  #   for (i in 1:10) {
-  #     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-  #     
-  #     meansamp <- round(mean(samp),2)
-  #     ###thisSampleMean <- meansamp
-  #     #values$total <- c(values$total,meansamp) 
-  #     s <- sqrt(var(samp))
-  #     lo[i] <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-  #     up[i] <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-  #     if (! ((mu>lo[i]) & (mu<up[i])) ) {
-  #       countReds$counter <- countReds$counter + 1
-  #     }
-  #     
-  #   }
-  #   # update reactives
-  #   samp(samp)
-  #   meansamp(meansamp) 
-  #   values$total <- c(values$total,meansamp) 
-  #   all_low$all_l <- c(all_low$all_l,lo)
-  #   all_upp$all_u <- c(all_upp$all_u,up)
-  #   
-  # })
-  # 
-  # observeEvent(input$sample100,{
-  #   lo <- vector()
-  #   up <- vector()
-  #   for (i in 1:100) {
-  #     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
-  #     
-  #     meansamp <- round(mean(samp),2)
-  #     ###thisSampleMean <- meansamp
-  #     values$total <- c(values$total,meansamp) 
-  #     s <- sqrt(var(samp))
-  #     lo[i] <- meansamp + qt(0.025,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-  #     up[i] <- meansamp + qt(0.975,as.numeric(input$n)-1) * s/sqrt(as.numeric(input$n))
-  #     if (! ((mu>lo[i]) & (mu<up[i])) ) {
-  #       countReds$counter <- countReds$counter + 1
-  #     }
-  #     
-  #   }
-  #   # update reactives
-  #   samp(samp)
-  #   meansamp(meansamp) 
-  #   values$total <- c(values$total,meansamp) 
-  #   all_low$all_l <- c(all_low$all_l,lo)
-  #   all_upp$all_u <- c(all_upp$all_u,up)
-  #   
-  # })
-  # 
   # 
   observeEvent(input$sample, {
     counter$countervalue <- counter$countervalue + 1
@@ -222,8 +145,6 @@ shinyServer <- function(input, output) {
   observeEvent(input$sample100, {
     counter$countervalue <- counter$countervalue + 100
   })
-  
-  
   
   observeEvent(input$click, {
     if (autorun$auto == 1) {
@@ -238,7 +159,6 @@ shinyServer <- function(input, output) {
   # animate: click sample repeatedly
   observe({
     if (autorun$auto == 1) {
-      
       # run this function again in 2000ms
       invalidateLater(2000)
       click("sample")
@@ -248,7 +168,6 @@ shinyServer <- function(input, output) {
         autorun$auto <- 0
         animate.counter <<- 0
       } 
-      
     }
   })
   
@@ -269,20 +188,10 @@ shinyServer <- function(input, output) {
   
   
   
-  # output$sampleCounter <- renderInfoBox({
-  #   infoBox(
-  #     "Samples: ", paste0(counter$counterValues), icon = icon("list"),
-  #     color = "purple"
-  #   )
-  # })
-  
-  
-  
   x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
   
   
-  topPlot <- ggplot(data = data.frame(x = c(low, upp)), aes(x)
-  ) +
+  topPlot <- ggplot(data = data.frame(x = c(low, upp)), aes(x)) +
     stat_function(fun = dnorm, show.legend=F,
                   colour='red', 
                   args = list(mean = mu, sd = sd)) + 
@@ -295,10 +204,8 @@ shinyServer <- function(input, output) {
   
   output$plot1 <- renderPlot({
     
-    
     if (length(samp())>0) {
       # points for the sample
-      
       pts <- data.frame(x = samp(),y=rep(0,length(samp))) 
       topPlot <- topPlot + geom_point(data=pts,aes(y=y),
                           colour='black')
@@ -343,8 +250,6 @@ shinyServer <- function(input, output) {
   })
   
   
-  
-  
   # global variable
   theTrickyPlot <- ggplot() +
     theme(legend.position = "none") +
@@ -356,39 +261,35 @@ shinyServer <- function(input, output) {
     xlab("Sample mean") +
     geom_vline(xintercept = mu,col = 'red') 
   
-   
   
   #
   #
   # render the tricky plot with the segments
-  #    reacts to: all_low#all_l, all_upp$all_u
+  #    reacts to: segments#all_l, segments$all_u
   #
   #
   output$samplemean <- renderPlot({ 
     
     df <- data.frame(x=mu,y=0)
-    if (length(all_low$all_l)==0) {
-      p <- theTrickyPlot
-    }  
-    if (length(all_low$all_l) > 0) {
-      
-      ys <- seq(1,length(all_low$all_l))
-      lo <- tail(all_low$all_l,n=length(ys))
-      up <- tail(all_upp$all_u,n=length(ys))
+    thisPlot <- theTrickyPlot
+    if (length(segments$all_l) > 0) {
+      ys <- seq(1,length(segments$all_l))
+      lo <- tail(segments$all_l,n=length(ys))
+      up <- tail(segments$all_u,n=length(ys))
       intervalCol = rep('blue',length(ys))
       intervalCol[which(lo > mu | up < mu)] <- 'red'
       # add the segments to the plot
-      df.add <- data.frame(x=lo,
+      df.add <- data.frame(x = lo,
                            y = ys,
-                           xend=up,
-                           yend=ys,
-                           colour=intervalCol)
-      p <- p + geom_segment(data=df.add,aes(x=x,y=ys,xend=xend,yend=ys),colour=intervalCol)
+                           xend = up,
+                           yend = ys,
+                           colour = intervalCol)
+      thisPlot <- thisPlot + geom_segment(data = df.add,
+                                          aes(x = x,y = ys,xend = xend, yend = ys),colour=intervalCol)
       
     }
-    p
+    thisPlot
     
-    return(p)
   })
   
   
@@ -415,7 +316,7 @@ shinyServer <- function(input, output) {
     #sampleMeans <- values$total[-1]
     
     count <- counter$countervalue
-    width.bar <- round(mean(all_upp$all_u - all_low$all_l))
+    width.bar <- round(mean(segments$all_u - segments$all_l))
     line1 <- "The blue intervals contain the population mean (1711 mm)"
     line2 <- paste("The red intervals","<u>","do not","</u>",
                    "contain the population mean.",sep=" ")
