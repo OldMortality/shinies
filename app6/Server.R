@@ -273,7 +273,7 @@ shinyServer <- function(input, output) {
     df <- data.frame(x=mu,y=0)
     thisPlot <- theTrickyPlot
     if (length(segments$all_l) > 0) {
-      ys <- seq(1,length(segments$all_l))
+      ys <- seq.int(1,length(segments$all_l))
       lo <- tail(segments$all_l,n=length(ys))
       up <- tail(segments$all_u,n=length(ys))
       intervalCol = rep('blue',length(ys))
@@ -297,11 +297,13 @@ shinyServer <- function(input, output) {
   getSampleSummary <- function() {
     points <- data.frame(x = samp() )
     sum <- 0
+    xbar <- 0
     if (dim( points )[1] > 0 ) {
       sum <- sum(points$x)
+      xbar <- mean(points$x,na.rm = T)
     }
-    count <- counter$countervalue
-    xbar <- round(1000* sum / as.numeric(input$n))/1000
+    xbar <- round(xbar,2)
+    count <- counter$countervalue 
     str0 <- "The black dots represent the sample."
     str1 <- ""
     if (count > 0 ) {
