@@ -15,14 +15,11 @@ shinyServer <- function(input, output) {
   mu1 = 1712
   mu2 = 1671
   sd1 = 92
-  sd2 = 92
+  sd2 = 92 
+  lower <- mu1 - 3 * sd1
+  upper <- mu1 + 3 * sd1
+  x.breaks <- round(seq(lower,upper,sd1))
   
-  # temp:
-  #mu = mu1
-  #sd = sd1
-  lower <- mu1-3*sd1
-  upper <- mu1+3*sd1
-  #thisSampleMean <- 0
   shinyjs::disable("shownormal")
   
   # how many sample means do we show on the stripchart?
@@ -64,14 +61,13 @@ shinyServer <- function(input, output) {
     }
   })
   
+  ## respond to the Start/Stop button
   observeEvent(input$click, {
-    
     if (autorun$auto == 1) {
       autorun$auto <- 0  
     } else {
       autorun$auto <- 1
     }
-    
   }) 
   
   
@@ -89,91 +85,63 @@ shinyServer <- function(input, output) {
   
   observeEvent(input$n, {
     click("clear")
-    invalidateLater(1)
+    #invalidateLater(1)
   })
   
+  ##
+  ## Adds to the number of all samples taken.
+  ## Manages the shownormal button.
+  ##
+  updateCounterValue <- function(n.add) {
+    counter$countervalue <- counter$countervalue + n.add
+    if (counter$countervalue < 100) {
+      shinyjs::disable("shownormal")
+    } else {
+      shinyjs::enable("shownormal")
+    }
+  }
+  
+    
+  doSamples <- function(n.samples) {
+    showMean(n.samples)
+    showSample((n.samples == 1)) 
+    first.means <- vector()
+    second.means <- vector()
+    for (i in 1:n.samples) {
+      sample.first <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
+      sample.second <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
+      first.means[i] <- round(mean(sample.first),2)
+      second.means[i] <- round(mean(sample.second),2)
+    }  
+    # the latest samples
+    samp1(sample.first)
+    samp2(sample.second) 
+    # vector of all sample means
+    values$total1 <- c(values$total1,first.means)
+    values$total2 <- c(values$total2,second.means)
+    updateCounterValue(n.samples)
+  }
   
   # 1 sample
   observeEvent(input$sample,{
-    showMean(1) 
-    showSample(TRUE)
-    sample.first <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-    sample.second <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-    samp1(sample.first)
-    samp2(sample.second) 
-    values$total1 <- c(values$total1,round(mean(sample.first),2))
-    values$total2 <- c(values$total2,round(mean(sample.second),2))
-     
+    doSamples(n.samples = 1)
   })
+  
   
   # 10 samples
   observeEvent(input$sample10,{
-    showMean(10)
-    showSample(FALSE)
-     
-    for (i in 1:10) {
-      sample.first <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-      sample.second <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-      
-      samp1(sample.first)
-      samp2(sample.second) 
-      values$total1 <- c(values$total1,round(mean(sample.first),2))
-      values$total2 <- c(values$total2,round(mean(sample.second),2))
-       
-    }
-    
+      doSamples(n.samples = 10)
   })
   
   # 100 samples
   observeEvent(input$sample100,{
-     
-    showMean(100)
-    showSample(FALSE)
-    
-    for (i in 1:100) {
-      
-      sample.first <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-      sample.second <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-      
-      samp1(sample.first)
-      samp2(sample.second) 
-      values$total1 <- c(values$total1,round(mean(sample.first),2))
-      values$total2 <- c(values$total2,round(mean(sample.second),2))
-       
-    }
-  })
-  
-  
-  observeEvent(input$sample, {
-    counter$countervalue <- counter$countervalue + 1
-    if (counter$countervalue < 100) {
-      shinyjs::disable("shownormal")
-    } else {
-      shinyjs::enable("shownormal")
-    }
-  })
-  
-  observeEvent(input$sample10, {
-    
-    counter$countervalue <- counter$countervalue + 10
-    if (counter$countervalue < 100) {
-      shinyjs::disable("shownormal")
-    } else {
-      shinyjs::enable("shownormal")
-    }
-  })
-  observeEvent(input$sample100, {
-    counter$countervalue <- counter$countervalue + 100
-    if (counter$countervalue < 100) {
-      shinyjs::disable("shownormal")
-    } else {
-      shinyjs::enable("shownormal")
-    }
-  })
-  
+    doSamples(n.samples = 100)
    
-   
+  })
   
+  
+  
+ 
   observe({
     if (autorun$auto == 1) {
       
@@ -190,22 +158,11 @@ shinyServer <- function(input, output) {
     }
   })
   
-  output$sampleCounter <- renderInfoBox({
-    infoBox(
-      "Samples: ", paste0(counter$counterValues), icon = icon("list"),
-      color = "purple"
-    )
-  })
-  
-  
-  low <- mu1 - 3 * sd1
-  upp <- mu1 + 3 * sd1
-  x.breaks <- round(seq(low,upp,sd1))
-  
+ 
   
   output$plot1 <- renderPlot({
     
-    p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)) +
+    p <- ggplot(data = data.frame(x = c(lower, upper)), aes(x)) +
       stat_function(fun = dnorm, show.legend=F,
                     colour='red', 
                     args = list(mean = mu1, sd = sd1)) + 
@@ -253,7 +210,7 @@ shinyServer <- function(input, output) {
       p <- ggplot(df, aes(x = x,y=0)) +
                     geom_point(colour=df$col,size=3 ) +
         theme(legend.position = "none") +
-        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
+        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(lower,upper)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
         ylab("") + 
@@ -343,7 +300,7 @@ shinyServer <- function(input, output) {
     
   })
   
-  # first box down
+  ## first box down, right column
   getTopSummary <- function() {
     
     topSum1 <- "<b>HUBS191 data</b>"
@@ -352,36 +309,36 @@ shinyServer <- function(input, output) {
     topSum4 <- "The mean height of frequent exercisers is 1712 mm"
     topSum5 <- "The standard deviation of the height of frequent exercisers is 92 mm"
     topSum <- paste(topSum1,topSum2,topSum3,topSum4,topSum5,sep="<br>")
-     
-    x1 <- samp1()
-    x2 <- samp2()
-    points <- data.frame(x1 = x1,x2=x2 )
-    line0 <- "<b>One sample</b>"
-    line1 <-"Red dots indicate sample of frequent exercisers"
-    line2 <-"Blue dots indicate sample of not frequent exercisers" 
-    line3 <- ""
-    line4 <- ""
-    line5 <- ""
-    line6 <- ""
-    if (dim( points )[1] > 0 ) { 
-      xbar1 <- round(mean(points$x1),2)
-      xbar2 <- round(mean(points$x2),2)
-      sd1 <- round(sqrt(var(points$x1)),2)
-      sd2 <- round(sqrt(var(points$x2)),2)
-      line3 <- paste("Mean height of exercisers:",xbar1,"mm",sep=' ')
-      line4 <- paste("Mean height of not frequent exercisers:",xbar2,"mm",sep=' ')
-      line5 <- paste("Standard deviation of frequent exercisers is:",
+    result <- topSum
+    
+    ## show the summary of 1 sample only if we have created 1 sample (as opposed to 10,100)
+    if (showSample()) {
+      x1 <- samp1()
+      x2 <- samp2()
+      points <- data.frame(x1 = x1,x2=x2 )
+      line0 <- "<b>One sample</b>"
+      line1 <-"Red dots indicate sample of frequent exercisers"
+      line2 <-"Blue dots indicate sample of not frequent exercisers" 
+      line3 <- ""
+      line4 <- ""
+      line5 <- ""
+      line6 <- ""
+      if (dim( points )[1] > 0 ) { 
+        xbar1 <- round(mean(points$x1),2)
+        xbar2 <- round(mean(points$x2),2)
+        sd1 <- round(sqrt(var(points$x1)),2)
+        sd2 <- round(sqrt(var(points$x2)),2)
+        line3 <- paste("Mean height of exercisers:",xbar1,"mm",sep=' ')
+        line4 <- paste("Mean height of not frequent exercisers:",xbar2,"mm",sep=' ')
+        line5 <- paste("Standard deviation of frequent exercisers is:",
                    sd1,"mm",sep=' ')
-      line6 <- paste("Standard deviation of not frequent exercisers is:",
+        line6 <- paste("Standard deviation of not frequent exercisers is:",
                    sd2,"mm",sep=' ')
-    } 
+      } 
        
-    result <- paste(topSum,line0,
-                    line1,line2,line3,line4,line5,line6,sep="<br>") 
-    if (showSample()==FALSE) {
-      result <- topSum
+      result <- paste(topSum,line0,
+                    line1,line2,line3,line4,line5,line6,sep="<br>")
     }
-     
     return(result)
   }
   
