@@ -23,13 +23,7 @@ shinyServer <- function(input, output) {
   sd <- 93
   upper <- mu + 3 * sd
   lower <- mu - 3 * sd 
-  #thisSampleMean <- 0
   shinyjs::disable("shownormal")
-  
-  # how many sample means do we show on the stripchart?
-  showMean <- 1
-  # do we show the sample dots in the top chart?
-  showSample <- TRUE
   
   samp <- reactiveVal()
   meansamp <- reactiveVal()
@@ -66,9 +60,10 @@ shinyServer <- function(input, output) {
       }
   })
   
+  ## react to the start/stop button
   observeEvent(input$click, {
     if (autorun$auto == 1) {
-      autorun$auto <- 0 
+      autorun$auto <- 0
     } else {
       autorun$auto <- 1
     }
@@ -79,7 +74,6 @@ shinyServer <- function(input, output) {
   # animate: click sample repeatedly
   observe({
     if (autorun$auto == 1) {
-        
         # run this function again in 2000ms
         invalidateLater(2000)
         click("sample")
@@ -95,7 +89,12 @@ shinyServer <- function(input, output) {
   
   
   observeEvent(input$clear,{
-    #thisSampleMean <- 0 
+    #clear shownormal
+    if (input$shownormal) {
+      shinyjs::click("shownormal")
+    }
+    shinyjs::disable("shownormal")
+    
     samp <- round(rnorm(0,mean=mu,sd=sd),1) 
     meansamp <- reactiveVal()
     allmeansamp$allm = vector()
@@ -112,10 +111,9 @@ shinyServer <- function(input, output) {
     
   
   # 1 sample
-  observeEvent(input$sample,{
+  observeEvent(input$sample,{ 
+     
     
-    showMean <- 1
-    showSample <- TRUE
     samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
     samp(samp)
     meansamp <- round(mean(samp),2)
@@ -126,8 +124,8 @@ shinyServer <- function(input, output) {
   
   # 10 samples
   observeEvent(input$sample10,{
-    showMean <- 10
-    showSample <- FALSE
+     
+     
     newSamples <- rep(NA,10)
     for (i in 1:10) {
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
@@ -143,14 +141,12 @@ shinyServer <- function(input, output) {
   
   # 100 samples
   observeEvent(input$sample100,{
+     
     newSamples <- rep(NA,100)
     for (i in 1:100) {
-      showMean <- 100
-      showSample <- FALSE
       samp <- round(rnorm(as.numeric(input$n),mean=mu,sd=sd),1)
       meansamp <- round(mean(samp),2)
-      newSamples[i] <- meansamp
-      #thisSampleMean <- meansamp
+      newSamples[i] <- meansamp 
       
     }
     # update reactives
@@ -161,42 +157,27 @@ shinyServer <- function(input, output) {
   })
   
   
-  observeEvent(input$sample, {
-    counter$countervalue <- counter$countervalue + 1
+  handleSample <- function(n.samples) {
+    counter$countervalue <- counter$countervalue + n.samples
     if (counter$countervalue < 100) {
       shinyjs::disable("shownormal")
     } else {
       shinyjs::enable("shownormal")
     }
+  }
+  
+  observeEvent(input$sample, {
+    handleSample(n.samples = 1)
+   
   })
   observeEvent(input$sample10, {
-    
-    counter$countervalue <- counter$countervalue + 10
-    if (counter$countervalue < 100) {
-      shinyjs::disable("shownormal")
-    } else {
-      shinyjs::enable("shownormal")
-    }
+    handleSample(n.samples = 10)
   })
+  
   observeEvent(input$sample100, {
-    counter$countervalue <- counter$countervalue + 100
-    if (counter$countervalue < 100) {
-      shinyjs::disable("shownormal")
-    } else {
-      shinyjs::enable("shownormal")
-    }
+    handleSample(n.samples = 100)
   })
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
 
   output$sampleCounter <- renderInfoBox({
     infoBox(
@@ -207,10 +188,9 @@ shinyServer <- function(input, output) {
   
    
   x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
-  #y   <- dnorm(x,mean=mu, sd=sd)
-  #jitter_y <- max(y)/50
+ 
   
-  popPlot <-  ggplot(data = data.frame(x = c(low, upp)), aes(x)) +
+  popPlot <-  ggplot(data = data.frame(x = c(lower, upper)), aes(x)) +
     stat_function(fun = dnorm, show.legend=F,
                   colour='red', 
                   args = list(mean = mu, sd = sd)) + 
@@ -221,19 +201,20 @@ shinyServer <- function(input, output) {
     xlab("Height (mm)")
   
   
-  
+  ## This is topplot, with the Gaussian curve and the
+  ##   sample along the bottom
   output$populationPlot <- renderPlot({
     
     p <- popPlot
-    if (showSample & length(samp())>0 ) {
+    if (length(samp()) > 0 ) {
       # points for the sample
       pts <- data.frame(x = samp(),y=rep(0,length(samp)))
-      
-      p <- p + geom_point(data=pts,aes(y=y),width=0,
+      p <- p + geom_point(data=pts,aes(y=y),#width=0,
                           colour='black')
     }
     p
   }) # end populationPlot
+  
   
   #
   # This is the strip, with 1 dot for this sample mean
@@ -241,86 +222,67 @@ shinyServer <- function(input, output) {
   output$thissamplemean <- renderPlot({
     
     if (length(samp())>0) {
-      
-      #thisOne <- mean(samp()) 
-      thisOne <- tail(values$total,showMean)
+      # show the sample mean of the last sample
+      thisOne <- tail(values$total,1)
       df <- data.frame(x=thisOne)
       p <- ggplot(df, aes(x = x,y=0 )) +
         theme(legend.position = "none") +
-        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
+        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(lower,upper)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
         ylab("") + 
-        xlab("Height (mm)")
-      if (showMean) { 
-        p = p +
-          geom_point(size=2,colour='blue') 
-      }
+        xlab("Height (mm)") +
+        geom_point(size=2,colour='blue')
+     
       p
     }
      
   })
   
-  
+  #
+  #
   # This is the tricky plot, with the histogram
   #   of all sample means.
+  #   It's a dotplot, but changes into a histogram
+  #   at > 100 dots.
   #
-  #
-  output$samplemean <- renderPlot({
-     
+  output$samplemean <- renderPlot({ 
+    
     sampleMeans <- values$total[-1]
     if (length(sampleMeans)>0) {
       df <- data.frame(x=sampleMeans)
-      if (length(sampleMeans == 1)) {
-        p <- ggplot(df, aes(x = x)) +
-          geom_point(size=0.3) +
-          scale_x_continuous(limits=c(lower,upper),
-                             breaks = x.breaks,minor_breaks=NULL) + 
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-          xlab("Height (mm)") +
-          ylab("Frequency")
-      }
       
-      if (length(sampleMeans > 1)) {
-        p <- ggplot(df, aes(x = x)) +
-          geom_dotplot(dotsize=0.3,colour='blue') +
-          #coord_cartesian(ylim=c(0,10),expand=T) +
-          scale_x_continuous(limits=c(lower,upper),
-                             breaks = x.breaks,minor_breaks=NULL) +
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
-      } 
-      
-      # overlay normal distribution if required, and if there
-      #  are enough samples (>= 100)
-      if (length(sampleMeans) > 100){
-          bin.width <- 10
-          # show histogram
-          p <- ggplot(df, aes(x = x)) +
-            geom_histogram(binwidth = bin.width,
-                           fill='white',
-                           colour='blue') +
-            scale_x_continuous(limits=c(lower,upper),
-                               breaks = x.breaks,minor_breaks=NULL) +
-            scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
-          if (input$shownormal ) {
-            sample.size <- as.numeric(input$n)
-            s <- sd/sqrt(sample.size)
-           
-            p <- p + stat_function( 
-              color="red",
-              fun = function(x, mean, sd, n, bw){ 
-                dnorm(x = x, mean = mean, sd = sd) * n * bw
-              }, 
-              args = c(mean = mu, sd = s, 
-                       n = counter$countervalue , 
-                       bw = bin.width))
+      thePlot <- ggplot(df, aes(x = x)) +
+        scale_x_continuous(limits=c(lower,upper),
+                           breaks = x.breaks,minor_breaks=NULL) +
+        scale_y_continuous(breaks = NULL,minor_breaks=NULL) + 
+        xlab("")
+      if (length(sampleMeans) <= 100) {
+        p <- thePlot + 
+          geom_dotplot(dotsize=0.3,colour='blue',binwidth = 30)  
+      } else {
+        # show histogram
+        bin.width <- 10
+        p <- thePlot + 
+          geom_histogram(binwidth = bin.width,fill='white',colour='blue')
+        ## overlay Gaussian
+        if (input$shownormal ) {
+          sample.size <- as.numeric(input$n)
+          s <- sd/sqrt(sample.size) 
+          p <- p + stat_function( 
+            color="red",
+            fun = function(x, mean, sd, n, bw){ 
+              dnorm(x = x, mean = mean, sd = sd) * n * bw
+            }, 
+            args = c(mean = mu, sd = s, 
+                     n = counter$countervalue , 
+                     bw = bin.width))
         }
+        ##
       }
-      p <- p + xlab("")
-      p
       
-    }
-    
+      p 
+    } 
   })
   
   
@@ -337,9 +299,7 @@ shinyServer <- function(input, output) {
     str0 <- "The black dots represent the sample."
     str1 <- paste("The mean for sample",count,"=",xbar,"(mm)",sep=' ')
     result <- paste(str0,'<br>',str1,'<br>')
-    if (!showSample) {
-      result <- ""
-    }
+     
     return(result)
   }
   
