@@ -2,7 +2,7 @@
 # 
 # Change log
 # 24/11/2019 - Moved definition of top plot to global variable
-#
+# 28/11/2019 - changed to base plot (away from ggplot, because that is too slow.)
 #
 #
 #

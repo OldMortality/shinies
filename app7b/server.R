@@ -1,6 +1,18 @@
 # app 7b.
-# Comparing 2 groups: 2 sample distributions
-#   in 1 plot
+#
+#
+# Comparing 2 groups: 2 sample distributions in 1 plot
+#
+# Change log:
+#
+#   28/11/2019 - changed to base plot (away from ggplot, because that is too slow.)
+#
+#
+#
+#
+
+
+
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -145,8 +157,8 @@ shinyServer <- function(input, output) {
   observe({
     if (autorun$auto == 1) {
       
-      # run this function again in 1000ms
-      invalidateLater(1000)
+      # run this function again in 2000ms
+      invalidateLater(2000)
       click("sample")
       animate.counter <<- animate.counter + 1
       if (animate.counter > max.animate) {
@@ -159,56 +171,29 @@ shinyServer <- function(input, output) {
   })
   
  
-  topPlot <- ggplot(data = data.frame(x = c(lower, upper)), aes(x)) +
-    stat_function(fun = dnorm, show.legend=F,
-                  colour='red', 
-                  args = list(mean = mu1, sd = sd1)) + 
-    stat_function(fun = dnorm, show.legend=F,
-                  colour='blue', 
-                  args = list(mean = mu2, sd = sd2)) + 
-    ylab("") +
-    scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
-    scale_y_continuous(breaks = NULL,minor_breaks=NULL, 
-                       limits=c(0,0.005)) +
-    theme(legend.position = "none") +
-    xlab("Height") +  
-    geom_segment(x=1420,xend=1470,y=0.0048,yend=0.0048,colour='blue') +
-    annotate("text", x = 1600, y = 0.0048, size=5,
-             label = "Does not exercise frequently") +
-    geom_segment(x=1780,xend=1830,y=0.0048,yend=0.0048,colour='red') +
-    annotate("text", x = 1929, y = 0.0048, size=5,
-             label = "Exercises frequently")  
   
-  
-  
-  
-  output$plot1s <- renderPlot({
-    if (showSample() & length(samp1())>0 ) {
-      s1 <- samp1()
-      s2 <- samp2()
-      n <- length(s1)
-      pts <- data.frame(x = c(s1,s2),y=rep(0,(2*n)),col=c(rep('red',n),rep('blue',n)))
-      p <- topPlot + geom_point(data=pts,aes(x=x,y=y),colour=pts$col) 
-    }
-    p
-  }) # end plot1
-  
-  
+  #
+  #  Top plot, with the population Normal curves
+  #
   output$plot1 <- renderPlot({
     
     xbreaks <- seq(mu1-3*sd1,mu1+3*sd1,by=sd1)
     
-    # default margin c(5.1, 4.1, 4.1, 2.1) bottom left top right
-    par(bg="#EBEBEB",mar= c(5.5, 1.1, 4.1, 0.5))
+    # background color, margins and plot outside area (for legend)
+    par(bg="#EBEBEB",mar= c(5.5, 1.1, 4.1, 0.5),xpd=T)
     # use base R for plotting is much faster
-    plot('',xlim=c(lower,upper),ylim=c(0,0.005),
+    plot('',xlim=c(lower,upper),ylim=c(0,0.0050),
          ylab="",xlab="",xaxt="n",yaxt="n",bty="n") 
     abline(v=xbreaks,col='white')
         axis(1,  at =  seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
     curve(dnorm(x,mean=mu1,sd=sd1),lower,upper,col='red',add=T)
     curve(dnorm(x,mean=mu2,sd=sd2),lower,upper,col='blue',add=T)
-   
-    
+    legend(1750,0.0060,
+           c('Does not excercise frequently',
+             'Exercises frequently'),
+           lty=c(1,1), 
+           bty = "n",  # no box
+           lwd=c(2.5,2.5),col=c('blue','red')) 
     
     if (showSample() & length(samp1())>0 ) {
       s1 <- samp1()
@@ -224,27 +209,46 @@ shinyServer <- function(input, output) {
   #
   # This is the strip, with 1 dot for each sample mean
   # 
+  # output$thissamplemean2 <- renderPlot( {
+  #   
+  #   if (length(samp1())>0) {
+  #     
+  #     pts <- c(tail(values$total1,showMean()),
+  #       tail(values$total2,showMean()))
+  #     
+  #     par(bg="#EBEBEB",mar= c(5.5, 1.1, 4.1, 0.5),xpd=T)
+  #     # use base R for plotting is much faster
+  #     plot('',xlim=c(lower,upper),ylim=c(0,0.0050),
+  #          ylab="",xlab="",xaxt="n",yaxt="n",bty="n") 
+  #     abline(v=xbreaks,col='white')
+  #     axis(1,  at =  seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
+  #     points(pts,y=rep(0,length(pts),
+  #                      col=c(rep('red',length(pts)/2),rep('blue',length(pts)/2))))
+  #   }
+  #  
+  # })
+
+  
   output$thissamplemean <- renderPlot({
     
     if (length(samp1())>0) {
-      
       thisOne1 <- tail(values$total1,showMean())
       thisOne2 <- tail(values$total2,showMean())
-      df1 <- data.frame(x=thisOne1,col='darkred')
-      df2 <- data.frame(x=thisOne2,col='darkblue')
-      df <- rbind(df1,df2)
-      p <- ggplot(df, aes(x = x, y = 0,colour=col),size=3) +
-                     geom_point(colour=df$col,size=3 ) +
-      
-      #   theme(legend.position = "none") +
-        scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(lower,upper)) +
-        scale_y_continuous(breaks = NULL,minor_breaks=NULL,
-                           limits=c(-0.01,0.01)) + 
-        ylab("") + 
-        xlab("Sample mean") 
-      p
-    }
-   
+      pts <- c(thisOne1,thisOne2)
+      n <- length(thisOne1)
+      cols <- c(rep('red',n),rep('blue',n))
+      x.breaks <- round(seq(mu1-3*sd1,mu1+3*sd1,sd1))
+      par(bg="#EBEBEB",mar= c(2,1,1,1))
+      plot('',xlim=c(lower,upper),ylim=c(0,2),
+          ylab="",xlab="",xaxt="n",yaxt="n",bty="n")
+      axis(1, at = seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
+      abline(v=xbreaks,col='white')
+      points(x=pts,y=rep(1,(2*n)),
+              pch=21,
+              col= cols
+              bg = cols
+      )
+    } 
   })
   
   

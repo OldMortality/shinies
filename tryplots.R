@@ -37,7 +37,7 @@ x.breaks <- round(seq(mu1-3*sd1,mu1+3*sd1,sd1))
 plot('',xlim=c(lower,upper),ylim=c(0,0.005),
      ylab="",xlab="",xaxt="n",yaxt="n",
      )
-adjustcolor("blanchedalmond",alpha.f = 0.3)
+#adjustcolor("blanchedalmond",alpha.f = 0.3)
 axis(1, at = seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
 curve(dnorm(x,mean=mu1,sd=sd1),lower,upper,col='red',add=T)
 curve(dnorm(x,mean=mu2,sd=sd2),lower,upper,col='blue',add=T)
@@ -45,8 +45,12 @@ points(c(s1,s2),rep(0,20),
        pch=21,
        col=c(rep('blue',10),rep('red',10)),
        bg=c(rep('blue',10),rep('red',10))
-       )
-#rect(-1,0,mu1+4*sd1,0.01,col=adjustcolor("blanchedalmond",alpha.f = 0.3))
+    )
+legend(1850,0.005,
+       c('Excercises frequently',
+         'Does not exercise frequently'),
+       lty=c(1,1), 
+       lwd=c(2.5,2.5),col=c('blue','red')) 
 
 
 
@@ -54,3 +58,31 @@ par(bg='#EBEBEB')
 par(bg='grey')
 
 plot(s1~s2)
+
+
+
+## stripchart for app7b
+
+p <- ggplot(df, aes(x = x, y = 0,colour=col),size=3) +
+  geom_point(colour=df$col,size=3 ) +
+  
+  #   theme(legend.position = "none") +
+  scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(lower,upper)) +
+  scale_y_continuous(breaks = NULL,minor_breaks=NULL,
+                     limits=c(-0.01,0.01)) + 
+  ylab("") + 
+  xlab("Sample mean") 
+p
+
+
+ 
+x.breaks <- round(seq(mu1-3*sd1,mu1+3*sd1,sd1))
+plot('',xlim=c(lower,upper),ylim=c(0,0.000005),
+     ylab="",xlab="",xaxt="n",yaxt="n",
+)
+axis(1, at = seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
+points(c(s1,s2),rep(0,20),
+       pch=21,
+       col=c(rep('blue',10),rep('red',10)),
+       bg=c(rep('blue',10),rep('red',10))
+)
