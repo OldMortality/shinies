@@ -145,8 +145,8 @@ shinyServer <- function(input, output) {
   observe({
     if (autorun$auto == 1) {
       
-      # run this function again in 2000ms
-      invalidateLater(2000)
+      # run this function again in 1000ms
+      invalidateLater(1000)
       click("sample")
       animate.counter <<- animate.counter + 1
       if (animate.counter > max.animate) {
@@ -159,41 +159,67 @@ shinyServer <- function(input, output) {
   })
   
  
+  topPlot <- ggplot(data = data.frame(x = c(lower, upper)), aes(x)) +
+    stat_function(fun = dnorm, show.legend=F,
+                  colour='red', 
+                  args = list(mean = mu1, sd = sd1)) + 
+    stat_function(fun = dnorm, show.legend=F,
+                  colour='blue', 
+                  args = list(mean = mu2, sd = sd2)) + 
+    ylab("") +
+    scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
+    scale_y_continuous(breaks = NULL,minor_breaks=NULL, 
+                       limits=c(0,0.005)) +
+    theme(legend.position = "none") +
+    xlab("Height") +  
+    geom_segment(x=1420,xend=1470,y=0.0048,yend=0.0048,colour='blue') +
+    annotate("text", x = 1600, y = 0.0048, size=5,
+             label = "Does not exercise frequently") +
+    geom_segment(x=1780,xend=1830,y=0.0048,yend=0.0048,colour='red') +
+    annotate("text", x = 1929, y = 0.0048, size=5,
+             label = "Exercises frequently")  
   
-  output$plot1 <- renderPlot({
-    
-    p <- ggplot(data = data.frame(x = c(lower, upper)), aes(x)) +
-      stat_function(fun = dnorm, show.legend=F,
-                    colour='red', 
-                    args = list(mean = mu1, sd = sd1)) + 
-      stat_function(fun = dnorm, show.legend=F,
-                    colour='blue', 
-                    args = list(mean = mu2, sd = sd2)) + 
-      ylab("") +
-      scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
-      scale_y_continuous(breaks = NULL,minor_breaks=NULL, 
-                         limits=c(0,0.005)) +
-      theme(legend.position = "none") +
-      xlab("Height") +  
-      geom_segment(x=1420,xend=1470,y=0.0048,yend=0.0048,colour='blue') +
-      annotate("text", x = 1600, y = 0.0048, size=5,
-               label = "Does not exercise frequently") +
-      geom_segment(x=1780,xend=1830,y=0.0048,yend=0.0048,colour='red') +
-      annotate("text", x = 1929, y = 0.0048, size=5,
-               label = "Exercises frequently")  
-    
+  
+  
+  
+  output$plot1s <- renderPlot({
     if (showSample() & length(samp1())>0 ) {
-      # points for the sample
-      pts1 <- data.frame(x = samp1(),y=rep(0,length(samp1())))
-      pts2 <- data.frame(x = samp2(),y=rep(0,length(samp1())))
-      
-      p <- p + geom_point(data=pts1,aes(y=y), 
-                          colour='red')
-      p <- p + geom_point(data=pts2,aes(y=y), 
-                          colour='blue')
+      s1 <- samp1()
+      s2 <- samp2()
+      n <- length(s1)
+      pts <- data.frame(x = c(s1,s2),y=rep(0,(2*n)),col=c(rep('red',n),rep('blue',n)))
+      p <- topPlot + geom_point(data=pts,aes(x=x,y=y),colour=pts$col) 
     }
     p
   }) # end plot1
+  
+  
+  output$plot1 <- renderPlot({
+    
+    xbreaks <- seq(mu1-3*sd1,mu1+3*sd1,by=sd1)
+    
+    # default margin c(5.1, 4.1, 4.1, 2.1) bottom left top right
+    par(bg="#EBEBEB",mar= c(5.5, 1.1, 4.1, 0.5))
+    # use base R for plotting is much faster
+    plot('',xlim=c(lower,upper),ylim=c(0,0.005),
+         ylab="",xlab="",xaxt="n",yaxt="n",bty="n") 
+    abline(v=xbreaks,col='white')
+        axis(1,  at =  seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
+    curve(dnorm(x,mean=mu1,sd=sd1),lower,upper,col='red',add=T)
+    curve(dnorm(x,mean=mu2,sd=sd2),lower,upper,col='blue',add=T)
+   
+    
+    
+    if (showSample() & length(samp1())>0 ) {
+      s1 <- samp1()
+      s2 <- samp2()
+      n <- length(s1)
+      cols <- c(rep('blue',n),rep('red',n))
+      points(c(s1,s2),rep(0,(2*n)),pch=21,col=cols,bg=cols)
+    }
+    
+  }) # end plot1
+  
   
   #
   # This is the strip, with 1 dot for each sample mean
@@ -207,9 +233,10 @@ shinyServer <- function(input, output) {
       df1 <- data.frame(x=thisOne1,col='darkred')
       df2 <- data.frame(x=thisOne2,col='darkblue')
       df <- rbind(df1,df2)
-      p <- ggplot(df, aes(x = x,y=0)) +
-                    geom_point(colour=df$col,size=3 ) +
-        theme(legend.position = "none") +
+      p <- ggplot(df, aes(x = x, y = 0,colour=col),size=3) +
+                     geom_point(colour=df$col,size=3 ) +
+      
+      #   theme(legend.position = "none") +
         scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(lower,upper)) +
         scale_y_continuous(breaks = NULL,minor_breaks=NULL,
                            limits=c(-0.01,0.01)) + 
@@ -239,15 +266,8 @@ shinyServer <- function(input, output) {
     
     dsize <- 0.6
     if (length(sampleMeans1)>0) {
-      if (length(sampleMeans1 == 1)) {
-        p <- ggplot(df, aes(x = x)) +
-          geom_point(size=dsize,colour=df$e,fill=df$e) +
-          scale_x_continuous(limits=c(lower,upper),
-                             breaks = x.breaks,minor_breaks=NULL) + 
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL) 
-      }
       
-      if (length(sampleMeans1 > 1)) {
+      if (length(sampleMeans1 >= 1)) {
         p <- ggplot(df, aes(x = x,fill=e,colour=e)) +
           geom_dotplot(dotsize=dsize,alpha=1) +
           scale_x_continuous(limits=c(lower,upper),

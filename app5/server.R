@@ -179,12 +179,6 @@ shinyServer <- function(input, output) {
   })
   
 
-  output$sampleCounter <- renderInfoBox({
-    infoBox(
-      "Samples: ", paste0(counter$counterValues), icon = icon("list"),
-      color = "purple"
-    )
-  })
   
    
   x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
