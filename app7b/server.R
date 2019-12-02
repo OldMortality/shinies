@@ -209,26 +209,6 @@ shinyServer <- function(input, output) {
   #
   # This is the strip, with 1 dot for each sample mean
   # 
-  # output$thissamplemean2 <- renderPlot( {
-  #   
-  #   if (length(samp1())>0) {
-  #     
-  #     pts <- c(tail(values$total1,showMean()),
-  #       tail(values$total2,showMean()))
-  #     
-  #     par(bg="#EBEBEB",mar= c(5.5, 1.1, 4.1, 0.5),xpd=T)
-  #     # use base R for plotting is much faster
-  #     plot('',xlim=c(lower,upper),ylim=c(0,0.0050),
-  #          ylab="",xlab="",xaxt="n",yaxt="n",bty="n") 
-  #     abline(v=xbreaks,col='white')
-  #     axis(1,  at =  seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
-  #     points(pts,y=rep(0,length(pts),
-  #                      col=c(rep('red',length(pts)/2),rep('blue',length(pts)/2))))
-  #   }
-  #  
-  # })
-
-  
   output$thissamplemean <- renderPlot({
     
     if (length(samp1())>0) {
@@ -242,10 +222,10 @@ shinyServer <- function(input, output) {
       plot('',xlim=c(lower,upper),ylim=c(0,2),
           ylab="",xlab="",xaxt="n",yaxt="n",bty="n")
       axis(1, at = seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
-      abline(v=xbreaks,col='white')
-      points(x=pts,y=rep(1,(2*n)),
+      abline(v=x.breaks,col='white')
+      points(x=pts,y=c(rep(1,n),rep(1.5,n)),
               pch=21,
-              col= cols
+              col= cols,
               bg = cols
       )
     } 

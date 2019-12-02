@@ -122,17 +122,20 @@ shinyServer <- function(input, output) {
   }
 
   observeEvent(input$sample,{
-    doSamples(n.samples = 1, input.n = input$n) %>% updateReactives()
+    res <- doSamples(n.samples = 1, input.n = input$n) 
+    updateReactives(res)
   })
   
   
   observeEvent(input$sample10,{
-    doSamples(n.samples = 10, input.n = input$n) %>% updateReactives()
+    res <- doSamples(n.samples = 10, input.n = input$n)
+    updateReactives(res)
   })
   
   
   observeEvent(input$sample100,{
-    doSamples(n.samples = 100, input.n = input$n) %>% updateReactives()
+    res <- doSamples(n.samples = 100, input.n = input$n) 
+    updateReactives(res)
   })
   
   # 
@@ -172,16 +175,16 @@ shinyServer <- function(input, output) {
   })
   
   # limit number of samples to limit load on server.
-  max.samples <- 125
+  max.samples <- 250
   observe({
     if (counter$countervalue > max.samples) {
       # disable sample buttons
       shinyjs::disable("sample") 
       shinyjs::disable("sample10")
       shinyjs::disable("sample100") 
-      shinyjs::disable("start") 
-      
+      shinyjs::disable("start")
     } 
+    
   })
   
   
@@ -268,7 +271,7 @@ shinyServer <- function(input, output) {
   #    reacts to: segments#all_l, segments$all_u
   #
   #
-  output$samplemean <- renderPlot({ 
+  output$samplemean.old <- renderPlot({ 
     
     df <- data.frame(x=mu,y=0)
     thisPlot <- theTrickyPlot
@@ -291,6 +294,34 @@ shinyServer <- function(input, output) {
     thisPlot
     
   })
+  
+  
+  output$samplemean <- renderPlot({ 
+    
+    df <- data.frame(x=mu,y=0)
+    par(bg="#EBEBEB",mar= c(5.5, 1.1, 4.1, 0.5),xpd=T)
+    plot('',xlim=c(low,upp),ylim=c(0,max.samples),
+         ylab="",xlab="",xaxt="n",yaxt="n",bty="n")
+    axis(1, at = seq(mu-3*sd,mu+3*sd,by=sd))
+   
+    abline(v=x.breaks,col='white')
+    segments(mu,-15,mu,2*max.samples,col='black')
+    
+                   
+    if (length(segments$all_l) > 0) {
+      ys <- seq.int(1,length(segments$all_l))
+      lo <- tail(segments$all_l,n=length(ys))
+      up <- tail(segments$all_u,n=length(ys))
+      intervalCol = rep('blue',length(ys))
+      intervalCol[which(lo > mu | up < mu)] <- 'red'
+      # add the segments to the plot
+       
+      segments(lo,ys,up,ys,col=intervalCol)
+      
+    }
+    
+  })
+  
   
   
   
