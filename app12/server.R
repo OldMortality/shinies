@@ -34,15 +34,12 @@ shinyServer <- function(input, output) {
   
   observeEvent(input$clear,{
     
-    #a0 <- coefficients(m)[[1]]
-    #a1 <- coefficients(m)[[2]]
+    
     alla0$a0s <- vector()
     alla1$a1s <- vector()
     # clear samp
     samp <- NULL
-    samp(samp)
-    
-    
+    samp(samp) 
   })
   
  
@@ -55,8 +52,7 @@ shinyServer <- function(input, output) {
     alla1$a1s <- c(alla1$a1s,coefficients(m2)[[2]])
     
     # store sample to show in plot
-    samp <- s
-    
+    samp <- s 
     samp(samp)
     
   })  

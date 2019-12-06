@@ -38,7 +38,7 @@ shinyUI <- dashboardPage(
                height = 275),
              box( 
                width=NULL,
-               plotOutput("thissamplemean",height=50),
+               plotOutput("thissamplemean",height=80),
                height = 100),
              box(
                  width=NULL,
@@ -52,7 +52,7 @@ shinyUI <- dashboardPage(
                htmlOutput('sampleSummary',height=200), 
                height = 275),
              box( 
-               title=htmlOutput('onesamplesummary',height=50), 
+               title=htmlOutput('onesamplesummary',height=80), 
                width=NULL, 
                height = 100),
              box( 
