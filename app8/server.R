@@ -1,5 +1,12 @@
 # app 8.
 # Comparing 2 groups: difference in means
+#
+# Change log
+#    07/12/2019  removed ggplot
+#
+#
+#
+#
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -13,7 +20,13 @@ shinyServer <- function(input, output) {
   mu2 = 1671
   sd1 = 92
   sd2 = 92
+  xbreaks <- seq(mu1-3*sd1,mu1+3*sd1,by=sd1)
+  upp <- mu1 + 3 * sd1
+  low <- mu1 - 3 * sd1
+  x.breaks <- round(seq(mu1-3*sd1,mu1+3*sd1,sd1))
   
+  
+    
   
   thisSampleMean <- 0
   shinyjs::disable("shownormal")
@@ -92,65 +105,49 @@ shinyServer <- function(input, output) {
   })
   
   
+  doSamples <- function(n) {
+    if (n == 1) {
+      showDiff$summary <- 1
+      showSample(TRUE)
+    } else {
+      showDiff$summary <- 0
+      showSample(FALSE)
+    }
+    showMean(n)
+    sample.size <- as.numeric(isolate(input$n))
+    # instead of taking n samples of, say 30, we are taking one sample of n * 30
+    # and then split that up to get the means
+    s1 <- rnorm(sample.size*n,mean=mu1,sd=sd1)
+    s2 <- rnorm(sample.size*n,mean=mu2,sd=sd2)
+    means.1 <- unlist(lapply(split(s1, sort(rep_len(1:n, length(x)))),   mean))
+    means.2 <- unlist(lapply(split(s2, sort(rep_len(1:n, length(x)))),   mean))
+    values$total1 <- c(values$total1,means.1)
+    values$total2 <- c(values$total2,means.2)
+    values$diff <- c(values$diff,means.1-means.2)  
+    
+    samp1(round(s1[1:sample.size],2))
+    samp2(round(s2[1:sample.size],2))
+  }
+  
   # 1 sample
   observeEvent(input$sample,{
-    showMean(1)
-    showDiff$summary <- 1
-    showSample(TRUE)
-    s.1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-    s.2 <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-    
-    samp1(s.1)
-    samp2(s.2)
-    meansamp1 <- round(mean(s.1),2)
-    meansamp2 <- round(mean(s.2),2)
-    values$total1 <- c(values$total1,meansamp1)
-    values$total2 <- c(values$total2,meansamp2)
-    values$diff <- c(values$diff,meansamp1-meansamp2)
+    # showMean(1)
+    # showDiff$summary <- 1
+    # showSample(TRUE)
+    doSamples(1)
   })
   
   # 10 samples
   observeEvent(input$sample10,{
-    showMean(10)
-    showSample(FALSE)
-    showDiff$summary <- 0
-    
-    for (i in 1:10) {
-      s.1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-      s.2 <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-      
-      samp1(s.1)
-      samp2(s.2)
-      meansamp1 <- round(mean(s.1),2)
-      meansamp2 <- round(mean(s.2),2)
-      
-      values$total1 <- c(values$total1,meansamp1)
-      values$total2 <- c(values$total2,meansamp2)
-      values$diff <- c(values$diff,meansamp1-meansamp2)
-    }
-    
+    doSamples(10)    
   })
   
   # 100 samples
   observeEvent(input$sample100,{
-    showDiff$summary <- 0 
-    showMean(100)
-    showSample(FALSE)
-    
-    for (i in 1:100) {
-       
-       s.1 <- round(rnorm(as.numeric(input$n),mean=mu1,sd=sd1),1)
-       s.2 <- round(rnorm(as.numeric(input$n),mean=mu2,sd=sd2),1)
-       
-       samp1(s.1)
-       samp2(s.2)
-       meansamp1 <- round(mean(s.1),2)
-       meansamp2 <- round(mean(s.2),2)
-       
-       values$total1 <- c(values$total1,meansamp1)
-       values$total2 <- c(values$total2,meansamp2)
-       values$diff <- c(values$diff,meansamp1-meansamp2)
-    }
+    # showDiff$summary <- 0 
+    # showMean(100)
+    # showSample(FALSE)
+    doSamples(100)
   })
   
   
@@ -197,50 +194,32 @@ shinyServer <- function(input, output) {
     }
   })
    
+   
   
-  
-  output$sampleCounter <- renderInfoBox({
-    infoBox(
-      "Samples: ", paste0(counter$counterValues), icon = icon("list"),
-      color = "purple"
-    )
-  })
-  
-  
-  sd <- 93
-  upp <- mu1 + 3 * sd1
-  low <- mu1 - 3 * sd1
-  x.breaks <- round(seq(mu1-3*sd1,mu1+3*sd1,sd1))
-  
-  
-  output$plot1 <- renderPlot({ 
+  output$plot1 <- renderPlot({
     
-    p <- ggplot(data = data.frame(x = c(low, upp)), aes(x)) +
-      stat_function(fun = dnorm, show.legend=F,
-                    colour='red', 
-                    args = list(mean = mu1, sd = sd1)) + 
-      stat_function(fun = dnorm, show.legend=F,
-                    colour='blue', 
-                    args = list(mean = mu2, sd = sd2)) + 
-      ylab("") +
-      scale_x_continuous(breaks = x.breaks,minor_breaks=NULL) +
-      scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
-      theme(legend.position = "none") +
-      xlab("Height")
     
+    # background color, margins and plot outside area (for legend)
+    par(bg="#EBEBEB",mar= c(5.5, 1.1, 4.1, 0.5),xpd=T)
+    # use base R for plotting is much faster
+    plot('',xlim=c(low,upp),ylim=c(0,0.004),
+         ylab="",xlab="",xaxt="n",yaxt="n",bty="n") 
+    abline(v=xbreaks,col='white')
+    axis(1,  at =  seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
+    curve(dnorm(x,mean=mu1,sd=sd1),low,upp,col='red',add=T)
+    curve(dnorm(x,mean=mu2,sd=sd2),low,upp,col='blue',add=T)
     
     if (showSample() & length(samp1())>0 ) {
-      # points for the sample
-      pts1 <- data.frame(x = samp1(),y=rep(0,length(samp1())))
-      pts2 <- data.frame(x = samp2(),y=rep(0,length(samp1())))
-      
-      p <- p + geom_point(data=pts1,aes(y=y), 
-                          colour='red')
-      p <- p + geom_point(data=pts2,aes(y=y), 
-                          colour='blue')
+      s1 <- samp1()
+      s2 <- samp2()
+      n <- length(s1)
+      cols <- c(rep('red',n),rep('blue',n))
+      points(c(s1,s2),rep(0,(2*n)),pch=21,col=cols,bg=cols)
     }
-    p
+    
   }) # end plot1
+  
+  
   
   #
   # This is the strip, with 1 dot for each sample mean
@@ -249,34 +228,33 @@ shinyServer <- function(input, output) {
     
     if (showSample()==TRUE){ 
       
-      if (length(samp1())>0) { 
-      
+      if (length(samp1())>0) {
         thisOne1 <- tail(values$total1,showMean())
         thisOne2 <- tail(values$total2,showMean())
-        df1 <- data.frame(x=thisOne1,col='darkred')
-        df1$y =0.00
-        df2 <- data.frame(x=thisOne2,col='darkblue')
-        df2$y =0.00
-      
-        df <- rbind(df1,df2)
-        
-        p <- ggplot(df, aes(x = x,y=y)) +
-          geom_point(colour = df$col,size=3) +
-          theme(legend.position = "none") +
-          scale_x_continuous(breaks = x.breaks,minor_breaks=NULL,limits=c(low,upp)) +
-          scale_y_continuous(breaks = NULL,minor_breaks=NULL,
-                           limits=c(-0.01,0.01)) + 
-          ylab("") + 
-          xlab("Sample mean")  
-        p
+        pts <- c(thisOne1,thisOne2)
+        cols <- c('red','blue')
+        cols <- c(rep('red',length(thisOne1)),rep('blue',length(thisOne2)))
+        x.breaks <- round(seq(mu1-3*sd1,mu1+3*sd1,sd1))
+        par(bg="#EBEBEB",mar= c(2,1,1,1))
+        plot('',xlim=c(low,upp),ylim=c(0,2),
+           ylab="",xlab="",xaxt="n",yaxt="n",bty="n")
+        axis(1, at = seq(mu1-3*sd1,mu1+3*sd1,by=sd1))
+        abline(v=x.breaks,col='white')
+        points(x=pts,
+               y=rep(1,length(pts)), 
+              pch=21,
+              col= cols,
+              bg = cols
+        )
+      } 
     }
-  }  
   })
+  
   
   #
   # This is the 2nd strip, with the difference
   # 
-  output$difference <- renderPlot({
+  output$difference.old <- renderPlot({
     low <- -150
     upp <- 150
     x.breaks <- seq(low,upp,15)
@@ -296,9 +274,32 @@ shinyServer <- function(input, output) {
       
       p
     }
-    #max(table(sampleMeans))+1))
+    
   })
   
+  
+  output$difference <- renderPlot({
+    
+    low <- -150
+    upp <- 150
+    # this one is at a different scale
+    x.breaks <- seq(low,upp,15)
+    
+    if (length(samp1())>0) {
+      thisOne1 <- tail(values$total1,showMean())
+      thisOne2 <- tail(values$total2,showMean())
+      diff <- thisOne1 - thisOne2
+      n <- length(diff)
+      par(bg="#EBEBEB",mar= c(2,1,1,1))
+      plot('',xlim=c(low,upp),ylim=c(0,2),
+           ylab="",xlab="",xaxt="n",yaxt="n",bty="n")
+      axis(1, at = x.breaks)
+      abline(v=x.breaks,col='white')
+      points(x=diff,y=rep(1,n),
+             pch=21,col='black',bg='black'
+      )
+    } 
+  })
   
   #
   # This is the tricky plot, with the histogram
@@ -339,7 +340,7 @@ shinyServer <- function(input, output) {
         
         # show histogram
         p <- ggplot(df, aes(x = x)) +
-          geom_histogram(binwidth = bin.width,alpha=0.5,) +
+          geom_histogram(binwidth = bin.width,alpha=0.5) +
           scale_x_continuous(limits=c(lo,up),
                              breaks = x.breaks,minor_breaks=NULL) +
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) +

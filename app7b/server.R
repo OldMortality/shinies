@@ -199,7 +199,7 @@ shinyServer <- function(input, output) {
       s1 <- samp1()
       s2 <- samp2()
       n <- length(s1)
-      cols <- c(rep('blue',n),rep('red',n))
+      cols <- c(rep('red',n),rep('blue',n))
       points(c(s1,s2),rep(0,(2*n)),pch=21,col=cols,bg=cols)
     }
     
