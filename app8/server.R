@@ -119,8 +119,15 @@ shinyServer <- function(input, output) {
     # and then split that up to get the means
     s1 <- rnorm(sample.size*n,mean=mu1,sd=sd1)
     s2 <- rnorm(sample.size*n,mean=mu2,sd=sd2)
-    means.1 <- unlist(lapply(split(s1, sort(rep_len(1:n, length(x)))),   mean))
-    means.2 <- unlist(lapply(split(s2, sort(rep_len(1:n, length(x)))),   mean))
+    if (n==1) {
+      # same result as in the else branch, but suppresses a warning.
+      means.1 <- mean(s1)
+      means.2 <- mean(s2)
+    } else {
+      means.1 <- unlist(lapply(split(s1, sort(rep_len(1:n, length(x)))),   mean))
+      means.2 <- unlist(lapply(split(s2, sort(rep_len(1:n, length(x)))),   mean))
+      
+    }
     values$total1 <- c(values$total1,means.1)
     values$total2 <- c(values$total2,means.2)
     values$diff <- c(values$diff,means.1-means.2)  
@@ -340,7 +347,7 @@ shinyServer <- function(input, output) {
         
         # show histogram
         p <- ggplot(df, aes(x = x)) +
-          geom_histogram(binwidth = bin.width,alpha=0.5) +
+          geom_histogram(binwidth = bin.width,alpha=0.5,) +
           scale_x_continuous(limits=c(lo,up),
                              breaks = x.breaks,minor_breaks=NULL) +
           scale_y_continuous(breaks = NULL,minor_breaks=NULL) +
