@@ -105,27 +105,27 @@ shinyServer <- function(input, output) {
   })
   
   
-  doSamples <- function(n) {
-    if (n == 1) {
+  doSamples <- function(n.samples) {
+    if (n.samples == 1) {
       showDiff$summary <- 1
       showSample(TRUE)
     } else {
       showDiff$summary <- 0
       showSample(FALSE)
     }
-    showMean(n)
+    showMean(n.samples)
     sample.size <- as.numeric(isolate(input$n))
-    # instead of taking n samples of, say 30, we are taking one sample of n * 30
+    # instead of taking n.samples samples of, say 30, we are taking one sample of n * 30
     # and then split that up to get the means
-    s1 <- rnorm(sample.size*n,mean=mu1,sd=sd1)
-    s2 <- rnorm(sample.size*n,mean=mu2,sd=sd2)
-    if (n==1) {
+    s1 <- rnorm(sample.size*n.samples,mean=mu1,sd=sd1)
+    s2 <- rnorm(sample.size*n.samples,mean=mu2,sd=sd2)
+    if (n.samples==1) {
       # same result as in the else branch, but suppresses a warning.
       means.1 <- mean(s1)
       means.2 <- mean(s2)
     } else {
-      means.1 <- unlist(lapply(split(s1, sort(rep_len(1:n, length(x)))),   mean))
-      means.2 <- unlist(lapply(split(s2, sort(rep_len(1:n, length(x)))),   mean))
+      means.1 <- unlist(lapply(split(s1, sort(rep_len(1:n.samples, length(s1)))),   mean))
+      means.2 <- unlist(lapply(split(s2, sort(rep_len(1:n.samples, length(s2)))),   mean))
       
     }
     values$total1 <- c(values$total1,means.1)
@@ -312,7 +312,7 @@ shinyServer <- function(input, output) {
   # This is the tricky plot, with the histogram
   #   of all sample means.
   #
-  output$samplemean <- renderPlot({
+  output$samplemean.old <- renderPlot({
     
     lo <- -150
     up <- 150
@@ -382,6 +382,41 @@ shinyServer <- function(input, output) {
     }
     
   }) 
+  
+  output$samplemean <- renderPlot({
+    
+    
+    lo <- -150
+    up <- 150
+    bin.width = 15
+    x.breaks <- seq(lo,up,2*bin.width)
+    
+    par(bg="#EBEBEB",mar= c(2,1,1,1))
+    plot('',xlim=c(lo,up),ylim=c(1,2),
+         ylab="",xlab="",xaxt="n",yaxt="n",bty="n")
+    axis(1, at = x.breaks)
+    abline(v=x.breaks,col='white')  
+    sampleMeans <- values$diff[-1]
+    if (length(sampleMeans)>0 ) {
+      if (length(sampleMeans) < 100 ) {
+        # show dotplot.
+        # put data in bins
+        x <- 20* round(sampleMeans/20)
+        stripchart(x,method='stack',add=T,pch=21,col='black', bg='black')
+      } else {
+        # show histogram
+        hist(sampleMeans,30,xlab="",ylab="",probability = T,
+             xlim=c(lo,up),xaxt="n",yaxt="n",main="")
+        axis(1, at = x.breaks)
+        if (input$shownormal ) {
+          sample.size <- isolate(as.numeric(input$n))
+          sd.hat <- sqrt((sd1^2 + sd2^2)/sample.size)
+          curve(dnorm(x,mean=mu1-mu2,sd=sd.hat),from = lo ,to=up,add=T,col='red')
+        }
+      }
+    }
+  })
+  
   
   
   getSummary1 <- function() {
