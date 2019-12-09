@@ -5,7 +5,6 @@ library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2) 
-#library('shinyBS)
 
 shinyServer <- function(input, output) {
   
@@ -15,7 +14,10 @@ shinyServer <- function(input, output) {
  
   mu <- 1711
   sd <- 92
-   
+  upp <- mu + 3 * sd
+  low <- mu - 3 * sd
+  x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
+  
   
   getSummary <- function() {
     str0 <- paste('Population mean height =',mu,'mm',sep=' ')
@@ -40,11 +42,6 @@ shinyServer <- function(input, output) {
     return(result) 
   }
     
-  
-  
-  upp <- mu + 3 * sd
-  low <- mu - 3 * sd
-  x.breaks <- round(seq(mu-3*sd,mu+3*sd,sd))
   
   
   output$plot1 <- renderPlot({ 

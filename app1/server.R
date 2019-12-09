@@ -6,14 +6,12 @@ shinyServer <- function(input, output) {
   sd <- 93
   upp <- xbar + 3 * sd
   low <- xbar - 3 * sd
-  x.breaks <- round(seq(xbar-3*sd,xbar+3*sd,sd))
+  x.breaks <- round(seq(low,upp,sd))
   
   getSummary <- function() {
     ht <- as.numeric(input$yourheight) 
-    diff <- xbar - ht
-    absdiff <- abs(diff)
-    d <- (absdiff)/sd
-    d <- round(100*d)/100 
+    absdiff <- abs(xbar - ht)
+    d <- round((absdiff)/sd,2)
     str0 <- paste('Population mean height =',xbar,'mm',sep=' ')
     str1 <- paste('Population standard deviation =',sd,'mm',sep=' ') 
     str2 <- paste('Your height =',input$yourheight,'mm',sep=' ')

@@ -1,11 +1,19 @@
 # app 2
 # Plots of height
 #   
+# install.packages("devtools")
+# library(devtools)
+# install_github("trestletech/shinyTable")
+# this one may not work in rstudio on Ubuntu
+
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
 library(ggplot2)
 library(shinyTable)
+
+
+
 
 shinyserver <- function(input, output) { 
   

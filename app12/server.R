@@ -80,25 +80,18 @@ shinyServer <- function(input, output) {
       p <- p + geom_hline(linetype=5,
                           yintercept=mean(f$fin,na.rm=T),
                           colour='black')
-      
-      
     } 
     
     if (!is.null(samp()) ) {
       p <- p +
        geom_point(data=samp(),aes(x=hei,y=fin),colour='red')
     }
-    col <- 'red'
-     
+    
     if (input$showalllines) {
-      
-      for (i in 1:length(alla1$a1s)) {
-        p <- p + geom_abline(intercept=alla0$a0s[i],slope=alla1$a1s[i],colour=col)
-      
-      }
+        p <- p + geom_abline(intercept=alla0$a0s,slope=alla1$a1s,colour='red')
     } else {
       i <- length(alla1$a1s)
-      p <- p + geom_abline(intercept=alla0$a0s[i],slope=alla1$a1s[i],colour=col)
+      p <- p + geom_abline(intercept=alla0$a0s[i],slope=alla1$a1s[i],colour='red')
     }
     
     p
