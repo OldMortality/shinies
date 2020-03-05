@@ -280,7 +280,7 @@ shinyServer <- function(input, output) {
   }
   
   getOneSampleSummary <- function() {
-    line <- "Each blue dot indicates a sample mean."
+    line <- "Blue dots indicate sample means."
     paste("<font size=4>",line,
           "</font>")
   }

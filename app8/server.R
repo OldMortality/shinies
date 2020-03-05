@@ -462,8 +462,8 @@ shinyServer <- function(input, output) {
   
   getSummary3 <- function() {
     result <- paste("Each black dot represents the difference",
-                    "between the blue and the red mean",
-                    "for a pair of samples.") 
+                    "between the sample means for the frequent exercisers",
+                    "and not frequent exercisers.") 
     return(result)
     
   }

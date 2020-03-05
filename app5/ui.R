@@ -9,7 +9,7 @@ library(DT)
 
 shinyUI <- dashboardPage(
   
-  dashboardHeader(title = "The distribution of sample means",
+  dashboardHeader(title = "The distribution of sample means (sampling distribution)",
                   titleWidth = 850),
   dashboardSidebar(useShinyjs(),
                    # link to the css stylesheet. It is in the www folder.
@@ -24,7 +24,7 @@ shinyUI <- dashboardPage(
                                   "50" = 50,
                                   "100"= 100)),
                    checkboxInput("shownormal",
-                                 "Show Normal distribution curve", FALSE)),
+                                 "Show sampling distribution curve", FALSE)),
   dashboardBody(
     # Boxes need to be put in a row (or column)
     fluidRow( 

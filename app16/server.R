@@ -44,19 +44,18 @@ shinyServer <- function(input, output) {
     
     input$actionButtonID
     
-    line0 <- paste("N =",length(b.pre$score)+length(g.pre$score),sep=' ')
-    
-    line1 <- paste("The mean score for non-females =",
-                    round(mean(b.pre$score),1),sep=' ')
-    line2 <- paste("The mean score for females = ",
+    line0 <- paste("N =",length(b.pre$score)+length(g.pre$score),sep=' ') 
+    line1 <- paste("The mean score for females = ",
                    round(mean(g.pre$score),1),sep=' ') 
+    line2 <- paste("The mean score for non-females =",
+                   round(mean(b.pre$score),1),sep=' ')
     line3 <- paste("The difference in sample means = ",
                    round(mean(g.pre$score)-mean(b.pre$score),1))
     t <- t.test(g.pre$score,b.pre$score)
     lower <- round(t$conf.int[1],1)
     upper <- round(t$conf.int[2],1)
-    line4 <- paste("A 95% Confidence inverval for the difference is from",
-                   lower,'to',upper,sep=' ')
+    line4 <- paste("A 95% Confidence inverval for the difference is (",
+                   lower,'to',upper,')',sep=' ')
     result <- paste(line0,line1,line2,line3,line4,sep="<br>")
     return(result)
   }
@@ -65,17 +64,17 @@ shinyServer <- function(input, output) {
     
     input$actionButtonID
     line0 <- paste("N =",length(b.post$score)+length(g.post$score),sep=' ')
-    line1 <- paste("The mean score for non-females =",
-                   round(mean(b.post$score),1),sep=' ')
-    line2 <- paste("The mean score for females =",
+    line1 <- paste("The mean score for females =",
                    round(mean(g.post$score),1),sep=' ') 
+    line2 <- paste("The mean score for non-females =",
+                   round(mean(b.post$score),1),sep=' ')
     line3 <- paste("The difference in sample means = ",
                    round(mean(g.post$score)-mean(b.post$score),1))
     t <- t.test(g.post$score,b.post$score)
     lower <- round(t$conf.int[1],1)
     upper <- round(t$conf.int[2],1)
-    line4 <- paste("A 95% Confidence inverval for the difference is from",
-                   lower,'to',upper,sep=' ')
+    line4 <- paste("A 95% Confidence inverval for the difference is (",
+                   lower,'to',upper,')',sep=' ')
     result <- paste(line0,line1,line2,line3,line4,sep="<br>")
     return(result)
   }
